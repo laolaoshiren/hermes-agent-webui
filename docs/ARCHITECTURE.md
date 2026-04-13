@@ -47,3 +47,9 @@ Hermes Control Center will not replace Hermes runtime internals. It will compose
 - accidentally coupling browser UX to ephemeral runtime state
 - under-designing approvals/auditability
 - deferring internationalization until it becomes painful
+
+## Live runtime hydration baseline
+
+Runtime shell pages no longer depend only on fixture selectors. A React Query hook now fetches `/api/sessions`, hydrates `/api/sessions/:id/messages` in parallel, builds the shared runtime snapshot through a pure live adapter, and falls back to the fixture snapshot if hydration fails.
+
+This keeps the shell route-safe during backend failures while allowing Overview, Runs, and Approvals to render from real Hermes session data when available.

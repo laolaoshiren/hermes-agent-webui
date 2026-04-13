@@ -3,11 +3,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
 import { getRuntimeCounts } from "@/features/runtime/selectors";
-
-const runtimeCounts = getRuntimeCounts();
+import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
 
 export default function OverviewPage() {
   const { t } = useTranslation();
+  const runtimeQuery = useRuntimeSnapshot();
+  const snapshot = runtimeQuery.data?.snapshot ?? null;
+  const runtimeCounts = snapshot ? getRuntimeCounts(snapshot) : null;
+  const runtimeSource = runtimeQuery.data?.source ?? null;
+  const hydrationError = runtimeQuery.data?.error ?? null;
 
   const focusAreas = [
     {
@@ -32,10 +36,10 @@ export default function OverviewPage() {
   ] as const;
 
   const runtimeMetrics = [
-    { label: t("overview.metrics.activeRuns"), value: runtimeCounts.activeRuns },
-    { label: t("overview.metrics.pendingApprovals"), value: runtimeCounts.pendingApprovals },
-    { label: t("overview.metrics.timelineEvents"), value: runtimeCounts.events },
-    { label: t("overview.metrics.artifacts"), value: runtimeCounts.artifacts },
+    { label: t("overview.metrics.activeRuns"), value: runtimeCounts?.activeRuns ?? "—" },
+    { label: t("overview.metrics.pendingApprovals"), value: runtimeCounts?.pendingApprovals ?? "—" },
+    { label: t("overview.metrics.timelineEvents"), value: runtimeCounts?.events ?? "—" },
+    { label: t("overview.metrics.artifacts"), value: runtimeCounts?.artifacts ?? "—" },
   ];
 
   const tags = [
@@ -95,6 +99,15 @@ export default function OverviewPage() {
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground">
             <p>{t("overview.runtimePulseDescription")}</p>
+            <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em]">
+              {runtimeQuery.isPending ? <span>{t("runtimeHydration.loading")}</span> : null}
+              {runtimeSource ? (
+                <Badge variant="outline">
+                  {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
+                </Badge>
+              ) : null}
+              {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {runtimeMetrics.map((metric) => (
                 <div key={metric.label} className="border border-border bg-background/60 p-4">

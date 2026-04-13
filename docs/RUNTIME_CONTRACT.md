@@ -211,3 +211,15 @@ Until backend adapters exist, frontend pages may use realistic mock runtime data
 - are approvals modeled as durable records with scope, actor, status, and expiry?
 - does the UI remain aligned with Hermes' current architecture rather than bypassing it?
 - is newly surfaced operator copy ready for English and Simplified Chinese localization?
+
+## Live hydration baseline
+
+The control center can now derive a `RuntimeContractSnapshot` from live `/api/sessions` records plus per-session message hydration.
+
+- one runtime run is created for each live Hermes session in this baseline
+- `session.source === "cron"` maps to `cron`; all other sources map to `manual`
+- run status derives from `is_active` / `ended_at`
+- transcript artifacts are created only when a session has at least one hydrated message
+- `user` / `assistant` messages become `message` timeline events
+- `tool` messages and `tool_calls` arrays become `tool_call` timeline events
+- approvals remain empty until a durable backend approval endpoint exists
