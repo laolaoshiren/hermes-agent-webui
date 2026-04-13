@@ -353,13 +353,14 @@ This log is intentionally public-facing and continuously append-only so both the
   - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
   - `npm run typecheck` ✅
   - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
-- Promotion/hygiene focus for this run:
-  - append the public devlog for traceability
-  - reopen a focused PR from `feat/issue-29-fast-mvp-parity` into `develop` for the backend-adapter delta beyond merged PR #30
-  - close stale issue #27, which was already satisfied by merged PR #28 but remained open in GitHub
+- Promotion/hygiene actions completed in this run:
+  - appended the public devlog for traceability
+  - opened PR #31 from `feat/issue-29-fast-mvp-parity` into `develop` for the backend-adapter delta beyond merged PR #30
+  - closed stale issue #27, which had already been satisfied by merged PR #28 but remained open in GitHub
+  - created follow-up issue #32 (`Fast MVP parity: add streaming chat transport and in-flight session UX`) from the internal simulated-user pass so the next increment stays issue-driven
 - Next focus:
-  - monitor the refreshed issue #29 PR until checks are green and mergeable
-  - then choose the next fast-parity slice between streaming chat (`/api/chat/start` + SSE) and tighter workspace/runtime alignment for adapter-backed sessions
+  - monitor PR #31 until checks are green and mergeable
+  - implement issue #32 as the next fast-parity slice once PR #31 lands
   - keep repository hygiene tight as the MVP branch train continues
 
 ## Working principles
