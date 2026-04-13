@@ -96,6 +96,21 @@ This log is intentionally public-facing and continuously append-only so both the
   - connect the adapter seam to live `/api/sessions` + session-message hydration instead of fixture-only sources
   - decide the next focused runtime slice between replay timeline enrichment and approval action surfaces
 
+## 2026-04-13 17:45 +08:00
+
+- Continued issue #2 on `feat/issue-2-runtime-adapter-scaffolding` with runtime adapter test coverage:
+  - added a lightweight Vitest harness to the existing Vite + TypeScript setup
+  - added focused `buildRuntimeSnapshot()` coverage for happy-path mapping, derived session previews, sorted events, and run/workspace aggregates
+  - locked invariant regressions for duplicate ids, missing linked entities, invalid event-kind link fields, and session/run workspace mismatches
+- Validation status:
+  - `npm run test -- --run` ✅
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Next focus:
+  - hydrate the runtime adapter from live Hermes session and runtime endpoints
+  - extend coverage as timeline replay and approval action surfaces gain real backend integration
+
 ## Working principles
 
 - plan-driven execution
