@@ -85,10 +85,10 @@ export default function App() {
           <div className="flex min-w-[220px] items-center border-r border-border px-5 shrink-0">
             <div>
               <div className="font-collapse text-xl font-bold tracking-wider uppercase blend-lighter">
-                Hermes Control Center
+                {t("appShell.productName")}
               </div>
               <div className="font-display text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
-                Web platform for Hermes Agent
+                {t("appShell.productTagline")}
               </div>
             </div>
           </div>
@@ -118,7 +118,7 @@ export default function App() {
 
           <div className="ml-auto flex items-center gap-3 px-4">
             <Badge variant="outline" className="hidden sm:inline-flex text-[10px] tracking-[0.18em] uppercase">
-              Foundation Sprint
+              {t("appShell.foundationBadge")}
             </Badge>
             <LanguageSwitcher />
           </div>
@@ -131,7 +131,9 @@ export default function App() {
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/workspaces" element={<WorkspacesPage />} />
           <Route path="/runs" element={<RunsPage />} />
+          <Route path="/runs/:runId" element={<RunsPage />} />
           <Route path="/approvals" element={<ApprovalsPage />} />
+          <Route path="/approvals/:approvalId" element={<ApprovalsPage />} />
           <Route path="/status" element={<StatusPage />} />
           <Route path="/sessions" element={<SessionsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
@@ -147,10 +149,10 @@ export default function App() {
       <footer className="relative z-2 border-t border-border">
         <div className="mx-auto flex max-w-[1480px] items-center justify-between px-6 py-3">
           <span className="font-display text-[0.8rem] tracking-[0.12em] uppercase opacity-70">
-            Hermes Control Center
+            {t("appShell.productName")}
           </span>
           <span className="font-display text-[0.7rem] tracking-[0.15em] uppercase text-foreground/40">
-            Independent OSS incubation for Hermes Agent
+            {t("appShell.footerTagline")}
           </span>
         </div>
       </footer>

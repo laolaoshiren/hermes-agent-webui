@@ -1,11 +1,24 @@
+import { Navigate, Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
-import { getArtifactsForRun, getTimelineForRun, runtimeContractSnapshot } from "@/features/runtime/mockData";
-import type { ArtifactSummary, RunStatus, RunSummary, RunTimelineEvent, TimelineEventStatus } from "@/features/runtime/types";
+import { runtimeContractSnapshot } from "@/features/runtime/mockData";
+import { getApprovalsForRun, getArtifactsForRun, getDefaultRun, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
+import type {
+  ApprovalSummary,
+  ArtifactSummary,
+  RunStatus,
+  RunSummary,
+  RunTimelineEvent,
+  TimelineEventStatus,
+} from "@/features/runtime/types";
 
-function formatTimestamp(value: string) {
+function formatTimestamp(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: "medium",
     timeStyle: "short",
@@ -46,6 +59,17 @@ function getEventText(
 
 function getArtifactLabel(artifact: ArtifactSummary, t: (key: string, options?: Record<string, unknown>) => string) {
   return t(`runtimeContent.artifacts.${artifact.id}.label`, { defaultValue: artifact.label });
+}
+
+function getApprovalText(
+  approval: ApprovalSummary,
+  field: "title" | "reason" | "resolutionNote",
+  fallback: string | null,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) {
+  if (!fallback) return "—";
+
+  return t(`runtimeContent.approvals.${approval.id}.${field}`, { defaultValue: fallback });
 }
 
 function TimelineEventRow({ event }: { event: RunTimelineEvent }) {
@@ -97,18 +121,64 @@ function ArtifactCard({ artifact }: { artifact: ArtifactSummary }) {
   );
 }
 
+function getApprovalStatusTone(status: ApprovalSummary["status"]) {
+  switch (status) {
+    case "pending":
+      return "text-warning";
+    case "approved":
+      return "text-success";
+    case "rejected":
+    case "expired":
+      return "text-destructive";
+    default:
+      return "text-foreground";
+  }
+}
+
 export default function RunsPage() {
   const { t } = useTranslation();
+  const { runId } = useParams();
 
-  const selectedRun = runtimeContractSnapshot.runs.find((run) => run.status === "running") ?? runtimeContractSnapshot.runs[0];
+  const defaultRun = getDefaultRun();
+  const matchedRun = runId ? getRunById(runId) : null;
+
+  if (!defaultRun) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow={t("runs.eyebrow")}
+          title={t("runs.title")}
+          description={t("runs.description")}
+          badge={t("runs.badge")}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("runs.emptyStateTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runs.emptyStateBody")}</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (runId && !matchedRun) {
+    return <Navigate to={`/runs/${defaultRun.id}`} replace />;
+  }
+
+  const selectedRun = matchedRun ?? defaultRun;
   const selectedTimeline = getTimelineForRun(selectedRun.id);
   const selectedArtifacts = getArtifactsForRun(selectedRun.id);
+  const selectedApprovals = getApprovalsForRun(selectedRun.id);
+  const selectedStartedAt = formatTimestamp(selectedRun.startedAt);
+  const selectedEndedAt = formatTimestamp(selectedRun.endedAt);
 
   const statusSummary = runtimeContractSnapshot.runs.map((run) => ({
     id: run.id,
     title: getRunTitle(run, t),
     status: run.status,
     summary: getRunSummary(run, t),
+    isSelected: run.id === selectedRun.id,
   }));
 
   return (
@@ -127,7 +197,13 @@ export default function RunsPage() {
           </CardHeader>
           <CardContent className="grid gap-3 text-sm">
             {statusSummary.map((run) => (
-              <div key={run.id} className="border border-border bg-background/60 p-4">
+              <Link
+                key={run.id}
+                to={`/runs/${run.id}`}
+                className={`block border bg-background/60 p-4 transition-colors hover:border-foreground/40 ${
+                  run.isSelected ? "border-foreground/50" : "border-border"
+                }`}
+              >
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="font-medium text-foreground">{run.title}</div>
                   <Badge variant="outline" className={getStatusTone(run.status)}>
@@ -135,7 +211,10 @@ export default function RunsPage() {
                   </Badge>
                 </div>
                 <div className="mt-2 text-sm leading-6 text-muted-foreground">{run.summary}</div>
-              </div>
+                <div className="mt-3 text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">
+                  {run.isSelected ? t("runs.selectedRunLabel") : t("runs.openRunLabel")}
+                </div>
+              </Link>
             ))}
           </CardContent>
         </Card>
@@ -144,33 +223,50 @@ export default function RunsPage() {
           <CardHeader>
             <CardTitle>{t("runs.selectedRunTitle")}</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-4 lg:grid-cols-2">
-            <div className="space-y-4 border border-border bg-background/60 p-4 text-sm">
-              <div>
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.sessionLabel")}</div>
-                <div className="mt-1 font-medium text-foreground">{selectedRun.sessionId}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.triggerLabel")}</div>
-                <div className="mt-1 font-medium text-foreground">{t(`runs.triggers.${selectedRun.trigger}`)}</div>
-              </div>
-              <div>
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.actorLabel")}</div>
-                <div className="mt-1 font-medium text-foreground">{selectedRun.primaryActor}</div>
-              </div>
+          <CardContent className="space-y-4">
+            <div className="space-y-2 border border-border bg-background/60 p-4 text-sm">
+              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.selectedRunLabel")}</div>
+              <div className="text-xl font-medium text-foreground">{getRunTitle(selectedRun, t)}</div>
+              <div className="leading-6 text-muted-foreground">{getRunSummary(selectedRun, t)}</div>
             </div>
-            <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-              <div className="border border-border bg-background/60 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.approvalLabel")}</div>
-                <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{selectedRun.approvalIds.length}</div>
+
+            <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-4 border border-border bg-background/60 p-4 text-sm">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.sessionLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedRun.sessionId}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.triggerLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{t(`runs.triggers.${selectedRun.trigger}`)}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.actorLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedRun.primaryActor}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.startedLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedStartedAt}</div>
+                </div>
+                <div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.endedLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedEndedAt ?? t("runs.liveLabel")}</div>
+                </div>
               </div>
-              <div className="border border-border bg-background/60 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.artifactLabel")}</div>
-                <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{selectedRun.artifactIds.length}</div>
-              </div>
-              <div className="border border-border bg-background/60 p-4">
-                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.eventLabel")}</div>
-                <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{selectedRun.eventCount}</div>
+
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.approvalLabel")}</div>
+                  <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{selectedRun.approvalIds.length}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.artifactLabel")}</div>
+                  <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{selectedRun.artifactIds.length}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.eventLabel")}</div>
+                  <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{selectedRun.eventCount}</div>
+                </div>
               </div>
             </div>
           </CardContent>
@@ -189,18 +285,50 @@ export default function RunsPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("runs.artifactsTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {selectedArtifacts.length > 0 ? (
-              selectedArtifacts.map((artifact) => <ArtifactCard key={artifact.id} artifact={artifact} />)
-            ) : (
-              <div className="text-sm text-muted-foreground">{t("runs.emptyArtifacts")}</div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("runs.relatedApprovalsTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {selectedApprovals.length > 0 ? (
+                selectedApprovals.map((approval) => (
+                  <Link
+                    key={approval.id}
+                    to={`/approvals/${approval.id}`}
+                    className="block border border-border bg-background/60 p-4 transition-colors hover:border-foreground/40"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="font-medium text-foreground">{getApprovalText(approval, "title", approval.title, t)}</div>
+                      <Badge variant="outline" className={getApprovalStatusTone(approval.status)}>
+                        {t(`approvals.statuses.${approval.status}`)}
+                      </Badge>
+                    </div>
+                    <div className="mt-2 text-sm leading-6 text-muted-foreground">
+                      {getApprovalText(approval, "reason", approval.reason, t)}
+                    </div>
+                    <div className="mt-3 text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("runs.openApproval")}</div>
+                  </Link>
+                ))
+              ) : (
+                <div className="text-sm text-muted-foreground">{t("runs.emptyApprovals")}</div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("runs.artifactsTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {selectedArtifacts.length > 0 ? (
+                selectedArtifacts.map((artifact) => <ArtifactCard key={artifact.id} artifact={artifact} />)
+              ) : (
+                <div className="text-sm text-muted-foreground">{t("runs.emptyArtifacts")}</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

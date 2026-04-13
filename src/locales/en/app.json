@@ -108,7 +108,17 @@
       "transcript": "Transcript",
       "screenshot": "Screenshot",
       "report": "Report"
-    }
+    },
+    "startedLabel": "Started",
+    "endedLabel": "Ended",
+    "liveLabel": "Live / not ended",
+    "selectedRunLabel": "Currently selected run",
+    "openRunLabel": "Open run review",
+    "relatedApprovalsTitle": "Approvals linked to selected run",
+    "openApproval": "Open approval review",
+    "emptyApprovals": "No approvals linked to this run.",
+    "emptyStateTitle": "No runs available yet",
+    "emptyStateBody": "Connect a runtime adapter or start a session-backed run to populate this review surface."
   },
   "approvals": {
     "eyebrow": "Governance",
@@ -140,7 +150,18 @@
       "pending": "Pending",
       "approved": "Approved",
       "expiringSoon": "Expiring soon"
-    }
+    },
+    "selectedApprovalTitle": "Selected approval",
+    "selectedApprovalLabel": "Currently selected approval",
+    "openApprovalLabel": "Open approval review",
+    "requestedAtLabel": "Requested at",
+    "relatedRunTitle": "Related run context",
+    "relatedRunStatusLabel": "Run status",
+    "latestRunEventLabel": "Latest run event",
+    "openRunReview": "Open run review",
+    "emptyStateTitle": "No approvals available yet",
+    "emptyStateBody": "Pending review requests will appear here once runtime policy events are connected.",
+    "relatedRunMissingBody": "The related run for this approval is not currently available in the shared runtime snapshot."
   },
   "runtimeContent": {
     "runs": {
@@ -236,5 +257,11 @@
       "automationLanes": "Automation lanes",
       "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
     }
+  },
+  "appShell": {
+    "productName": "Hermes Control Center",
+    "productTagline": "Web platform for Hermes Agent",
+    "foundationBadge": "Foundation Sprint",
+    "footerTagline": "Independent OSS incubation for Hermes Agent"
   }
 }
