@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
-import { getApprovalById, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
+import { getApprovalById, getDefaultApproval, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
 import type { ApprovalStatus, ApprovalSummary } from "@/features/runtime/types";
+import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
 
 function formatTimestamp(value: string | null) {
   if (!value) return "—";
@@ -54,11 +55,35 @@ function getRunText(
 export default function ApprovalsPage() {
   const { t } = useTranslation();
   const { approvalId } = useParams();
+  const runtimeQuery = useRuntimeSnapshot();
+  const snapshot = runtimeQuery.data?.snapshot ?? runtimeContractSnapshot;
+  const runtimeSource = runtimeQuery.data?.source ?? "fixture";
+  const hydrationError = runtimeQuery.data?.error ?? null;
 
   const soonThresholdMs = 24 * 60 * 60 * 1000;
   const [comparisonTime] = useState(() => Date.now());
-  const defaultApproval = runtimeContractSnapshot.approvals.find((approval) => approval.status === "pending") ?? runtimeContractSnapshot.approvals[0];
-  const matchedApproval = approvalId ? getApprovalById(approvalId) : null;
+  const defaultApproval = getDefaultApproval(snapshot);
+  const matchedApproval = approvalId ? getApprovalById(snapshot, approvalId) : null;
+
+  if (runtimeQuery.isPending) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow={t("approvals.eyebrow")}
+          title={t("approvals.title")}
+          description={t("approvals.description")}
+          badge={t("approvals.badge")}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("runtimeHydration.loadingTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runtimeHydration.loadingBody")}</CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!defaultApproval) {
     return (
@@ -68,6 +93,14 @@ export default function ApprovalsPage() {
           title={t("approvals.title")}
           description={t("approvals.description")}
           badge={t("approvals.badge")}
+          actions={
+            <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em]">
+              <Badge variant="outline">
+                {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
+              </Badge>
+              {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
+            </div>
+          }
         />
 
         <Card>
@@ -85,14 +118,14 @@ export default function ApprovalsPage() {
   }
 
   const selectedApproval = matchedApproval ?? defaultApproval;
-  const relatedRun = getRunById(selectedApproval.runId);
-  const relatedTimeline = relatedRun ? getTimelineForRun(relatedRun.id) : [];
+  const relatedRun = getRunById(snapshot, selectedApproval.runId);
+  const relatedTimeline = relatedRun ? getTimelineForRun(snapshot, relatedRun.id) : [];
   const latestRelatedEvent = relatedTimeline[relatedTimeline.length - 1] ?? null;
 
   const metrics = {
-    pending: runtimeContractSnapshot.approvals.filter((approval) => approval.status === "pending").length,
-    approved: runtimeContractSnapshot.approvals.filter((approval) => approval.status === "approved").length,
-    expiringSoon: runtimeContractSnapshot.approvals.filter((approval) => {
+    pending: snapshot.approvals.filter((approval) => approval.status === "pending").length,
+    approved: snapshot.approvals.filter((approval) => approval.status === "approved").length,
+    expiringSoon: snapshot.approvals.filter((approval) => {
       if (approval.status !== "pending" || !approval.expiresAt) {
         return false;
       }
@@ -109,6 +142,14 @@ export default function ApprovalsPage() {
         title={t("approvals.title")}
         description={t("approvals.description")}
         badge={t("approvals.badge")}
+        actions={
+          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em]">
+            <Badge variant="outline">
+              {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
+            </Badge>
+            {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
+          </div>
+        }
       />
 
       <Card>
@@ -137,7 +178,7 @@ export default function ApprovalsPage() {
             <CardTitle>{t("approvals.queueTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {runtimeContractSnapshot.approvals.map((approval) => {
+            {snapshot.approvals.map((approval) => {
               const isSelected = approval.id === selectedApproval.id;
 
               return (

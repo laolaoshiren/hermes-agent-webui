@@ -263,5 +263,13 @@
     "productTagline": "Web platform for Hermes Agent",
     "foundationBadge": "Foundation Sprint",
     "footerTagline": "Independent OSS incubation for Hermes Agent"
+  },
+  "runtimeHydration": {
+    "sourceLive": "Live runtime",
+    "sourceFixture": "Fixture fallback",
+    "loading": "Hydrating live sessions…",
+    "loadingTitle": "Hydrating live runtime",
+    "loadingBody": "Loading sessions and replay data from the Hermes backend before rendering route-specific runtime details.",
+    "fallbackWarning": "Fixture fallback active: {{message}}"
   }
 }

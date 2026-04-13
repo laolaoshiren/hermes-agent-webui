@@ -126,6 +126,29 @@ This log is intentionally public-facing and continuously append-only so both the
   - rebase runtime adapter work on the latest `develop` if needed after PR #9 promotion
   - start live `/api/sessions` + session-message hydration through the adapter seam behind the new test harness
 
+## 2026-04-13 18:37 +08:00
+
+- Continued issue #2 on fresh branch `feat/issue-2-live-session-hydration` with the first live runtime hydration baseline:
+  - added `docs/plans/2026-04-13-issue-2-live-session-hydration.md`
+  - added `src/features/runtime/liveAdapter.ts` and coverage in `src/features/runtime/liveAdapter.test.ts`
+  - added `src/features/runtime/useRuntimeSnapshot.ts` plus fallback-path coverage in `src/features/runtime/useRuntimeSnapshot.test.ts`
+  - refactored runtime selectors to operate on injected snapshots instead of fixture globals
+  - connected Overview / Runs / Approvals to live session hydration with compact source and fallback messaging
+  - localized new runtime hydration shell copy in English + Simplified Chinese
+  - documented the live hydration baseline in `docs/RUNTIME_CONTRACT.md` and `docs/ARCHITECTURE.md`
+- Validation status:
+  - `npm run test -- --run` ✅
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ (existing Vite chunk-size warning remains non-blocking)
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent quality review ✅ APPROVED
+- Next focus:
+  - push this live-hydration slice and open a PR into `develop`
+  - decide the next issue #2 split between richer run replay semantics and durable approval backend ingestion
+  - consider page-level integration tests for live vs fixture runtime query states as the shell gets more dynamic
+
 ## Working principles
 
 - plan-driven execution

@@ -263,5 +263,13 @@
     "productTagline": "Hermes Agent 的 Web 平台",
     "foundationBadge": "基础冲刺阶段",
     "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"
+  },
+  "runtimeHydration": {
+    "sourceLive": "实时运行时",
+    "sourceFixture": "示例回退",
+    "loading": "正在注入实时会话…",
+    "loadingTitle": "正在注入实时运行时",
+    "loadingBody": "正在从 Hermes 后端加载会话与回放数据，然后再渲染对应路由的运行时详情。",
+    "fallbackWarning": "当前使用示例回退：{{message}}"
   }
 }

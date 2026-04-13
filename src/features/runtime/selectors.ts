@@ -1,4 +1,3 @@
-import { runtimeContractSnapshot } from "@/features/runtime/mockData";
 import type {
   ApprovalSummary,
   ArtifactSummary,
@@ -7,40 +6,37 @@ import type {
   RuntimeContractSnapshot,
 } from "@/features/runtime/types";
 
-function getSnapshot(): RuntimeContractSnapshot {
-  return runtimeContractSnapshot;
+export function getDefaultRun(snapshot: RuntimeContractSnapshot): RunSummary | null {
+  return snapshot.runs.find((run) => run.status === "running") ?? snapshot.runs[0] ?? null;
 }
 
-export function getDefaultRun(): RunSummary | null {
-  const snapshot = getSnapshot();
-  return snapshot.runs.find((run) => run.status === "running") ?? snapshot.runs[0];
+export function getRunById(snapshot: RuntimeContractSnapshot, runId: string): RunSummary | null {
+  return snapshot.runs.find((run) => run.id === runId) ?? null;
 }
 
-export function getRunById(runId: string): RunSummary | null {
-  return getSnapshot().runs.find((run) => run.id === runId) ?? null;
+export function getDefaultApproval(snapshot: RuntimeContractSnapshot): ApprovalSummary | null {
+  return snapshot.approvals.find((approval) => approval.status === "pending") ?? snapshot.approvals[0] ?? null;
 }
 
-export function getApprovalById(approvalId: string): ApprovalSummary | null {
-  return getSnapshot().approvals.find((approval) => approval.id === approvalId) ?? null;
+export function getApprovalById(snapshot: RuntimeContractSnapshot, approvalId: string): ApprovalSummary | null {
+  return snapshot.approvals.find((approval) => approval.id === approvalId) ?? null;
 }
 
-export function getTimelineForRun(runId: string): RunTimelineEvent[] {
-  return getSnapshot()
-    .events.filter((event) => event.runId === runId)
+export function getTimelineForRun(snapshot: RuntimeContractSnapshot, runId: string): RunTimelineEvent[] {
+  return snapshot.events
+    .filter((event) => event.runId === runId)
     .sort((left, right) => left.timestamp.localeCompare(right.timestamp));
 }
 
-export function getApprovalsForRun(runId: string): ApprovalSummary[] {
-  return getSnapshot().approvals.filter((approval) => approval.runId === runId);
+export function getApprovalsForRun(snapshot: RuntimeContractSnapshot, runId: string): ApprovalSummary[] {
+  return snapshot.approvals.filter((approval) => approval.runId === runId);
 }
 
-export function getArtifactsForRun(runId: string): ArtifactSummary[] {
-  return getSnapshot().artifacts.filter((artifact) => artifact.runId === runId);
+export function getArtifactsForRun(snapshot: RuntimeContractSnapshot, runId: string): ArtifactSummary[] {
+  return snapshot.artifacts.filter((artifact) => artifact.runId === runId);
 }
 
-export function getRuntimeCounts() {
-  const snapshot = getSnapshot();
-
+export function getRuntimeCounts(snapshot: RuntimeContractSnapshot) {
   return {
     workspaces: snapshot.workspaces.length,
     sessions: snapshot.sessions.length,

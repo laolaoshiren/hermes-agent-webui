@@ -13,6 +13,7 @@ import type {
   RunTimelineEvent,
   TimelineEventStatus,
 } from "@/features/runtime/types";
+import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
 
 function formatTimestamp(value: string | null) {
   if (!value) {
@@ -138,9 +139,33 @@ function getApprovalStatusTone(status: ApprovalSummary["status"]) {
 export default function RunsPage() {
   const { t } = useTranslation();
   const { runId } = useParams();
+  const runtimeQuery = useRuntimeSnapshot();
+  const snapshot = runtimeQuery.data?.snapshot ?? runtimeContractSnapshot;
+  const runtimeSource = runtimeQuery.data?.source ?? "fixture";
+  const hydrationError = runtimeQuery.data?.error ?? null;
 
-  const defaultRun = getDefaultRun();
-  const matchedRun = runId ? getRunById(runId) : null;
+  const defaultRun = getDefaultRun(snapshot);
+  const matchedRun = runId ? getRunById(snapshot, runId) : null;
+
+  if (runtimeQuery.isPending) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow={t("runs.eyebrow")}
+          title={t("runs.title")}
+          description={t("runs.description")}
+          badge={t("runs.badge")}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("runtimeHydration.loadingTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runtimeHydration.loadingBody")}</CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!defaultRun) {
     return (
@@ -150,6 +175,14 @@ export default function RunsPage() {
           title={t("runs.title")}
           description={t("runs.description")}
           badge={t("runs.badge")}
+          actions={
+            <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em]">
+              <Badge variant="outline">
+                {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
+              </Badge>
+              {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
+            </div>
+          }
         />
 
         <Card>
@@ -167,13 +200,13 @@ export default function RunsPage() {
   }
 
   const selectedRun = matchedRun ?? defaultRun;
-  const selectedTimeline = getTimelineForRun(selectedRun.id);
-  const selectedArtifacts = getArtifactsForRun(selectedRun.id);
-  const selectedApprovals = getApprovalsForRun(selectedRun.id);
+  const selectedTimeline = getTimelineForRun(snapshot, selectedRun.id);
+  const selectedArtifacts = getArtifactsForRun(snapshot, selectedRun.id);
+  const selectedApprovals = getApprovalsForRun(snapshot, selectedRun.id);
   const selectedStartedAt = formatTimestamp(selectedRun.startedAt);
   const selectedEndedAt = formatTimestamp(selectedRun.endedAt);
 
-  const statusSummary = runtimeContractSnapshot.runs.map((run) => ({
+  const statusSummary = snapshot.runs.map((run) => ({
     id: run.id,
     title: getRunTitle(run, t),
     status: run.status,
@@ -188,6 +221,14 @@ export default function RunsPage() {
         title={t("runs.title")}
         description={t("runs.description")}
         badge={t("runs.badge")}
+        actions={
+          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em]">
+            <Badge variant="outline">
+              {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
+            </Badge>
+            {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
+          </div>
+        }
       />
 
       <div className="grid gap-4 xl:grid-cols-[0.95fr_1.35fr]">
