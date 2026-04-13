@@ -338,3 +338,26 @@ This log is intentionally public-facing and continuously append-only so both the
 - visible public logs for every development wave
 - frequent small commits over giant opaque dumps
 - review and verification before each promotion step
+
+## 2026-04-14 01:54 +08:00
+
+- Checked repo/GitHub state from `develop`: no open PRs were waiting to merge, the latest merged increment was PR #24, and the next product-shell trust gap was on the selected run review surface.
+- Ran an internal simulated-user pass, created issue #25 (`Product shell: add run review trust context and workspace-safe handoff`), and continued on fresh branch `feat/issue-25-run-review-context`.
+- Added the run-review trust-context increment:
+  - added `docs/plans/2026-04-14-issue-25-run-review-trust-context.md`
+  - updated `src/pages/RunsPage.tsx` so selected run review now surfaces session handoff, linked workspace/repository/default-branch/policy context, and preserves workspace scope on approval/session drill-ins when applicable
+  - updated `src/pages/RunsPage.workspaceFilter.test.ts` and `src/pages/RunsPage.test.ts` to cover scoped handoff preservation plus canonical unscoped behavior
+  - localized the new run-review trust chrome in English + Simplified Chinese
+  - documented the route-safe run-review trust context in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent quality review ✅ APPROVED
+- Validation status:
+  - `npm run test -- --run src/pages/RunsPage.workspaceFilter.test.ts src/pages/RunsPage.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - run full verification for the issue #25 branch
+  - commit and push the branch, then open PR into `develop`
+  - continue tightening run/session/approval replayability without breaking the shared runtime contract

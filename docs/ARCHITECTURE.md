@@ -83,6 +83,8 @@ The `/runs` route now accepts an optional `workspace` query parameter so operato
 - workspace queue scope should be derived through `src/pages/runsWorkspaceFilter.ts`, not recomputed inline in route components
 - the active workspace filter may narrow the visible run list, but it must never mutate the shared snapshot or invent new run records
 - queue links rendered from `WorkspacesPage` should point to `/runs?workspace=:workspaceSlug` so the state survives reloads and deep links
+- the selected run review should surface route-safe trust context from linked session/workspace records, including workspace, repository, default branch, and policy metadata when available
+- session and approval drill-in links rendered from a workspace-scoped run review should preserve the active workspace query parameter only when the selected run belongs to that scope
 - the Runs page should preserve its existing replay/approval/artifact review layout while making the active workspace scope visible and offering a direct return path to `/workspaces/:workspaceSlug`
 
 ## Workspace-scoped approvals handoff

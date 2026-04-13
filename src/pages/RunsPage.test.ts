@@ -26,12 +26,17 @@ const singleReplaySnapshot = {
       title: "Replay focus run",
       summary: "Render the selected replay summary.",
       status: "running",
-      approvalIds: [],
+      approvalIds: ["approval-pr-9-promotion"],
       artifactIds: [],
       eventCount: 1,
     },
   ],
-  approvals: [],
+  approvals: runtimeContractSnapshot.approvals
+    .filter((approval) => approval.id === "approval-pr-9-promotion")
+    .map((approval) => ({
+      ...approval,
+      runId: "run-replay-focus",
+    })),
   artifacts: [],
   events: [
     {
@@ -91,5 +96,38 @@ describe("RunsPage", () => {
     expect(markup).toContain("Selected run replay context");
     expect(markup).toContain("1 replay event");
     expect(markup).toContain("Single event detail.");
+  });
+
+  it("surfaces selected run trust context and canonical handoff links", () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        I18nextProvider,
+        { i18n },
+        createElement(
+          MemoryRouter,
+          { initialEntries: ["/runs/run-replay-focus"] },
+          createElement(
+            Routes,
+            null,
+            createElement(Route, {
+              path: "/runs/:runId",
+              element: createElement(RunsPage),
+            }),
+          ),
+        ),
+      ),
+    );
+
+    expect(markup).toContain("Run trust context");
+    expect(markup).toContain("Session handoff");
+    expect(markup).toContain("Runtime contract foundation and approval review slices");
+    expect(markup).toContain("sess-20260413-runtime-contract");
+    expect(markup).toContain("Hermes Control Center");
+    expect(markup).toContain("laolaoshiren/hermes-control-center");
+    expect(markup).toContain("develop");
+    expect(markup).toContain("maintainer-safe");
+    expect(markup).toContain("/sessions/sess-20260413-runtime-contract");
+    expect(markup).toContain("/approvals/approval-pr-9-promotion");
+    expect(markup).not.toContain("?workspace=hermes-control-center");
   });
 });

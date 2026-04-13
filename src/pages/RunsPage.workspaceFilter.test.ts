@@ -52,12 +52,23 @@ const multiWorkspaceSnapshot = {
       title: "Triage support backlog",
       summary: "Prioritize the support automation queue.",
       status: "queued" as const,
-      approvalIds: [],
+      approvalIds: ["approval-customer-support-policy"],
       artifactIds: [],
       eventCount: 0,
     },
   ],
-  approvals: runtimeContractSnapshot.approvals.filter((approval) => approval.runId !== "run-customer-support-triage"),
+  approvals: [
+    ...runtimeContractSnapshot.approvals.filter((approval) => approval.runId !== "run-customer-support-triage"),
+    {
+      ...runtimeContractSnapshot.approvals[0],
+      id: "approval-customer-support-policy",
+      runId: "run-customer-support-triage",
+      status: "pending" as const,
+      title: "Approve customer support policy rollout",
+      reason: "The support workspace requires a policy confirmation before automation triage starts.",
+      resolutionNote: null,
+    },
+  ],
   artifacts: runtimeContractSnapshot.artifacts.filter((artifact) => artifact.runId !== "run-customer-support-triage"),
   events: runtimeContractSnapshot.events.filter((event) => event.runId !== "run-customer-support-triage"),
 };
@@ -153,11 +164,20 @@ describe("RunsPage workspace filter", () => {
     expect(markup).toContain("/workspaces/customer-support");
   });
 
+  it("preserves workspace-scoped session and approval handoff links on run review", () => {
+    const { markup } = renderRunsRoute("/runs/run-customer-support-triage?workspace=customer-support");
+
+    expect(markup).toContain("/sessions/sess-customer-support?workspace=customer-support");
+    expect(markup).toContain("/approvals/approval-customer-support-policy?workspace=customer-support");
+  });
+
   it("falls back to the global queue when no workspace filter is present", () => {
     const { markup } = renderRunsRoute("/runs");
 
     expect(markup).toContain("Scaffold runtime adapter seam");
     expect(markup).toContain("Triage support backlog");
     expect(markup).not.toContain("Workspace-scoped queue");
+    expect(markup).not.toContain("/sessions/sess-customer-support?workspace=customer-support");
+    expect(markup).not.toContain("/approvals/approval-customer-support-policy?workspace=customer-support");
   });
 });
