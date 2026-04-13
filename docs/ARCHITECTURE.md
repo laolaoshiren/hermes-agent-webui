@@ -63,6 +63,16 @@ The `/sessions` route remains the transcript explorer and search entry point, bu
 - page components should derive session review state through `src/pages/sessionReview.ts` instead of recomputing session/run relationships inline
 - selected-session UI must stay bilingual and should hand operators off to `/runs/:runId` when a derived runtime run exists
 
+## Workspace review surface
+
+The `/workspaces` route is no longer a static placeholder. It is a read-only operator surface, with optional drill-in via `/workspaces/:workspaceSlug`, backed by the shared runtime snapshot.
+
+- workspace selection, canonical redirect behavior, and workload metrics should be derived through `src/pages/workspaceReview.ts`
+- page components should treat `RuntimeContractSnapshot.workspaces` plus linked session/run/approval/artifact relationships as the source of truth for workspace context
+- the route may render live-adapter workspaces even before dedicated backend workspace APIs exist, but the UI must stay explicit that this is review/handoff state rather than full workspace management
+- workspace review UI should hand operators off into `/sessions/:sessionId`, `/runs/:runId`, and `/approvals/:approvalId` instead of duplicating those deeper review surfaces
+- new workspace shell copy must remain bilingual and follow the same live-vs-fixture hydration badge pattern used by other runtime pages
+
 ## Replay timeline enrichment
 
 Replay semantics now stay inside the adapter boundary instead of leaking into page components.
