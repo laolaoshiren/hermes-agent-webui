@@ -122,7 +122,7 @@ describe("RunsPage", () => {
     expect(markup).toContain("Session handoff");
     expect(markup).toContain("Runtime contract foundation and approval review slices");
     expect(markup).toContain("sess-20260413-runtime-contract");
-    expect(markup).toContain("Hermes Control Center");
+    expect(markup).toContain("Hermes Agent Web UI");
     expect(markup).toContain("laolaoshiren/hermes-control-center");
     expect(markup).toContain("develop");
     expect(markup).toContain("maintainer-safe");

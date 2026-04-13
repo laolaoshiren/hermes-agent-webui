@@ -16,7 +16,7 @@
   },
   "overview": {
     "eyebrow": "Program direction",
-    "title": "Hermes Control Center",
+    "title": "Hermes Agent Web UI",
     "description": "A product-grade web platform for Hermes Agent: workspace-first UX, replayable autonomous runs, approvals, observability, and multilingual operations from the start.",
     "badge": "v0.1 foundation",
     "thesisTitle": "Product thesis",
@@ -455,7 +455,7 @@
     }
   },
   "appShell": {
-    "productName": "Hermes Control Center",
+    "productName": "Hermes Agent Web UI",
     "productTagline": "Web platform for Hermes Agent",
     "foundationBadge": "Foundation Sprint",
     "footerTagline": "Independent OSS incubation for Hermes Agent"
