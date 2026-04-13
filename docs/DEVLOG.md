@@ -371,6 +371,36 @@ This log is intentionally public-facing and continuously append-only so both the
 - frequent small commits over giant opaque dumps
 - review and verification before each promotion step
 
+## 2026-04-14 06:31 +08:00
+
+- Checked repo/GitHub state at the start of the cron run from the active MVP branch and found PR #31 (`feat: add issue-29 MVP backend adapter`) mergeable with green GitHub Actions checks, so promotion came first.
+- Merged PR #31 into `develop`, synced the branch locally, and deleted the completed `feat/issue-29-fast-mvp-parity` branch to keep the repo tidy.
+- Continued issue #32 on a fresh branch `feat/issue-32-streaming-chat-ux`, but kept this run intentionally scoped to the first reviewable in-flight UX slice before full SSE transport work.
+- Added plan-driven issue #32 documentation:
+  - added `docs/plans/2026-04-14-issue-32-pending-hydration-chat-ux.md`
+- Implemented the pending-hydration chat UX hardening slice:
+  - updated `src/pages/SessionsPage.tsx` so runtime hydration no longer replaces the entire Sessions surface with a blocking loader
+  - preserved workspace scope and requested-session route intent while runtime snapshot data is still pending
+  - prevented unresolved session routes from rendering the wrong transcript or enabling the composer too early
+  - preserved provisional workspace scope when starting a new chat before hydration completes
+  - fixed a reviewer-found edge case so deleting the currently selected session returns safely to the base Sessions route instead of leaving a stale detail URL behind
+- Added/updated focused regression coverage:
+  - `src/pages/SessionsPage.chat.test.ts`
+  - `src/pages/SessionsPage.route.test.ts`
+  - `src/pages/SessionsPage.redirect.test.ts`
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent quality review ✅ APPROVED after fixing the selected-session delete-route edge case
+- Validation status:
+  - `npm run test -- --run src/pages/SessionsPage.chat.test.ts src/pages/SessionsPage.route.test.ts src/pages/SessionsPage.redirect.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - push this issue #32 pending-hydration slice and open the PR into `develop`
+  - continue issue #32 with actual streaming transport (`/api/chat/start` + SSE) now that the route-safe in-flight shell behavior is hardened
+  - keep the MVP branch train small and reviewable while preserving bilingual/runtime-contract discipline
+
 ## 2026-04-14 01:54 +08:00
 
 - Checked repo/GitHub state from `develop`: no open PRs were waiting to merge, the latest merged increment was PR #24, and the next product-shell trust gap was on the selected run review surface.

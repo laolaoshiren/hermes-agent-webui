@@ -81,6 +81,10 @@ function formatRuntimeTimestamp(value: string | null | undefined) {
   }).format(new Date(value));
 }
 
+function buildSessionsPath(workspaceSlug: string | null) {
+  return workspaceSlug ? `/sessions?workspace=${workspaceSlug}` : "/sessions";
+}
+
 function buildSessionPath(sessionId: string, workspaceSlug: string | null) {
   return workspaceSlug ? `/sessions/${sessionId}?workspace=${workspaceSlug}` : `/sessions/${sessionId}`;
 }
@@ -455,24 +459,32 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const filtered = searchResults ? sessions.filter((session) => snippetMap.has(session.id)) : sessions;
   const workspaceFilter = deriveSessionsWorkspaceFilter(snapshot, workspaceSlug);
   const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
-  const visibleSessionIds = new Set(workspaceFilter.filteredSessions.map((session) => session.id));
-  if (activeWorkspaceSlug) {
-    for (const optimisticSessionId of optimisticWorkspaceSessionIdsBySlug[activeWorkspaceSlug] ?? []) {
+  const runtimeStillLoading = runtimeQuery.isPending;
+  const effectiveWorkspaceSlug = activeWorkspaceSlug ?? (runtimeStillLoading ? workspaceSlug : null);
+  const hasRuntimeSnapshotData = runtimeQuery.data !== undefined;
+  const visibleSessionIds = new Set(
+    (hasRuntimeSnapshotData ? workspaceFilter.filteredSessions : filtered).map((session) => session.id),
+  );
+  if (effectiveWorkspaceSlug) {
+    for (const optimisticSessionId of optimisticWorkspaceSessionIdsBySlug[effectiveWorkspaceSlug] ?? []) {
       visibleSessionIds.add(optimisticSessionId);
     }
   }
   const visibleSessions = filtered.filter((session) => visibleSessionIds.has(session.id));
-  const review = deriveSessionReview(sessions, snapshot, sessionId, visibleSessionIds);
+  const reviewVisibleSessionIds = hasRuntimeSnapshotData || !sessionId ? visibleSessionIds : new Set<string>([sessionId]);
+  const review = deriveSessionReview(sessions, snapshot, sessionId, reviewVisibleSessionIds);
   const scopedRepositoryLabel = getRepositoryLabel(snapshot, workspaceFilter.selectedWorkspace?.id, t("sessions.noRepositoryLinked"));
   const selectedSession = review.selectedSession ?? null;
+  const pendingRequestedSession =
+    runtimeStillLoading && !hasRuntimeSnapshotData && Boolean(sessionId) && !sessions.some((session) => session.id === sessionId);
   const workspacePathMatchesScope = (workspacePath: string | null | undefined) => {
-    if (!activeWorkspaceSlug || typeof workspacePath !== "string" || workspacePath.length === 0) {
+    if (!effectiveWorkspaceSlug || typeof workspacePath !== "string" || workspacePath.length === 0) {
       return false;
     }
 
     const tail = workspacePath.split("/").filter(Boolean).at(-1) ?? null;
     const repositoryName = workspaceFilter.selectedWorkspace?.repository?.name ?? null;
-    return tail === activeWorkspaceSlug || (repositoryName !== null && tail === repositoryName);
+    return tail === effectiveWorkspaceSlug || (repositoryName !== null && tail === repositoryName);
   };
   const scopedChatWorkspacePath =
     selectedSession?.workspace ??
@@ -527,6 +539,8 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
       setSessions((prev) => prev.filter((session) => session.id !== id));
       if (selectedSession?.id === id) {
         setSelectedMessages([]);
+        setConversationError(null);
+        navigate(buildSessionsPath(effectiveWorkspaceSlug));
       }
     } catch (error) {
       showToast(t("sessions.deleteSessionFailedToast", { message: getErrorMessage(error) }), "error");
@@ -581,7 +595,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     try {
       await createSession({
         navigateToSession: true,
-        workspaceSlug: activeWorkspaceSlug,
+        workspaceSlug: effectiveWorkspaceSlug,
         workspacePath: scopedChatWorkspacePath,
       });
       setComposerValue("");
@@ -601,7 +615,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     setSendPending(true);
     let activeSession = selectedSession;
     let previousMessages = selectedMessages ?? [];
-    const nextWorkspaceSlug = activeWorkspaceSlug;
+    const nextWorkspaceSlug = effectiveWorkspaceSlug;
     const nextWorkspacePath = selectedSession?.workspace ?? scopedChatWorkspacePath;
 
     try {
@@ -667,32 +681,12 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     );
   }
 
-  if (runtimeQuery.isPending) {
-    return (
-      <div className="space-y-6">
-        <PageHeader
-          eyebrow={t("sessions.eyebrow")}
-          title={t("sessions.title")}
-          description={t("sessions.description")}
-          badge={t("sessions.badge")}
-        />
-
-        <Card>
-          <CardHeader>
-            <CardTitle>{t("runtimeHydration.loadingTitle")}</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runtimeHydration.loadingBody")}</CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  if (workspaceFilter.shouldClearInvalidWorkspace) {
+  if (!runtimeStillLoading && workspaceFilter.shouldClearInvalidWorkspace) {
     return <Navigate to={sessionId ? `/sessions/${sessionId}` : "/sessions"} replace />;
   }
 
-  if (review.shouldRedirectToCanonical && review.canonicalSessionId) {
-    return <Navigate to={buildSessionPath(review.canonicalSessionId, activeWorkspaceSlug)} replace />;
+  if (!runtimeStillLoading && review.shouldRedirectToCanonical && review.canonicalSessionId) {
+    return <Navigate to={buildSessionPath(review.canonicalSessionId, effectiveWorkspaceSlug)} replace />;
   }
 
   return (
@@ -710,6 +704,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                 {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
               </Badge>
             ) : null}
+            {runtimeStillLoading ? <span className="text-muted-foreground">{t("runtimeHydration.loadingTitle")}</span> : null}
             {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
           </div>
         }
@@ -817,7 +812,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                     snippet={snippetMap.get(session.id)}
                     isSelected={review.selectedSession?.id === session.id}
                     onDelete={() => void handleDelete(session.id)}
-                    workspaceSlug={activeWorkspaceSlug}
+                    workspaceSlug={effectiveWorkspaceSlug}
                   />
                 ))}
               </div>
@@ -840,9 +835,15 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
             <CardContent className="space-y-4">
               <div className="space-y-2 border border-border bg-background/60 p-4 text-sm">
                 <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.selectedSessionLabel")}</div>
-                <div className="text-xl font-medium text-foreground">{getConversationTitle(selectedSession, t("sessions.emptyConversationTitle"))}</div>
+                <div className="text-xl font-medium text-foreground">
+                  {pendingRequestedSession
+                    ? t("runtimeHydration.loadingTitle")
+                    : getConversationTitle(selectedSession, t("sessions.emptyConversationTitle"))}
+                </div>
                 <div className="leading-6 text-muted-foreground">
-                  {selectedSession?.preview ?? t("sessions.chatEmptyBody")}
+                  {pendingRequestedSession
+                    ? t("runtimeHydration.loadingBody")
+                    : selectedSession?.preview ?? t("sessions.chatEmptyBody")}
                 </div>
                 {selectedSession ? (
                   <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
@@ -861,7 +862,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
               ) : null}
 
               <div className="border border-border bg-background/40 p-4">
-                {selectedMessagesLoading ? (
+                {pendingRequestedSession || selectedMessagesLoading ? (
                   <div className="flex items-center justify-center py-20">
                     <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                   </div>
@@ -880,7 +881,9 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                 <div className="flex items-center justify-between gap-3">
                   <div>
                     <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.composerLabel")}</div>
-                    <div className="mt-1 text-sm text-muted-foreground">{t("sessions.composerHint")}</div>
+                    <div className="mt-1 text-sm text-muted-foreground">
+                      {pendingRequestedSession ? t("runtimeHydration.loadingBody") : t("sessions.composerHint")}
+                    </div>
                   </div>
                   {sendPending ? <Badge variant="outline">{t("sessions.sending")}</Badge> : null}
                 </div>
@@ -890,6 +893,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                   onKeyDown={handleComposerKeyDown}
                   placeholder={t("sessions.composerPlaceholder")}
                   className="flex min-h-[110px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  disabled={pendingRequestedSession}
                 />
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="text-xs text-muted-foreground">
@@ -899,7 +903,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                     type="button"
                     className="gap-2"
                     onClick={() => void handleSendMessage()}
-                    disabled={sendPending || composerValue.trim().length === 0}
+                    disabled={pendingRequestedSession || sendPending || composerValue.trim().length === 0}
                   >
                     <SendHorizontal className="h-4 w-4" />
                     {sendPending ? t("sessions.sending") : t("sessions.send")}
@@ -1018,7 +1022,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                   </div>
 
                   <Link
-                    to={buildRunPath(review.relatedRun.id, activeWorkspaceSlug)}
+                    to={buildRunPath(review.relatedRun.id, effectiveWorkspaceSlug)}
                     className="inline-flex items-center rounded border border-border px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
                   >
                     {t("sessions.openRunReview")}

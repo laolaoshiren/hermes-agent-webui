@@ -49,7 +49,7 @@ const sessions: SessionInfo[] = [
 ];
 
 type RuntimeQueryState = {
-  data: {
+  data?: {
     source: "fixture" | "live";
     snapshot: typeof runtimeContractSnapshot;
     error: string | null;
@@ -130,6 +130,12 @@ function findLinkByText(container: HTMLElement, text: string) {
   return Array.from(container.querySelectorAll("a")).find((link) => link.textContent?.includes(text)) ?? null;
 }
 
+function findButtonByAriaLabel(container: HTMLElement, label: string) {
+  return (
+    Array.from(container.querySelectorAll("button")).find((button) => button.getAttribute("aria-label")?.includes(label)) ?? null
+  );
+}
+
 describe("SessionsPage chat MVP surface", () => {
   beforeAll(async () => {
     await i18n.changeLanguage("en");
@@ -160,6 +166,48 @@ describe("SessionsPage chat MVP surface", () => {
     expect(container.textContent).toContain("New chat");
     expect(container.textContent).toContain("Existing transcript");
     expect(container.textContent).toContain("Composer");
+
+    await cleanup();
+  });
+
+  it("keeps the chat surface visible while runtime hydration is still pending", async () => {
+    vi.spyOn(api, "getSessionMessages").mockResolvedValue({
+      session_id: selectedRuntimeSession.id,
+      messages: [{ role: "assistant", content: "Existing transcript" } as SessionMessage],
+    });
+
+    runtimeQueryState = {
+      data: undefined,
+      isPending: true,
+    };
+
+    const { container, cleanup } = await renderSessionsRoute(`/sessions/${selectedRuntimeSession.id}`);
+
+    expect(container.textContent).toContain("Hydrating live runtime");
+    expect(container.textContent).toContain("Conversation");
+    expect(container.textContent).toContain("Existing transcript");
+
+    await cleanup();
+  });
+
+  it("does not render another session while a requested session route is still hydrating", async () => {
+    const getSessionMessages = vi.spyOn(api, "getSessionMessages");
+    runtimeQueryState = {
+      data: undefined,
+      isPending: true,
+    };
+
+    const { container, cleanup } = await renderSessionsRoute("/sessions/sess-missing");
+    const textarea = container.querySelector("textarea") as HTMLTextAreaElement | null;
+    const sendButton = findButtonByText(container, "Send") as HTMLButtonElement | null;
+
+    expect(container.textContent).toContain("Hydrating live runtime");
+    expect(container.textContent).toContain(
+      "Loading sessions and replay data from the Hermes backend before rendering route-specific runtime details.",
+    );
+    expect(getSessionMessages).not.toHaveBeenCalled();
+    expect(textarea?.disabled).toBe(true);
+    expect(sendButton?.disabled).toBe(true);
 
     await cleanup();
   });
@@ -212,6 +260,68 @@ describe("SessionsPage chat MVP surface", () => {
 
     expect(router.state.location.pathname).toBe("/sessions/sess-second");
     expect(container.textContent).toContain("Second transcript");
+
+    await cleanup();
+  });
+
+  it("returns to the base sessions route after deleting the selected session", async () => {
+    vi.spyOn(api, "getSessionMessages").mockResolvedValue({
+      session_id: selectedRuntimeSession.id,
+      messages: [{ role: "assistant", content: "Existing transcript" } as SessionMessage],
+    });
+    const deleteSession = vi.spyOn(api, "deleteSession").mockResolvedValue({ ok: true });
+
+    const { container, router, cleanup } = await renderSessionsRoute(`/sessions/${selectedRuntimeSession.id}`);
+    const deleteButton = findButtonByAriaLabel(container, "Delete session");
+
+    expect(deleteButton).not.toBeNull();
+
+    await act(async () => {
+      deleteButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(deleteSession).toHaveBeenCalledWith(selectedRuntimeSession.id);
+    expect(router.state.location.pathname).toBe("/sessions");
+    expect(router.state.location.search).toBe("");
+
+    await cleanup();
+  });
+
+  it("preserves provisional workspace scope when starting a new chat before runtime hydration finishes", async () => {
+    runtimeQueryState = {
+      data: undefined,
+      isPending: true,
+    };
+    const createSession = vi.spyOn(api, "createSession").mockResolvedValue({
+      session: {
+        ...sessions[0],
+        id: "sess-pending-workspace-new",
+        title: "Pending scoped chat",
+        preview: "Pending scoped chat",
+        last_active: 1713000355,
+      },
+      messages: [],
+    });
+
+    const { container, router, cleanup } = await renderSessionsRoute("/sessions?workspace=hermes-control-center");
+    const newChatButton = findButtonByText(container, "New chat");
+
+    expect(newChatButton).not.toBeNull();
+
+    await act(async () => {
+      newChatButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(createSession).toHaveBeenCalledWith({
+      model: selectedRuntimeSession.model ?? undefined,
+      workspace: "/root/hermes-control-center",
+    });
+    expect(router.state.location.pathname).toBe("/sessions/sess-pending-workspace-new");
+    expect(router.state.location.search).toBe("?workspace=hermes-control-center");
 
     await cleanup();
   });
