@@ -11,11 +11,230 @@
     "cron": "定时任务",
     "skills": "技能",
     "config": "配置",
-    "keys": "密钥"
+    "keys": "密钥",
+    "ops": "运营看板"
   },
   "overview": {
     "eyebrow": "项目方向",
     "title": "Hermes Control Center",
-    "description": "面向 Hermes Agent 的产品级 Web 平台：从一开始就支持工作区优先、可回放自治运行、审批流、可观测性，以及中英文国际化。"
+    "description": "面向 Hermes Agent 的产品级 Web 平台：从一开始就支持工作区优先、可回放自治运行、审批流、可观测性，以及中英文国际化。",
+    "badge": "v0.1 基础阶段",
+    "thesisTitle": "产品命题",
+    "thesisBody1": "Hermes 已经具备稳固的运行时、会话存储、工具体系和逐步成形的管理界面。本项目的目标是在此基础上扩展出产品级控制中心，而不是从零重写 Hermes。",
+    "thesisBody2": "我们的目标是把代理工作台、运维仪表盘和协作式运行复盘系统的最佳实践整合成一个统一的 Web 体验。",
+    "executionRailsTitle": "执行轨道",
+    "runtimePulseTitle": "运行时脉搏",
+    "runtimePulseDescription": "在接入真实后端适配层之前，产品壳层已经开始围绕会话、运行、审批与回放事件等共享对象建模。",
+    "focusAreas": {
+      "workspaceFirstTitle": "工作区优先体验",
+      "workspaceFirstBody": "从扁平聊天界面升级为以项目为中心的工作区、可复用预设，以及长生命周期执行上下文。",
+      "replayableRunsTitle": "可回放运行",
+      "replayableRunsBody": "把工具调用、审批、浏览器会话和进程事件表示为可在事后检查的持久时间线条目。",
+      "operationalReviewTitle": "运维审查",
+      "operationalReviewBody": "在同一产品壳层中支持审批队列、发布纪律、CI 信号以及运行状态监控。"
+    },
+    "milestones": {
+      "foundationLabel": "基础阶段",
+      "foundationDetail": "路由、国际化、文档、CI、产品壳层",
+      "runtimeLabel": "运行时体验",
+      "runtimeDetail": "聊天/运行/事件/流式集成",
+      "opsLabel": "协作运维",
+      "opsDetail": "审批、审查队列、团队工作流",
+      "multiUserLabel": "多用户准备",
+      "multiUserDetail": "认证鉴权、共享工作区、部署加固"
+    },
+    "metrics": {
+      "activeRuns": "活跃运行",
+      "pendingApprovals": "待处理审批",
+      "timelineEvents": "时间线事件",
+      "artifacts": "产物"
+    },
+    "tags": {
+      "openclaw": "OpenClaw 控制平面思路",
+      "poco": "Poco 工作区体验",
+      "missionControl": "Mission Control 运维仪表盘",
+      "openhands": "OpenHands 分层方式",
+      "librechat": "LibreChat 会话体验"
+    }
+  },
+  "runs": {
+    "eyebrow": "运行时体验",
+    "title": "运行",
+    "description": "运行是会话内部面向产品的执行尝试对象。当前壳层已经开始渲染关于运行状态、审批、产物和回放事件的共享契约。",
+    "badge": "运行时契约预览",
+    "statusSummaryTitle": "运行状态总览",
+    "selectedRunTitle": "选中的运行",
+    "timelineTitle": "回放时间线预览",
+    "artifactsTitle": "关联产物",
+    "sessionLabel": "会话",
+    "triggerLabel": "触发方式",
+    "actorLabel": "主执行者",
+    "approvalLabel": "审批",
+    "artifactLabel": "产物",
+    "eventLabel": "事件",
+    "emptyArtifacts": "暂时没有关联产物。",
+    "virtualArtifact": "虚拟产物",
+    "bytesLabel": "字节",
+    "millisecondsLabel": "毫秒",
+    "triggers": {
+      "manual": "手动",
+      "cron": "定时任务",
+      "webhook": "Webhook",
+      "api": "API"
+    },
+    "statuses": {
+      "queued": "排队中",
+      "running": "运行中",
+      "awaiting_approval": "等待审批",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "eventKinds": {
+      "message": "消息",
+      "tool_call": "工具调用",
+      "approval": "审批",
+      "artifact": "产物",
+      "system": "系统"
+    },
+    "eventStatuses": {
+      "pending": "待处理",
+      "active": "进行中",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "artifactKinds": {
+      "diff": "差异",
+      "log": "日志",
+      "transcript": "转录",
+      "screenshot": "截图",
+      "report": "报告"
+    }
+  },
+  "approvals": {
+    "eyebrow": "治理",
+    "title": "审批",
+    "description": "审批应被设计为具有范围、发起者、过期时间与审计元数据的持久策略记录，而不是一次性弹窗。",
+    "badge": "策略队列预览",
+    "summaryTitle": "审批队列摘要",
+    "queueTitle": "审查队列",
+    "scopeLabel": "范围",
+    "requestedByLabel": "发起者",
+    "runLabel": "运行",
+    "expiresLabel": "过期时间",
+    "reviewerLabel": "审查者",
+    "resolutionLabel": "处理结果",
+    "statuses": {
+      "pending": "待处理",
+      "approved": "已批准",
+      "rejected": "已拒绝",
+      "expired": "已过期"
+    },
+    "scopes": {
+      "filesystem": "文件系统",
+      "secrets": "密钥",
+      "network": "网络",
+      "deployment": "部署",
+      "governance": "治理"
+    },
+    "metrics": {
+      "pending": "待处理",
+      "approved": "已批准",
+      "expiringSoon": "即将过期"
+    }
+  },
+  "runtimeContent": {
+    "runs": {
+      "run-runtime-contract": {
+        "title": "定义运行时契约基础层",
+        "summary": "正在梳理面向产品的运行时实体，并让运行/审批页面切换到共享契约示例数据。"
+      },
+      "run-approval-review": {
+        "title": "审查并推进仓库治理 PR",
+        "summary": "在确认分支状态与 CI 情况后，已将仓库治理改动合并进 develop。"
+      }
+    },
+    "approvals": {
+      "approval-push-develop": {
+        "title": "推进运行时契约改动进入评审",
+        "reason": "开源维护者流程要求改动先在可评审分支和 PR 中沉淀，再进入 develop。"
+      },
+      "approval-repo-governance-merge": {
+        "title": "合并仓库治理 PR",
+        "reason": "贡献指南与模板已验证完毕，可以进入 develop 作为治理基线。",
+        "resolutionNote": "在确认分支差异仅为文档治理变更后，已本地合并并推送到 develop。"
+      }
+    },
+    "artifacts": {
+      "artifact-runtime-doc": {
+        "label": "运行时契约基础文档"
+      },
+      "artifact-runtime-plan": {
+        "label": "实施计划"
+      },
+      "artifact-pr-summary": {
+        "label": "仓库治理推进摘要"
+      }
+    },
+    "events": {
+      "evt-runtime-1": {
+        "title": "运行时契约任务启动",
+        "detail": "本次定时维护运行选择了 issue #2 作为当前最高价值的下一步增量。"
+      },
+      "evt-runtime-2": {
+        "title": "检查仓库状态",
+        "detail": "在改动之前检查了 git 状态、分支、最近提交、路线图、开发日志、开放 PR 与 issue。"
+      },
+      "evt-runtime-3": {
+        "title": "写入实施计划",
+        "detail": "已将运行时契约基础层增量的细粒度实施计划保存到 docs/plans。"
+      },
+      "evt-runtime-4": {
+        "title": "更新契约文档",
+        "detail": "已定义工作区、会话、运行、时间线、审批与产物实体，并补充其与 Hermes 现有能力的映射关系。"
+      },
+      "evt-runtime-5": {
+        "title": "排入审查关卡",
+        "detail": "新增一个待处理的治理审批，用于跟踪运行时契约改动的分支与 PR 推进步骤。"
+      },
+      "evt-governance-1": {
+        "title": "已审查 PR #6 差异",
+        "detail": "对比 repository-governance 分支与 develop 后，确认该增量仅涉及文档治理。"
+      },
+      "evt-governance-2": {
+        "title": "治理合并已批准",
+        "detail": "仓库治理增量已作为一致且可审查的基础加固步骤推进到 develop。"
+      },
+      "evt-governance-3": {
+        "title": "develop 已更新",
+        "detail": "已在本地压缩合并仓库治理改动并推送 develop，确保下一条任务分支建立在连贯状态之上。"
+      }
+    }
+  },
+  "ops": {
+    "eyebrow": "项目运营",
+    "title": "实时项目进度板",
+    "description": "一个面向项目所有者的极简看板，用来查看 Hermes 当前在做什么、多少员工/子代理正在工作，以及每个自主员工负责什么。",
+    "commandTitle": "指挥台",
+    "currentMission": "当前任务目标",
+    "currentFocus": "当前重点",
+    "employeeBoardTitle": "员工 / 子代理看板",
+    "currentTaskLabel": "当前任务",
+    "latestOutputLabel": "最新产出",
+    "workstreamsTitle": "工作流",
+    "progressLabel": "进度",
+    "activityWindowTitle": "活动窗口",
+    "activityWindowBody": "这个页面刻意保持简单：把控制器、活跃子代理、自动化通道以及当前冲刺重点集中显示在一个地方。",
+    "ownerViewTitle": "老板视角",
+    "ownerViewBody": "以后你想快速确认“谁在干活、在做什么、项目有没有继续推进”，直接看这里就行。",
+    "metrics": {
+      "totalEmployees": "员工总数",
+      "totalEmployeesDetail": "当前为项目建模的所有人类化工作通道、子代理与自动化员工。",
+      "activeSubagents": "活跃子代理",
+      "activeSubagentsDetail": "正在承担实现或验证任务的独立编码/审查通道。",
+      "activeWorkers": "工作中的员工",
+      "activeWorkersDetail": "当前正在运行、审查或汇报的人员或自动化通道。",
+      "automationLanes": "自动化通道",
+      "automationLanesDetail": "通过 cron、汇报、发布等方式持续推进项目的自动员工。"
+    }
   }
 }

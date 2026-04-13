@@ -32,6 +32,33 @@ This log is intentionally public-facing and continuously append-only so both the
   - added issue templates and PR template
   - preparing a formal PR into `develop`
 
+## 2026-04-13 15:39 +08:00
+
+- Merged the repository-governance increment into `develop` and continued from a fresh focused branch: `feat/runtime-contract-foundation`.
+- Advanced issue #2 by adding the first runtime-facing product contract foundation:
+  - added `docs/RUNTIME_CONTRACT.md`
+  - added `docs/plans/2026-04-13-runtime-contract-foundation.md`
+  - extended `docs/ARCHITECTURE.md` with runtime-contract guidance and invariants
+  - added shared runtime domain models in `src/features/runtime/types.ts`
+  - added realistic contract fixtures in `src/features/runtime/mockData.ts`
+  - refactored Overview / Runs / Approvals to render from the shared contract instead of isolated placeholder arrays
+  - localized new runtime-facing shell and fixture-backed content in English + Simplified Chinese
+- Validation status:
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Environment note:
+  - installed `npm` plus a local Node.js 22.12.0 runtime so the Vite 7 build can execute successfully in this maintainer environment
+- Added a minimum owner-facing operations board at `/ops` so the project owner can immediately see:
+  - what Hermes is doing now
+  - how many employee/subagent/automation lanes are active
+  - what each worker is currently handling
+  - which workstreams are on track vs planned
+- Next focus:
+  - open the runtime-contract PR into `develop`
+  - keep the owner-visibility board updated as new worker lanes and milestones appear
+  - begin adapter-layer work from existing Hermes session/runtime endpoints into the shared run/timeline contract
+
 ## Working principles
 
 - plan-driven execution
