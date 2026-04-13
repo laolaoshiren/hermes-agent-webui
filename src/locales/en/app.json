@@ -11,11 +11,230 @@
     "cron": "Cron",
     "skills": "Skills",
     "config": "Config",
-    "keys": "Keys"
+    "keys": "Keys",
+    "ops": "Ops"
   },
   "overview": {
     "eyebrow": "Program direction",
     "title": "Hermes Control Center",
-    "description": "A product-grade web platform for Hermes Agent: workspace-first UX, replayable autonomous runs, approvals, observability, and multilingual operations from the start."
+    "description": "A product-grade web platform for Hermes Agent: workspace-first UX, replayable autonomous runs, approvals, observability, and multilingual operations from the start.",
+    "badge": "v0.1 foundation",
+    "thesisTitle": "Product thesis",
+    "thesisBody1": "Hermes already has a strong runtime, session store, tool surface, and an emerging admin UI. This project extends that base into a product-grade control center rather than rewriting Hermes from scratch.",
+    "thesisBody2": "The goal is to combine the best ideas from agent workbenches, operational dashboards, and collaborative run review systems into one cohesive web experience.",
+    "executionRailsTitle": "Execution rails",
+    "runtimePulseTitle": "Runtime pulse",
+    "runtimePulseDescription": "The shell now tracks shared product objects for sessions, runs, approvals, and replay events before live backend adapters land.",
+    "focusAreas": {
+      "workspaceFirstTitle": "Workspace-first UX",
+      "workspaceFirstBody": "Move beyond a flat chat surface into project-scoped workspaces, reusable presets, and long-lived execution context.",
+      "replayableRunsTitle": "Replayable runs",
+      "replayableRunsBody": "Represent tool calls, approvals, browser sessions, and process events as durable timeline entries that can be inspected after the fact.",
+      "operationalReviewTitle": "Operational review",
+      "operationalReviewBody": "Support approval inboxes, release discipline, CI signals, and run-state monitoring in the same product shell."
+    },
+    "milestones": {
+      "foundationLabel": "Foundation",
+      "foundationDetail": "routing, i18n, docs, CI, project shell",
+      "runtimeLabel": "Runtime UX",
+      "runtimeDetail": "chat/runs/events/streaming integration",
+      "opsLabel": "Collaborative Ops",
+      "opsDetail": "approvals, review queues, team workflows",
+      "multiUserLabel": "Multi-user readiness",
+      "multiUserDetail": "authn/authz, shared workspaces, deployment hardening"
+    },
+    "metrics": {
+      "activeRuns": "Active runs",
+      "pendingApprovals": "Pending approvals",
+      "timelineEvents": "Timeline events",
+      "artifacts": "Artifacts"
+    },
+    "tags": {
+      "openclaw": "OpenClaw control-plane mindset",
+      "poco": "Poco workspace ergonomics",
+      "missionControl": "Mission Control ops dashboard",
+      "openhands": "OpenHands layering",
+      "librechat": "LibreChat session UX"
+    }
+  },
+  "runs": {
+    "eyebrow": "Runtime UX",
+    "title": "Runs",
+    "description": "Runs are product-facing execution attempts inside a session. The shell now renders a shared contract for run state, approvals, artifacts, and replay events.",
+    "badge": "runtime contract preview",
+    "statusSummaryTitle": "Run status summary",
+    "selectedRunTitle": "Selected run",
+    "timelineTitle": "Replay timeline preview",
+    "artifactsTitle": "Artifacts linked to run",
+    "sessionLabel": "Session",
+    "triggerLabel": "Trigger",
+    "actorLabel": "Primary actor",
+    "approvalLabel": "Approvals",
+    "artifactLabel": "Artifacts",
+    "eventLabel": "Events",
+    "emptyArtifacts": "No artifacts linked yet.",
+    "virtualArtifact": "Virtual artifact",
+    "bytesLabel": "bytes",
+    "millisecondsLabel": "ms",
+    "triggers": {
+      "manual": "Manual",
+      "cron": "Cron",
+      "webhook": "Webhook",
+      "api": "API"
+    },
+    "statuses": {
+      "queued": "Queued",
+      "running": "Running",
+      "awaiting_approval": "Awaiting approval",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "eventKinds": {
+      "message": "Message",
+      "tool_call": "Tool call",
+      "approval": "Approval",
+      "artifact": "Artifact",
+      "system": "System"
+    },
+    "eventStatuses": {
+      "pending": "Pending",
+      "active": "Active",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "artifactKinds": {
+      "diff": "Diff",
+      "log": "Log",
+      "transcript": "Transcript",
+      "screenshot": "Screenshot",
+      "report": "Report"
+    }
+  },
+  "approvals": {
+    "eyebrow": "Governance",
+    "title": "Approvals",
+    "description": "Approvals are durable policy records with scope, actor, expiry, and audit metadata — not one-off modal prompts.",
+    "badge": "policy queue preview",
+    "summaryTitle": "Approval queue summary",
+    "queueTitle": "Review queue",
+    "scopeLabel": "Scope",
+    "requestedByLabel": "Requested by",
+    "runLabel": "Run",
+    "expiresLabel": "Expires",
+    "reviewerLabel": "Reviewer",
+    "resolutionLabel": "Resolution",
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "scopes": {
+      "filesystem": "Filesystem",
+      "secrets": "Secrets",
+      "network": "Network",
+      "deployment": "Deployment",
+      "governance": "Governance"
+    },
+    "metrics": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "expiringSoon": "Expiring soon"
+    }
+  },
+  "runtimeContent": {
+    "runs": {
+      "run-runtime-contract": {
+        "title": "Define runtime contract foundation",
+        "summary": "Documenting product-facing runtime entities and wiring the Runs/Approvals shell to shared fixtures."
+      },
+      "run-approval-review": {
+        "title": "Review and promote repository governance PR",
+        "summary": "Merged the repository-governance work into develop after validating the branch state and CI status."
+      }
+    },
+    "approvals": {
+      "approval-push-develop": {
+        "title": "Promote runtime contract work for review",
+        "reason": "Open-source maintainer flow requires a reviewable branch and PR before changes land in develop."
+      },
+      "approval-repo-governance-merge": {
+        "title": "Merge repository governance PR",
+        "reason": "The contribution guide and templates were verified as ready for develop promotion.",
+        "resolutionNote": "Merged locally into develop and pushed after confirming the branch diff was documentation-only."
+      }
+    },
+    "artifacts": {
+      "artifact-runtime-doc": {
+        "label": "Runtime contract foundation"
+      },
+      "artifact-runtime-plan": {
+        "label": "Implementation plan"
+      },
+      "artifact-pr-summary": {
+        "label": "Repository governance promotion summary"
+      }
+    },
+    "events": {
+      "evt-runtime-1": {
+        "title": "Runtime contract task started",
+        "detail": "The scheduled maintainer run selected issue #2 as the highest-value next increment."
+      },
+      "evt-runtime-2": {
+        "title": "Repository state inspection",
+        "detail": "Checked git status, branches, recent commits, roadmap, devlog, open PRs, and issues before making changes."
+      },
+      "evt-runtime-3": {
+        "title": "Implementation plan written",
+        "detail": "Saved a task-level plan for the runtime contract foundation increment under docs/plans."
+      },
+      "evt-runtime-4": {
+        "title": "Contract document updated",
+        "detail": "Defined workspace, session, run, timeline, approval, and artifact entities with an integration mapping back to Hermes surfaces."
+      },
+      "evt-runtime-5": {
+        "title": "Review gate queued",
+        "detail": "A pending governance approval tracks the branch and PR promotion step for the runtime contract changes."
+      },
+      "evt-governance-1": {
+        "title": "PR #6 diff reviewed",
+        "detail": "Compared the repository-governance branch against develop and confirmed a documentation-only increment."
+      },
+      "evt-governance-2": {
+        "title": "Governance merge approved",
+        "detail": "The repository governance increment was promoted into develop as a coherent baseline hardening step."
+      },
+      "evt-governance-3": {
+        "title": "Develop updated",
+        "detail": "Squash-merged repository governance changes locally and pushed develop to keep the repository coherent for the next task branch."
+      }
+    }
+  },
+  "ops": {
+    "eyebrow": "Project operations",
+    "title": "Live project progress board",
+    "description": "A minimal owner-facing board showing what Hermes is doing now, how many worker lanes are active, and what each autonomous employee is responsible for.",
+    "commandTitle": "Command desk",
+    "currentMission": "Current mission",
+    "currentFocus": "Current focus",
+    "employeeBoardTitle": "Employee / subagent board",
+    "currentTaskLabel": "Current task",
+    "latestOutputLabel": "Latest output",
+    "workstreamsTitle": "Workstreams",
+    "progressLabel": "Progress",
+    "activityWindowTitle": "Activity window",
+    "activityWindowBody": "This board is intentionally simple: it exposes the controller lane, active subagents, automation lanes, and the current sprint focus in one place.",
+    "ownerViewTitle": "Owner view",
+    "ownerViewBody": "Use this page as the fastest way to see who is working, what is being built, and whether the autonomous project machine is still moving.",
+    "metrics": {
+      "totalEmployees": "Total employees",
+      "totalEmployeesDetail": "All active human-like lanes, subagents, and automation workers currently modeled for this project.",
+      "activeSubagents": "Active subagents",
+      "activeSubagentsDetail": "Independent coding/review lanes currently assigned to implementation or verification work.",
+      "activeWorkers": "Workers in motion",
+      "activeWorkersDetail": "People or automation lanes currently running, reviewing, or reporting.",
+      "automationLanes": "Automation lanes",
+      "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
+    }
   }
 }

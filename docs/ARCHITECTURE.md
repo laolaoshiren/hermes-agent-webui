@@ -24,6 +24,11 @@ Hermes Control Center will not replace Hermes runtime internals. It will compose
 - medium term: define a cleaner product-facing application layer for runs, approvals, workspaces, and playback
 - long term: support both local-first and hardened remote deployments
 
+### Runtime contract foundation
+- product-facing runtime entities are documented in `docs/RUNTIME_CONTRACT.md`
+- frontend pages should converge on shared `workspace/session/run/event/approval/artifact` models instead of page-specific placeholder data
+- backend integration should prefer adapter layers that map Hermes-native responses into the product contract
+
 ## Product model in progress
 
 - Workspace
