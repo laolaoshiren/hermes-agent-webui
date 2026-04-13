@@ -47,6 +47,33 @@ describe("chat API helpers", () => {
     expect(response.messages[0]?.content).toBe("hello from array content");
   });
 
+  it("accepts direct session payloads and prefers non-system preview text", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        session_id: "sess-direct",
+        title: null,
+        model: null,
+        created_at: 100,
+        messages: [
+          { role: "system", content: "system setup" },
+          { role: "assistant", content: [{ text: "ready to help" }] },
+          null,
+        ],
+      }),
+    } as Response);
+
+    const response = await api.createSession();
+
+    expect(response.session.id).toBe("sess-direct");
+    expect(response.session.preview).toBe("ready to help");
+    expect(response.messages).toEqual([
+      { role: "system", content: "system setup", timestamp: undefined, tool_calls: undefined, tool_name: undefined, tool_call_id: undefined },
+      { role: "assistant", content: "ready to help", timestamp: undefined, tool_calls: undefined, tool_name: undefined, tool_call_id: undefined },
+    ]);
+  });
+
   it("sends chat payloads through the Hermes-backed sync endpoint", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValue({
@@ -90,5 +117,57 @@ describe("chat API helpers", () => {
     expect(response.session.id).toBe("sess-existing");
     expect(response.session.tool_call_count).toBe(1);
     expect(response.messages.at(-1)?.content).toBe("done");
+  });
+
+  it("sends session deletion through the sessions endpoint", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true }),
+    } as Response);
+
+    await expect(api.deleteSession("sess-delete")).resolves.toEqual({ ok: true });
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/sessions/sess-delete",
+      expect.objectContaining({
+        method: "DELETE",
+      }),
+    );
+  });
+
+  it("falls back to top-level chat messages and derives the assistant answer when needed", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        session_id: "sess-fallback",
+        title: "Fallback session",
+        model: "anthropic/claude-sonnet-4.6",
+        created_at: 20,
+        updated_at: 30,
+        messages: [
+          { role: "user", content: "use fallback messages" },
+          {
+            role: "assistant",
+            content: [{ text: "fallback answer" }],
+            tool_calls: [{ id: "call-msg-1", function: { name: "search_files", arguments: "{}" } }],
+          },
+        ],
+      }),
+    } as Response);
+
+    const response = await api.sendChatMessage({
+      sessionId: "sess-fallback",
+      message: "use fallback messages",
+      workspace: "/root/hermes-control-center",
+    });
+
+    expect(response.answer).toBe("fallback answer");
+    expect(response.status).toBe("done");
+    expect(response.session.id).toBe("sess-fallback");
+    expect(response.session.message_count).toBe(2);
+    expect(response.session.tool_call_count).toBe(1);
+    expect(response.session.preview).toBe("fallback answer");
+    expect(response.messages[1]?.tool_calls?.[0]?.function.name).toBe("search_files");
   });
 });

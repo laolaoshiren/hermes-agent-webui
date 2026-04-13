@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -246,6 +246,18 @@ function MessageList({ messages, highlight }: { messages: SessionMessage[]; high
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container || highlight) return;
+
+    if (typeof container.scrollTo === "function") {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      return;
+    }
+
+    container.scrollTop = container.scrollHeight;
+  }, [messages, highlight]);
+
+  useEffect(() => {
     if (!highlight || !containerRef.current) return;
 
     const timer = setTimeout(() => {
@@ -270,38 +282,17 @@ function MessageList({ messages, highlight }: { messages: SessionMessage[]; high
 function SessionRow({
   session,
   snippet,
-  searchQuery,
-  isExpanded,
   isSelected,
-  onToggle,
   onDelete,
   workspaceSlug,
 }: {
   session: SessionInfo;
   snippet?: string;
-  searchQuery?: string;
-  isExpanded: boolean;
   isSelected: boolean;
-  onToggle: () => void;
   onDelete: () => void;
   workspaceSlug: string | null;
 }) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<SessionMessage[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isExpanded && messages === null && !loading) {
-      setLoading(true);
-      api
-        .getSessionMessages(session.id)
-        .then((resp) => setMessages(resp.messages))
-        .catch((err) => setError(String(err)))
-        .finally(() => setLoading(false));
-    }
-  }, [isExpanded, session.id, messages, loading]);
-
   const sourceInfo = (session.source ? SOURCE_CONFIG[session.source] : null) ?? {
     icon: Globe,
     color: "text-muted-foreground",
@@ -310,9 +301,21 @@ function SessionRow({
   const hasTitle = session.title && session.title !== "Untitled";
 
   return (
-    <div className={`overflow-hidden border transition-colors ${session.is_active ? "border-success/30 bg-success/[0.03]" : "border-border"}`}>
-      <div className="flex items-center justify-between p-3 transition-colors hover:bg-secondary/30">
-        <button type="button" className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left" onClick={onToggle}>
+    <div
+      className={`overflow-hidden border transition-colors ${
+        isSelected
+          ? "border-primary/40 bg-primary/[0.04]"
+          : session.is_active
+            ? "border-success/30 bg-success/[0.03]"
+            : "border-border"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2 p-3 transition-colors hover:bg-secondary/30">
+        <Link
+          to={buildSessionPath(session.id, workspaceSlug)}
+          className="flex min-w-0 flex-1 items-start gap-3 text-left"
+          aria-current={isSelected ? "page" : undefined}
+        >
           <div className={`shrink-0 ${sourceInfo.color}`}>
             <SourceIcon className="h-4 w-4" />
           </div>
@@ -325,6 +328,11 @@ function SessionRow({
                 <Badge variant="success" className="shrink-0 text-[10px]">
                   <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
                   {t("sessions.liveBadge")}
+                </Badge>
+              ) : null}
+              {isSelected ? (
+                <Badge variant="outline" className="shrink-0 text-[10px]">
+                  {t("sessions.selectedSessionLabel")}
                 </Badge>
               ) : null}
             </div>
@@ -343,20 +351,12 @@ function SessionRow({
             </div>
             {snippet ? <SnippetHighlight snippet={snippet} /> : null}
           </div>
-        </button>
+        </Link>
 
         <div className="flex shrink-0 items-center gap-2">
           <Badge variant="outline" className="text-[10px]">
             {session.source ?? t("sessions.localSource")}
           </Badge>
-          <Link
-            to={buildSessionPath(session.id, workspaceSlug)}
-            className={`inline-flex items-center rounded border px-2 py-1 text-[10px] uppercase tracking-[0.16em] transition-colors ${
-              isSelected ? "border-foreground/50 text-foreground" : "border-border text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {isSelected ? t("sessions.selectedSessionLabel") : t("sessions.openSessionReview")}
-          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -371,19 +371,6 @@ function SessionRow({
           </Button>
         </div>
       </div>
-
-      {isExpanded ? (
-        <div className="border-t border-border bg-background/50 p-4">
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-          ) : null}
-          {error ? <p className="py-4 text-center text-sm text-destructive">{error}</p> : null}
-          {messages && messages.length === 0 ? <p className="py-4 text-center text-sm text-muted-foreground">{t("sessions.noMessages")}</p> : null}
-          {messages && messages.length > 0 ? <MessageList messages={messages} highlight={searchQuery} /> : null}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -409,7 +396,6 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const [loading, setLoading] = useState(() => initialSessions === undefined);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SessionSearchResult[] | null>(null);
   const [searching, setSearching] = useState(false);
   const [selectedMessages, setSelectedMessages] = useState<SessionMessage[] | null>(null);
@@ -417,6 +403,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const [conversationError, setConversationError] = useState<string | null>(null);
   const [composerValue, setComposerValue] = useState("");
   const [sendPending, setSendPending] = useState(false);
+  const [optimisticWorkspaceSessionIdsBySlug, setOptimisticWorkspaceSessionIdsBySlug] = useState<Record<string, string[]>>({});
   const pendingHydrationSessionIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -467,13 +454,31 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
 
   const filtered = searchResults ? sessions.filter((session) => snippetMap.has(session.id)) : sessions;
   const workspaceFilter = deriveSessionsWorkspaceFilter(snapshot, workspaceSlug);
+  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
   const visibleSessionIds = new Set(workspaceFilter.filteredSessions.map((session) => session.id));
+  if (activeWorkspaceSlug) {
+    for (const optimisticSessionId of optimisticWorkspaceSessionIdsBySlug[activeWorkspaceSlug] ?? []) {
+      visibleSessionIds.add(optimisticSessionId);
+    }
+  }
   const visibleSessions = filtered.filter((session) => visibleSessionIds.has(session.id));
   const review = deriveSessionReview(sessions, snapshot, sessionId, visibleSessionIds);
-  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
   const scopedRepositoryLabel = getRepositoryLabel(snapshot, workspaceFilter.selectedWorkspace?.id, t("sessions.noRepositoryLinked"));
   const selectedSession = review.selectedSession ?? null;
-  const scopedChatWorkspaceSlug = selectedSession && visibleSessionIds.has(selectedSession.id) ? activeWorkspaceSlug : null;
+  const workspacePathMatchesScope = (workspacePath: string | null | undefined) => {
+    if (!activeWorkspaceSlug || typeof workspacePath !== "string" || workspacePath.length === 0) {
+      return false;
+    }
+
+    const tail = workspacePath.split("/").filter(Boolean).at(-1) ?? null;
+    const repositoryName = workspaceFilter.selectedWorkspace?.repository?.name ?? null;
+    return tail === activeWorkspaceSlug || (repositoryName !== null && tail === repositoryName);
+  };
+  const scopedChatWorkspacePath =
+    selectedSession?.workspace ??
+    visibleSessions.find((session) => typeof session.workspace === "string" && session.workspace.length > 0)?.workspace ??
+    sessions.find((session) => workspacePathMatchesScope(session.workspace))?.workspace ??
+    null;
 
   useEffect(() => {
     if (!selectedSession) {
@@ -520,20 +525,45 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     try {
       await api.deleteSession(id);
       setSessions((prev) => prev.filter((session) => session.id !== id));
-      if (expandedId === id) setExpandedId(null);
       if (selectedSession?.id === id) {
         setSelectedMessages([]);
       }
-    } catch {
-      // ignore delete failure for now
+    } catch (error) {
+      showToast(t("sessions.deleteSessionFailedToast", { message: getErrorMessage(error) }), "error");
     }
   };
 
   const createSession = useCallback(
-    async ({ navigateToSession = true, deferHydration = false, workspaceSlug: nextWorkspaceSlug = null } = {}) => {
-      const response = await api.createSession({ model: selectedSession?.model ?? undefined });
+    async ({
+      navigateToSession = true,
+      deferHydration = false,
+      workspaceSlug: nextWorkspaceSlug = null,
+      workspacePath = null,
+    }: {
+      navigateToSession?: boolean;
+      deferHydration?: boolean;
+      workspaceSlug?: string | null;
+      workspacePath?: string | null;
+    } = {}) => {
+      const response = await api.createSession({
+        model: selectedSession?.model ?? undefined,
+        workspace: workspacePath ?? undefined,
+      });
       if (deferHydration) {
         pendingHydrationSessionIdRef.current = response.session.id;
+      }
+      if (nextWorkspaceSlug) {
+        setOptimisticWorkspaceSessionIdsBySlug((prev) => {
+          const nextIds = prev[nextWorkspaceSlug] ?? [];
+          if (nextIds.includes(response.session.id)) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            [nextWorkspaceSlug]: [...nextIds, response.session.id],
+          };
+        });
       }
       setSessions((prev) => upsertSession(prev, response.session));
       setSelectedMessages(response.messages);
@@ -549,7 +579,11 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
 
   const handleNewChat = async () => {
     try {
-      await createSession({ navigateToSession: true, workspaceSlug: null });
+      await createSession({
+        navigateToSession: true,
+        workspaceSlug: activeWorkspaceSlug,
+        workspacePath: scopedChatWorkspacePath,
+      });
       setComposerValue("");
     } catch (error) {
       const message = getErrorMessage(error);
@@ -567,11 +601,17 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     setSendPending(true);
     let activeSession = selectedSession;
     let previousMessages = selectedMessages ?? [];
-    const nextWorkspaceSlug = scopedChatWorkspaceSlug;
+    const nextWorkspaceSlug = activeWorkspaceSlug;
+    const nextWorkspacePath = selectedSession?.workspace ?? scopedChatWorkspacePath;
 
     try {
       if (!activeSession) {
-        activeSession = await createSession({ navigateToSession: false, deferHydration: true });
+        activeSession = await createSession({
+          navigateToSession: false,
+          deferHydration: true,
+          workspaceSlug: nextWorkspaceSlug,
+          workspacePath: nextWorkspacePath,
+        });
         previousMessages = [];
       }
 
@@ -582,6 +622,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
         sessionId: activeSession.id,
         message,
         model: activeSession.model ?? undefined,
+        workspace: activeSession.workspace ?? nextWorkspacePath ?? undefined,
       });
 
       pendingHydrationSessionIdRef.current = null;
@@ -599,6 +640,15 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     } finally {
       setSendPending(false);
     }
+  };
+
+  const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || !(event.metaKey || event.ctrlKey)) {
+      return;
+    }
+
+    event.preventDefault();
+    void handleSendMessage();
   };
 
   if (loading) {
@@ -765,10 +815,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                     key={session.id}
                     session={session}
                     snippet={snippetMap.get(session.id)}
-                    searchQuery={search || undefined}
-                    isExpanded={expandedId === session.id}
                     isSelected={review.selectedSession?.id === session.id}
-                    onToggle={() => setExpandedId((prev) => (prev === session.id ? null : session.id))}
                     onDelete={() => void handleDelete(session.id)}
                     workspaceSlug={activeWorkspaceSlug}
                   />
@@ -840,6 +887,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                 <textarea
                   value={composerValue}
                   onChange={(event) => setComposerValue(event.target.value)}
+                  onKeyDown={handleComposerKeyDown}
                   placeholder={t("sessions.composerPlaceholder")}
                   className="flex min-h-[110px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />

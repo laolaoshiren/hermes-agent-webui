@@ -52,41 +52,59 @@ function normalizeSessionMessages(messages: unknown): SessionMessage[] {
     return [];
   }
 
-  return messages.map((message) => {
-    const role =
-      message && typeof message === "object" && "role" in message && typeof message.role === "string"
-        ? message.role
-        : "system";
-    const normalizedRole = role === "user" || role === "assistant" || role === "system" || role === "tool" ? role : "system";
-    const timestamp =
-      message && typeof message === "object" && "timestamp" in message && typeof message.timestamp === "number"
-        ? message.timestamp
-        : undefined;
-    const toolCalls =
-      message && typeof message === "object" && "tool_calls" in message && Array.isArray(message.tool_calls)
-        ? (message.tool_calls as SessionMessage["tool_calls"])
-        : undefined;
+  return messages.flatMap((message) => {
+    if (!message || typeof message !== "object") {
+      return [];
+    }
 
-    return {
+    const role = typeof message.role === "string" ? message.role : "system";
+    const normalizedRole = role === "user" || role === "assistant" || role === "system" || role === "tool" ? role : "system";
+    const timestamp = typeof message.timestamp === "number" ? message.timestamp : undefined;
+    const toolCalls = Array.isArray(message.tool_calls) ? (message.tool_calls as SessionMessage["tool_calls"]) : undefined;
+
+    return [{
       role: normalizedRole,
-      content: normalizeMessageContent(message && typeof message === "object" && "content" in message ? message.content : null),
+      content: normalizeMessageContent("content" in message ? message.content : null),
       timestamp,
       tool_calls: toolCalls,
-      tool_name:
-        message && typeof message === "object" && "tool_name" in message && typeof message.tool_name === "string"
-          ? message.tool_name
-          : undefined,
-      tool_call_id:
-        message && typeof message === "object" && "tool_call_id" in message && typeof message.tool_call_id === "string"
-          ? message.tool_call_id
-          : undefined,
-    };
+      tool_name: typeof message.tool_name === "string" ? message.tool_name : undefined,
+      tool_call_id: typeof message.tool_call_id === "string" ? message.tool_call_id : undefined,
+    }];
   });
 }
 
 function buildPreview(messages: SessionMessage[]) {
-  const previewSource = [...messages].reverse().find((message) => typeof message.content === "string" && message.content.trim().length > 0);
+  const previewSource = [...messages]
+    .reverse()
+    .find((message) => message.role !== "system" && typeof message.content === "string" && message.content.trim().length > 0);
   return previewSource?.content ?? null;
+}
+
+function countToolCalls(messages: SessionMessage[], toolCalls: ChatSessionPayload["tool_calls"]) {
+  const messageToolCalls = messages.reduce((count, message) => count + (message.tool_calls?.length ?? 0), 0);
+  return Math.max(toolCalls?.length ?? 0, messageToolCalls);
+}
+
+function extractSessionPayload<T extends { session?: ChatSessionPayload }>(response: T | ChatSessionPayload): ChatSessionPayload {
+  if (response && typeof response === "object" && "session" in response && response.session) {
+    return response.session;
+  }
+
+  return response as ChatSessionPayload;
+}
+
+function extractSessionMessages(
+  session: ChatSessionPayload,
+  ...messageCandidates: unknown[]
+): SessionMessage[] {
+  for (const candidate of [session.messages, ...messageCandidates]) {
+    const messages = normalizeSessionMessages(candidate);
+    if (messages.length > 0) {
+      return messages;
+    }
+  }
+
+  return [];
 }
 
 export interface ChatSessionPayload {
@@ -112,6 +130,7 @@ export function normalizeSessionInfo(payload: ChatSessionPayload): SessionInfo {
   return {
     id: payload.session_id,
     source: payload.source ?? "webui",
+    workspace: payload.workspace ?? null,
     model: payload.model ?? null,
     title: payload.title ?? null,
     started_at: startedAt,
@@ -119,7 +138,7 @@ export function normalizeSessionInfo(payload: ChatSessionPayload): SessionInfo {
     last_active: lastActive,
     is_active: false,
     message_count: payload.message_count ?? messages.length,
-    tool_call_count: payload.tool_calls?.length ?? 0,
+    tool_call_count: countToolCalls(messages, payload.tool_calls),
     input_tokens: payload.input_tokens ?? 0,
     output_tokens: payload.output_tokens ?? 0,
     preview: buildPreview(messages),
@@ -132,23 +151,37 @@ export const api = {
   getSessionMessages: (id: string) =>
     fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`),
   createSession: async (options: { model?: string; workspace?: string } = {}) => {
-    const response = await fetchJSON<{ session: ChatSessionPayload }>("/api/session/new", {
+    const response = await fetchJSON<{ session?: ChatSessionPayload } | ChatSessionPayload>("/api/session/new", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(options),
     });
+    const session = extractSessionPayload(response);
+    const messages = extractSessionMessages(session, response && typeof response === "object" && "messages" in response ? response.messages : null);
 
     return {
-      session: normalizeSessionInfo(response.session),
-      messages: normalizeSessionMessages(response.session.messages),
+      session: normalizeSessionInfo({ ...session, messages }),
+      messages,
     };
   },
   sendChatMessage: async (payload: { sessionId: string; message: string; model?: string; workspace?: string }) => {
     const response = await fetchJSON<{
-      answer: string;
-      status: string;
-      session: ChatSessionPayload;
+      answer?: string;
+      status?: string;
+      session?: ChatSessionPayload;
+      messages?: unknown;
       result?: Record<string, unknown>;
+      session_id?: string;
+      title?: string | null;
+      workspace?: string | null;
+      model?: string | null;
+      message_count?: number;
+      created_at?: number;
+      updated_at?: number;
+      source?: string | null;
+      input_tokens?: number;
+      output_tokens?: number;
+      tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }>;
     }>("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -159,12 +192,19 @@ export const api = {
         workspace: payload.workspace,
       }),
     });
+    const session = extractSessionPayload(response);
+    const messages = extractSessionMessages(
+      session,
+      response.messages,
+      response.result && typeof response.result === "object" ? response.result.messages : null,
+    );
+    const lastAssistantMessage = [...messages].reverse().find((message) => message.role === "assistant" && typeof message.content === "string");
 
     return {
-      answer: response.answer,
-      status: response.status,
-      session: normalizeSessionInfo(response.session),
-      messages: normalizeSessionMessages(response.session.messages),
+      answer: response.answer ?? lastAssistantMessage?.content ?? "",
+      status: response.status ?? "done",
+      session: normalizeSessionInfo({ ...session, messages }),
+      messages,
       result: response.result ?? null,
     };
   },
@@ -282,6 +322,7 @@ export interface StatusResponse {
 export interface SessionInfo {
   id: string;
   source: string | null;
+  workspace?: string | null;
   model: string | null;
   title: string | null;
   started_at: number;

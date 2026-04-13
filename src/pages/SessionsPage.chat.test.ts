@@ -17,6 +17,7 @@ const sessions: SessionInfo[] = [
   {
     id: selectedRuntimeSession.id,
     source: selectedRuntimeSession.source,
+    workspace: "/root/hermes-control-center",
     model: selectedRuntimeSession.model,
     title: selectedRuntimeSession.title,
     started_at: 1713000000,
@@ -28,6 +29,22 @@ const sessions: SessionInfo[] = [
     input_tokens: 100,
     output_tokens: 150,
     preview: selectedRuntimeSession.preview,
+  },
+  {
+    id: "sess-second",
+    source: "cli",
+    workspace: "/root/hermes-control-center",
+    model: "anthropic/claude-sonnet-4.6",
+    title: "Second chat",
+    started_at: 1713000100,
+    ended_at: null,
+    last_active: 1713000200,
+    is_active: false,
+    message_count: 4,
+    tool_call_count: 0,
+    input_tokens: 40,
+    output_tokens: 60,
+    preview: "Second preview",
   },
 ];
 
@@ -109,6 +126,10 @@ function findButtonByText(container: HTMLElement, text: string) {
   return Array.from(container.querySelectorAll("button")).find((button) => button.textContent?.includes(text)) ?? null;
 }
 
+function findLinkByText(container: HTMLElement, text: string) {
+  return Array.from(container.querySelectorAll("a")).find((link) => link.textContent?.includes(text)) ?? null;
+}
+
 describe("SessionsPage chat MVP surface", () => {
   beforeAll(async () => {
     await i18n.changeLanguage("en");
@@ -139,6 +160,97 @@ describe("SessionsPage chat MVP surface", () => {
     expect(container.textContent).toContain("New chat");
     expect(container.textContent).toContain("Existing transcript");
     expect(container.textContent).toContain("Composer");
+
+    await cleanup();
+  });
+
+  it("switches the active conversation from the left session list", async () => {
+    const getSessionMessages = vi.spyOn(api, "getSessionMessages");
+    getSessionMessages
+      .mockResolvedValueOnce({
+        session_id: selectedRuntimeSession.id,
+        messages: [{ role: "assistant", content: "Primary transcript" } as SessionMessage],
+      })
+      .mockResolvedValueOnce({
+        session_id: "sess-second",
+        messages: [{ role: "assistant", content: "Second transcript" } as SessionMessage],
+      });
+
+    runtimeQueryState = {
+      data: {
+        source: "fixture",
+        snapshot: {
+          ...runtimeContractSnapshot,
+          sessions: [
+            ...runtimeContractSnapshot.sessions,
+            {
+              ...runtimeContractSnapshot.sessions[0]!,
+              id: "sess-second",
+              title: "Second chat",
+              source: "cli",
+              model: "anthropic/claude-sonnet-4.6",
+              preview: "Second preview",
+              runIds: [],
+            },
+          ],
+        },
+        error: null,
+      },
+      isPending: false,
+    };
+
+    const { container, router, cleanup } = await renderSessionsRoute(`/sessions/${selectedRuntimeSession.id}`);
+    const secondSessionLink = findLinkByText(container, "Second chat");
+
+    expect(secondSessionLink).not.toBeNull();
+
+    await act(async () => {
+      secondSessionLink!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(router.state.location.pathname).toBe("/sessions/sess-second");
+    expect(container.textContent).toContain("Second transcript");
+
+    await cleanup();
+  });
+
+  it("preserves the active workspace scope when starting a new chat", async () => {
+    vi.spyOn(api, "getSessionMessages").mockResolvedValue({
+      session_id: selectedRuntimeSession.id,
+      messages: [{ role: "assistant", content: "Existing transcript" } as SessionMessage],
+    });
+    const createSession = vi.spyOn(api, "createSession").mockResolvedValue({
+      session: {
+        ...sessions[0],
+        id: "sess-workspace-new",
+        title: "Scoped chat",
+        preview: "Scoped chat",
+        last_active: 1713000350,
+      },
+      messages: [],
+    });
+
+    const { container, router, cleanup } = await renderSessionsRoute(
+      `/sessions/${selectedRuntimeSession.id}?workspace=hermes-control-center`,
+    );
+    const newChatButton = findButtonByText(container, "New chat");
+
+    expect(newChatButton).not.toBeNull();
+
+    await act(async () => {
+      newChatButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(createSession).toHaveBeenCalledWith({
+      model: selectedRuntimeSession.model ?? undefined,
+      workspace: "/root/hermes-control-center",
+    });
+    expect(router.state.location.pathname).toBe("/sessions/sess-workspace-new");
+    expect(router.state.location.search).toBe("?workspace=hermes-control-center");
 
     await cleanup();
   });
@@ -192,8 +304,130 @@ describe("SessionsPage chat MVP surface", () => {
       sessionId: selectedRuntimeSession.id,
       message: "Ship the chat MVP",
       model: selectedRuntimeSession.model ?? undefined,
+      workspace: "/root/hermes-control-center",
     });
     expect(container.textContent).toContain("Hermes reply");
+
+    await cleanup();
+  });
+
+  it("supports cmd-or-ctrl-enter as a fast send shortcut", async () => {
+    vi.spyOn(api, "getSessionMessages").mockResolvedValue({
+      session_id: selectedRuntimeSession.id,
+      messages: [{ role: "assistant", content: "Existing transcript" } as SessionMessage],
+    });
+    const sendChatMessage = vi.spyOn(api, "sendChatMessage").mockResolvedValue({
+      answer: "Shortcut reply",
+      status: "done",
+      result: null,
+      session: {
+        ...sessions[0],
+        last_active: 1713000500,
+        message_count: 11,
+        preview: "Shortcut reply",
+      },
+      messages: [
+        { role: "assistant", content: "Existing transcript" },
+        { role: "user", content: "Send with shortcut" },
+        { role: "assistant", content: "Shortcut reply" },
+      ],
+    });
+
+    const { container, cleanup } = await renderSessionsRoute(`/sessions/${selectedRuntimeSession.id}`);
+    const textarea = container.querySelector("textarea");
+
+    expect(textarea).not.toBeNull();
+
+    await act(async () => {
+      const valueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      valueSetter?.call(textarea, "Send with shortcut");
+      textarea!.dispatchEvent(new Event("input", { bubbles: true }));
+      textarea!.dispatchEvent(new Event("change", { bubbles: true }));
+      textarea!.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Enter", ctrlKey: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(sendChatMessage).toHaveBeenCalledWith({
+      sessionId: selectedRuntimeSession.id,
+      message: "Send with shortcut",
+      model: selectedRuntimeSession.model ?? undefined,
+      workspace: "/root/hermes-control-center",
+    });
+    expect(container.textContent).toContain("Shortcut reply");
+
+    await cleanup();
+  });
+
+  it("preserves workspace scope when the composer creates the first session from an empty scoped route", async () => {
+    const unrelatedSessions = sessions.map((session) => ({ ...session, id: `${session.id}-external` }));
+    const createSession = vi.spyOn(api, "createSession").mockResolvedValue({
+      session: {
+        ...sessions[0],
+        id: "sess-empty-scope",
+        title: "Empty scope session",
+        preview: "Scoped send reply",
+        last_active: 1713000600,
+      },
+      messages: [],
+    });
+    const sendChatMessage = vi.spyOn(api, "sendChatMessage").mockResolvedValue({
+      answer: "Scoped send reply",
+      status: "done",
+      result: null,
+      session: {
+        ...sessions[0],
+        id: "sess-empty-scope",
+        title: "Empty scope session",
+        preview: "Scoped send reply",
+        last_active: 1713000601,
+        message_count: 2,
+      },
+      messages: [
+        { role: "user", content: "Create from empty scope" },
+        { role: "assistant", content: "Scoped send reply" },
+      ],
+    });
+
+    const { container, router, cleanup } = await renderSessionsRoute(
+      "/sessions?workspace=hermes-control-center",
+      unrelatedSessions,
+    );
+    const textarea = container.querySelector("textarea");
+
+    expect(container.textContent).toContain("No sessions are linked to this workspace yet");
+    expect(textarea).not.toBeNull();
+
+    await act(async () => {
+      const valueSetter = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")?.set;
+      valueSetter?.call(textarea, "Create from empty scope");
+      textarea!.dispatchEvent(new Event("input", { bubbles: true }));
+      textarea!.dispatchEvent(new Event("change", { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    const sendButton = findButtonByText(container, "Send");
+    expect(sendButton).not.toBeNull();
+
+    await act(async () => {
+      sendButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(createSession).toHaveBeenCalledWith({
+      model: undefined,
+      workspace: "/root/hermes-control-center",
+    });
+    expect(sendChatMessage).toHaveBeenCalledWith({
+      sessionId: "sess-empty-scope",
+      message: "Create from empty scope",
+      model: selectedRuntimeSession.model ?? undefined,
+      workspace: "/root/hermes-control-center",
+    });
+    expect(router.state.location.pathname).toBe("/sessions/sess-empty-scope");
+    expect(router.state.location.search).toBe("?workspace=hermes-control-center");
+    expect(container.textContent).toContain("Scoped send reply");
 
     await cleanup();
   });
