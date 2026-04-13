@@ -256,7 +256,15 @@ export default function WorkspacesPage() {
                 </div>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-4">
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("workspaces.runQueueTitle")}</div>
+                  <div className="mt-1 font-medium text-foreground">{t("workspaces.runQueueBody", { count: review.metrics.runs })}</div>
+                  <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/runs?workspace=${selectedWorkspace.slug}`}>
+                    {t("workspaces.openWorkspaceRunQueue")}
+                  </Link>
+                </div>
+
                 <div className="border border-border bg-background/60 p-4">
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("workspaces.primarySessionTitle")}</div>
                   <div className="mt-1 font-medium text-foreground">{review.primarySession?.title ?? t("workspaces.noSessionLinked")}</div>
@@ -271,7 +279,7 @@ export default function WorkspacesPage() {
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("workspaces.primaryRunTitle")}</div>
                   <div className="mt-1 font-medium text-foreground">{review.primaryRun?.title ?? t("workspaces.noRunLinked")}</div>
                   {review.primaryRun ? (
-                    <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/runs/${review.primaryRun.id}`}>
+                    <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/runs/${review.primaryRun.id}?workspace=${selectedWorkspace.slug}`}>
                       {t("workspaces.openRunReview")}
                     </Link>
                   ) : null}

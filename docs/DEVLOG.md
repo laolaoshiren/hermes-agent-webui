@@ -238,6 +238,29 @@ This log is intentionally public-facing and continuously append-only so both the
   - open PR into `develop` for issue #15
   - then decide whether the next workspace-model increment should target richer not-found/error semantics or cross-workspace runtime filtering
 
+## 2026-04-13 22:49 +08:00
+
+- Merged ready PR #16 (`feat: add workspace review surface and operator handoff`) into `develop`, deleted the completed branch, and continued from fresh branch `feat/issue-17-workspace-run-filter`.
+- Created issue #17 (`Product shell: add workspace-scoped runs queue and handoff`) after an internal simulated-user pass showed the main workspace-to-runs trust gap: operators could only jump to a single primary run and lost workspace context.
+- Added the workspace-scoped runs increment:
+  - added `docs/plans/2026-04-13-issue-17-workspace-run-filter.md`
+  - added `src/pages/runsWorkspaceFilter.ts` plus focused coverage in `src/pages/runsWorkspaceFilter.test.ts`
+  - updated `src/pages/RunsPage.tsx` to honor `?workspace=<slug>` queue scope, preserve deep-link context, and provide a return path to the selected workspace review
+  - updated `src/pages/WorkspacesPage.tsx` so operator handoff now includes a queue-style workspace run link and preserves workspace scope on primary-run drill-in
+  - localized the new shell copy in English + Simplified Chinese and documented the route-safe workspace handoff in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+  - added focused route coverage in `src/pages/RunsPage.workspaceFilter.test.ts` and updated `src/pages/WorkspacesPage.test.ts`
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent code quality review ✅ APPROVED after fixing scoped primary-run handoff and tightening route coverage
+- Validation status:
+  - `npm run test -- --run src/pages/runsWorkspaceFilter.test.ts src/pages/RunsPage.workspaceFilter.test.ts src/pages/WorkspacesPage.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - push issue #17 and open the PR into `develop`
+  - if the PR goes green, merge it and then continue either with richer workspace-scoped approval/session filtering or with bundle-size trimming for the growing runtime shell
+
 ## Working principles
 
 - plan-driven execution
