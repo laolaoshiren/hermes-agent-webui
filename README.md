@@ -37,16 +37,17 @@ Current packaging status:
 
 ## Try the demo
 
-Current live surfaces on the author's server:
-- Demo workspace: `http://192.168.4.135:4173`
-- Backend status endpoint: `http://192.168.4.135:9119/api/status`
+Public demo status:
+- GitHub Pages deployment workflow is live and being activated
+- Current public alpha release: `v0.1.0-alpha.1`
+- Until the public demo URL is attached, use the screenshots, release page, and active workflow badges as the live progress surface
 
 ![Hermes Agent WebUI demo homepage](assets/demo-homepage.png)
 
-Note:
-- the UI is still moving quickly
-- first-load rough edges are expected during active incubation
-- the public-ready auth and deployment layer is being built next
+What to expect right now:
+- the UI is moving quickly
+- rough edges are expected during active incubation
+- public-ready auth and deployment are the next visible product layer
 
 ## What you should expect right now
 
@@ -120,6 +121,18 @@ The near-term goal is simple:
 - copy what users already love from strong Hermes web frontends
 - fix the pain points they still complain about
 - build original advantages around public-safe deployment, owner-first flow, and cleaner product UX
+
+## Fast feedback loop
+
+If you try the project and hit a problem, open an issue immediately:
+- bug report: `https://github.com/laolaoshiren/hermes-agent-webui/issues/new/choose`
+- feature request: `https://github.com/laolaoshiren/hermes-agent-webui/issues/new/choose`
+
+Current operating principle:
+- ship fast
+- let users touch the product early
+- fix visible problems quickly
+- keep the public repo looking alive and responsive
 
 ## Inspirations
 
