@@ -344,6 +344,25 @@ This log is intentionally public-facing and continuously append-only so both the
   - commit and push the branch, then open PR into `develop`
   - continue improving replayability/workspace trust surfaces without breaking the shared runtime contract
 
+## 2026-04-14 05:07 +08:00
+
+- Checked repository and GitHub state at the start of the cron run from `feat/issue-29-fast-mvp-parity`: no open PRs were waiting for merge, PR #30 had already promoted the earlier chat-first slice, and the current highest-value action was to re-promote the newer MVP backend-adapter increment.
+- Re-validated the current issue #29 branch before promotion:
+  - `npm run test -- --run src/lib/api.test.ts src/pages/SessionsPage.chat.test.ts src/pages/SessionsPage.route.test.ts src/pages/SessionsPage.redirect.test.ts` ✅
+  - `python3 -m unittest discover -s tests -p 'test_mvp_backend.py' -v` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Promotion/hygiene actions completed in this run:
+  - appended the public devlog for traceability
+  - opened PR #31 from `feat/issue-29-fast-mvp-parity` into `develop` for the backend-adapter delta beyond merged PR #30
+  - closed stale issue #27, which had already been satisfied by merged PR #28 but remained open in GitHub
+  - created follow-up issue #32 (`Fast MVP parity: add streaming chat transport and in-flight session UX`) from the internal simulated-user pass so the next increment stays issue-driven
+- Next focus:
+  - monitor PR #31 until checks are green and mergeable
+  - implement issue #32 as the next fast-parity slice once PR #31 lands
+  - keep repository hygiene tight as the MVP branch train continues
+
 ## Working principles
 
 - plan-driven execution
