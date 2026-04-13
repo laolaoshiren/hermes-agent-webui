@@ -15,6 +15,7 @@ import type {
 } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
 import { deriveReplaySummary } from "@/pages/runsReplaySummary";
+import { getScopedHandoffWorkspaceSlug } from "@/pages/runsReviewHandoff";
 import { deriveRunsWorkspaceFilterState } from "@/pages/runsWorkspaceFilter";
 
 function formatTimestamp(value: string | null) {
@@ -262,7 +263,11 @@ export default function RunsPage() {
   const selectedRun = matchedRun ?? defaultRun;
   const selectedSession = snapshot.sessions.find((session) => session.id === selectedRun.sessionId) ?? null;
   const selectedWorkspace = snapshot.workspaces.find((workspace) => workspace.id === selectedRun.workspaceId) ?? null;
-  const handoffWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
+  const handoffWorkspaceSlug = getScopedHandoffWorkspaceSlug(
+    workspaceFilter.selectedWorkspace?.id,
+    workspaceFilter.selectedWorkspace?.slug,
+    selectedRun.workspaceId,
+  );
   const selectedTimeline = getTimelineForRun(snapshot, selectedRun.id);
   const selectedArtifacts = getArtifactsForRun(snapshot, selectedRun.id);
   const selectedApprovals = getApprovalsForRun(snapshot, selectedRun.id);

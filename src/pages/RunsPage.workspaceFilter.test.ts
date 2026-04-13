@@ -6,6 +6,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import i18n from "@/i18n";
 import RunsPage from "@/pages/RunsPage";
+import { getScopedHandoffWorkspaceSlug } from "@/pages/runsReviewHandoff";
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
 
 const multiWorkspaceSnapshot = {
@@ -169,6 +170,14 @@ describe("RunsPage workspace filter", () => {
 
     expect(markup).toContain("/sessions/sess-customer-support?workspace=customer-support");
     expect(markup).toContain("/approvals/approval-customer-support-policy?workspace=customer-support");
+  });
+
+  it("only preserves scoped handoff when the selected run belongs to the active workspace", () => {
+    expect(getScopedHandoffWorkspaceSlug("ws-customer-support", "customer-support", "ws-customer-support")).toBe(
+      "customer-support",
+    );
+    expect(getScopedHandoffWorkspaceSlug("ws-customer-support", "customer-support", "ws-hcc")).toBeNull();
+    expect(getScopedHandoffWorkspaceSlug(null, "customer-support", "ws-customer-support")).toBeNull();
   });
 
   it("falls back to the global queue when no workspace filter is present", () => {

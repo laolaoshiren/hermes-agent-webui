@@ -361,3 +361,22 @@ This log is intentionally public-facing and continuously append-only so both the
   - run full verification for the issue #25 branch
   - commit and push the branch, then open PR into `develop`
   - continue tightening run/session/approval replayability without breaking the shared runtime contract
+
+## 2026-04-14 02:26 +08:00
+
+- Re-validated PR #26 (`feat: add run review trust context and scoped handoff`) before promotion and ran the full required frontend verification suite.
+- Addressed an independent review concern by tightening workspace-safe handoff logic:
+  - extracted `src/pages/runsReviewHandoff.ts` to make the workspace-scope rule explicit and lint-safe
+  - updated `src/pages/RunsPage.tsx` so session/approval drill-ins only preserve `?workspace=` when the selected run actually belongs to the active workspace scope
+  - extended `src/pages/RunsPage.workspaceFilter.test.ts` with direct regression coverage for the scoped-handoff guard
+- Validation status:
+  - `npm run test -- --run src/pages/RunsPage.workspaceFilter.test.ts src/pages/RunsPage.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Review status:
+  - independent quality re-review ✅ APPROVED after the scoped-handoff guard fix
+- Next focus:
+  - push the final PR #26 fixup and merge it into `develop`
+  - close issue #25 after promotion
+  - run a fresh simulated-user pass to pick the next approval/replayability gap
