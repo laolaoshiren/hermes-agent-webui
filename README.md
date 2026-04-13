@@ -1,5 +1,9 @@
 # Hermes Agent WebUI
 
+[![CI](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/ci.yml/badge.svg)](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/ci.yml)
+[![Pages](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/pages.yml/badge.svg)](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/pages.yml)
+[![Release](https://img.shields.io/github/v/release/laolaoshiren/hermes-agent-webui)](https://github.com/laolaoshiren/hermes-agent-webui/releases)
+
 Hermes Agent WebUI is a chat-first web app for Hermes Agent.
 
 It is being built to beat the current default choices for Hermes on the dimensions normal people actually feel first:
@@ -25,6 +29,11 @@ Our goal is to ship a frontend that is:
 - owner-first instead of enterprise-heavy
 - public-deployable with real auth and sane defaults
 - modern enough to attract contributors, not just end users
+
+Current packaging status:
+- first public alpha release is live: `v0.1.0-alpha.1`
+- CI is active
+- GitHub Pages deployment workflow is wired up and being brought online
 
 ## Try the demo
 
