@@ -191,6 +191,7 @@ The control center can now derive a `RuntimeContractSnapshot` from live `/api/se
 - `buildRuntimeSnapshot(source)` in `src/features/runtime/adapters.ts` is the only supported path from Hermes-native payloads into `RuntimeContractSnapshot`
 - page components should consume the contract snapshot and selector helpers, never re-derive run/approval relationships ad hoc
 - adapter validation must reject broken approval/artifact/event linkages before data reaches the UI
+- read-only workspace review state should be derived from the shared snapshot and linked collections, even when live hydration currently synthesizes a single runtime workspace
 
 ### Phase C — live runtime integration
 

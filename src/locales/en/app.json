@@ -57,6 +57,48 @@
       "librechat": "LibreChat session UX"
     }
   },
+  "workspaces": {
+    "eyebrow": "Workspace operations",
+    "title": "Workspaces",
+    "description": "Review workspace-scoped repository context, runtime workload, and operator handoff without leaving the shared product shell.",
+    "badge": "workspace review preview",
+    "summaryTitle": "Workspace summary",
+    "indexTitle": "Workspace index",
+    "selectedWorkspaceTitle": "Selected workspace",
+    "selectedWorkspaceLabel": "Current workspace review",
+    "selectedWorkspaceBody": "Workspace review surface for repository context, policy posture, and runtime handoff.",
+    "openWorkspaceReview": "Open workspace review",
+    "repositoryLabel": "Repository",
+    "defaultBranchLabel": "Default branch",
+    "policyPresetLabel": "Policy preset",
+    "latestActivityLabel": "Latest activity",
+    "operatorHandoffTitle": "Operator handoff",
+    "primarySessionTitle": "Primary session",
+    "primaryRunTitle": "Primary run",
+    "primaryApprovalTitle": "Primary approval",
+    "openSessionReview": "Open session review",
+    "openRunReview": "Open run review",
+    "openApprovalReview": "Open approval review",
+    "noRepository": "No repository linked",
+    "notSet": "Not set",
+    "noSessionLinked": "No session linked yet",
+    "noRunLinked": "No run linked yet",
+    "noApprovalLinked": "No approval linked yet",
+    "emptyStateTitle": "No workspaces available yet",
+    "emptyStateBody": "Connect runtime-backed workspace records or fixture data to populate this review surface.",
+    "statuses": {
+      "active": "Active",
+      "paused": "Paused",
+      "archived": "Archived"
+    },
+    "metrics": {
+      "sessions": "Sessions",
+      "runs": "Runs",
+      "activeRuns": "Active runs",
+      "pendingApprovals": "Pending approvals",
+      "artifacts": "Artifacts"
+    }
+  },
   "runs": {
     "eyebrow": "Runtime UX",
     "title": "Runs",

@@ -4,7 +4,39 @@ import type {
   RunSummary,
   RunTimelineEvent,
   RuntimeContractSnapshot,
+  SessionSummary,
+  WorkspaceSummary,
 } from "@/features/runtime/types";
+
+export function getDefaultWorkspace(snapshot: RuntimeContractSnapshot): WorkspaceSummary | null {
+  return snapshot.workspaces.find((workspace) => workspace.status === "active") ?? snapshot.workspaces[0] ?? null;
+}
+
+export function getWorkspaceById(snapshot: RuntimeContractSnapshot, workspaceId: string): WorkspaceSummary | null {
+  return snapshot.workspaces.find((workspace) => workspace.id === workspaceId) ?? null;
+}
+
+export function getWorkspaceBySlug(snapshot: RuntimeContractSnapshot, workspaceSlug: string): WorkspaceSummary | null {
+  return snapshot.workspaces.find((workspace) => workspace.slug === workspaceSlug) ?? null;
+}
+
+export function getSessionsForWorkspace(snapshot: RuntimeContractSnapshot, workspaceId: string): SessionSummary[] {
+  return snapshot.sessions.filter((session) => session.workspaceId === workspaceId);
+}
+
+export function getRunsForWorkspace(snapshot: RuntimeContractSnapshot, workspaceId: string): RunSummary[] {
+  return snapshot.runs.filter((run) => run.workspaceId === workspaceId);
+}
+
+export function getApprovalsForWorkspace(snapshot: RuntimeContractSnapshot, workspaceId: string): ApprovalSummary[] {
+  const runIds = new Set(getRunsForWorkspace(snapshot, workspaceId).map((run) => run.id));
+  return snapshot.approvals.filter((approval) => runIds.has(approval.runId));
+}
+
+export function getArtifactsForWorkspace(snapshot: RuntimeContractSnapshot, workspaceId: string): ArtifactSummary[] {
+  const runIds = new Set(getRunsForWorkspace(snapshot, workspaceId).map((run) => run.id));
+  return snapshot.artifacts.filter((artifact) => runIds.has(artifact.runId));
+}
 
 export function getDefaultRun(snapshot: RuntimeContractSnapshot): RunSummary | null {
   return snapshot.runs.find((run) => run.status === "running") ?? snapshot.runs[0] ?? null;

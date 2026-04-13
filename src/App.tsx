@@ -130,6 +130,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/overview" replace />} />
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/workspaces" element={<WorkspacesPage />} />
+          <Route path="/workspaces/:workspaceSlug" element={<WorkspacesPage />} />
           <Route path="/runs" element={<RunsPage />} />
           <Route path="/runs/:runId" element={<RunsPage />} />
           <Route path="/approvals" element={<ApprovalsPage />} />

@@ -214,6 +214,30 @@ This log is intentionally public-facing and continuously append-only so both the
   - then pick the next focused increment between workspace foundations and deeper session/run replay linkage
   - keep bundle growth visible as runtime-facing product surfaces expand
 
+## 2026-04-13 22:05 +08:00
+
+- Created issue #15 (`Product shell: add workspace review surface and operator handoff`) after an internal simulated-user/product pass confirmed that Workspaces was the highest-trust-gap top-level route.
+- Continued from fresh branch `feat/issue-15-workspace-review-surface` with a focused workspace-model shell increment:
+  - added `docs/plans/2026-04-13-issue-15-workspace-review-surface.md`
+  - added workspace selectors in `src/features/runtime/selectors.ts`
+  - added `src/pages/workspaceReview.ts` for canonical workspace selection, slug-based drill-in, derived workload metrics, and primary handoff targets
+  - replaced the static `WorkspacesPage` placeholder with a runtime-backed read-only review surface and `/workspaces/:workspaceSlug` support
+  - localized the new workspace shell copy in English + Simplified Chinese
+  - documented the workspace review surface in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+  - added focused Vitest coverage in `src/pages/workspaceReview.test.ts` and `src/pages/WorkspacesPage.test.ts` for canonical selection, drill-in rendering, loading, and empty-state behavior
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent quality review ⚠️ flagged a possible future UX refinement around invalid-slug handling, but the current canonical redirect behavior was kept to match issue #15 acceptance criteria
+- Validation status:
+  - `npm run test -- --run src/pages/workspaceReview.test.ts src/pages/WorkspacesPage.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - commit and push the workspace review slice
+  - open PR into `develop` for issue #15
+  - then decide whether the next workspace-model increment should target richer not-found/error semantics or cross-workspace runtime filtering
+
 ## Working principles
 
 - plan-driven execution

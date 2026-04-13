@@ -57,6 +57,48 @@
       "librechat": "LibreChat 会话体验"
     }
   },
+  "workspaces": {
+    "eyebrow": "工作区运维",
+    "title": "工作区",
+    "description": "在统一产品壳层中审阅工作区级别的仓库上下文、运行负载和运维交接，而不必跳出当前界面。",
+    "badge": "工作区审查预览",
+    "summaryTitle": "工作区摘要",
+    "indexTitle": "工作区列表",
+    "selectedWorkspaceTitle": "当前工作区",
+    "selectedWorkspaceLabel": "当前工作区审查",
+    "selectedWorkspaceBody": "工作区审查界面用于呈现仓库上下文、策略姿态和运行时交接信息。",
+    "openWorkspaceReview": "打开工作区审查",
+    "repositoryLabel": "仓库",
+    "defaultBranchLabel": "默认分支",
+    "policyPresetLabel": "策略预设",
+    "latestActivityLabel": "最近活动",
+    "operatorHandoffTitle": "运维交接",
+    "primarySessionTitle": "主会话",
+    "primaryRunTitle": "主运行",
+    "primaryApprovalTitle": "主审批",
+    "openSessionReview": "打开会话审查",
+    "openRunReview": "打开运行审查",
+    "openApprovalReview": "打开审批审查",
+    "noRepository": "尚未关联仓库",
+    "notSet": "未设置",
+    "noSessionLinked": "尚未关联会话",
+    "noRunLinked": "尚未关联运行",
+    "noApprovalLinked": "尚未关联审批",
+    "emptyStateTitle": "暂时还没有可用工作区",
+    "emptyStateBody": "接入运行时工作区记录或示例数据后，这个审查界面就会显示内容。",
+    "statuses": {
+      "active": "运行中",
+      "paused": "已暂停",
+      "archived": "已归档"
+    },
+    "metrics": {
+      "sessions": "会话",
+      "runs": "运行",
+      "activeRuns": "活跃运行",
+      "pendingApprovals": "待审批",
+      "artifacts": "产物"
+    }
+  },
   "runs": {
     "eyebrow": "运行时体验",
     "title": "运行",
