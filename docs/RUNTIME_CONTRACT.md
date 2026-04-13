@@ -223,3 +223,13 @@ The control center can now derive a `RuntimeContractSnapshot` from live `/api/se
 - `user` / `assistant` messages become `message` timeline events
 - `tool` messages and `tool_calls` arrays become `tool_call` timeline events
 - approvals remain empty until a durable backend approval endpoint exists
+
+## Replay timeline enrichment
+
+The live adapter now derives more replay-ready structure without pushing Hermes-native parsing into page components.
+
+- every hydrated live run emits lifecycle `system` events for session start plus either an active heartbeat or a completion edge
+- transcript artifacts also create `artifact` timeline entries so the replay stream can explain when durable outputs appeared
+- adapter metadata stays deterministic and type-safe: workspace freshness is derived from session/message timestamps rather than wall-clock render time
+- the Runs page consumes replay summaries from contract events instead of re-reading raw `SessionInfo` or `SessionMessage` payloads
+- replay summary UI currently reports message, tool-call, and system-event counts plus the latest replay timestamp for the selected run

@@ -11,6 +11,7 @@ import type { RuntimeContractSnapshot } from "@/features/runtime/types";
 import type { SessionInfo, SessionMessage } from "@/lib/api";
 
 const LIVE_WORKSPACE_ID = "ws-hermes-runtime";
+const ISO_EPOCH = new Date(0).toISOString();
 
 function toIsoFromUnixSeconds(value: number | null | undefined): string | null {
   if (typeof value !== "number") {
@@ -25,7 +26,7 @@ function getRunStatus(session: SessionInfo): RuntimeRunSource["status"] {
     return "running";
   }
 
-  if (session.ended_at) {
+  if (session.ended_at !== null && session.ended_at !== undefined) {
     return "completed";
   }
 
@@ -63,6 +64,33 @@ function getPrimaryActor(session: SessionInfo): string {
   return session.source === "cron" ? "Hermes cron" : "Hermes operator";
 }
 
+function getSessionSourceMetadata(session: SessionInfo): string {
+  return session.source ?? "unknown";
+}
+
+function getWorkspaceUpdatedAt(
+  sessions: SessionInfo[],
+  messagesBySessionId: Record<string, SessionMessage[]>,
+): string {
+  let latestTimestamp: number | null = null;
+
+  for (const session of sessions) {
+    for (const candidate of [session.started_at, session.last_active, session.ended_at]) {
+      if (typeof candidate === "number" && (latestTimestamp === null || candidate > latestTimestamp)) {
+        latestTimestamp = candidate;
+      }
+    }
+
+    for (const message of messagesBySessionId[session.id] ?? []) {
+      if (typeof message.timestamp === "number" && (latestTimestamp === null || message.timestamp > latestTimestamp)) {
+        latestTimestamp = message.timestamp;
+      }
+    }
+  }
+
+  return toIsoFromUnixSeconds(latestTimestamp) ?? ISO_EPOCH;
+}
+
 function buildRun(session: SessionInfo, messages: SessionMessage[]): RuntimeRunSource {
   return {
     id: `run-${session.id}`,
@@ -73,7 +101,7 @@ function buildRun(session: SessionInfo, messages: SessionMessage[]): RuntimeRunS
     trigger: getRunTrigger(session),
     summary: getRunSummary(session, messages),
     primaryActor: getPrimaryActor(session),
-    startedAt: toIsoFromUnixSeconds(session.started_at) ?? new Date(0).toISOString(),
+    startedAt: toIsoFromUnixSeconds(session.started_at) ?? ISO_EPOCH,
     endedAt: toIsoFromUnixSeconds(session.ended_at),
   };
 }
@@ -95,7 +123,95 @@ function buildTranscriptArtifact(runId: string, session: SessionInfo, messages: 
         toIsoFromUnixSeconds(messages[messages.length - 1]?.timestamp) ??
         toIsoFromUnixSeconds(session.last_active) ??
         toIsoFromUnixSeconds(session.started_at) ??
-        new Date(0).toISOString(),
+        ISO_EPOCH,
+    },
+  ];
+}
+
+function buildLifecycleEvents(runId: string, session: SessionInfo): RuntimeTimelineEventSource[] {
+  const startTimestamp = toIsoFromUnixSeconds(session.started_at) ?? ISO_EPOCH;
+  const events: RuntimeTimelineEventSource[] = [
+    {
+      id: `evt-${session.id}-lifecycle-start`,
+      runId,
+      timestamp: startTimestamp,
+      kind: "system",
+      status: "completed",
+      title: "Session started",
+      detail: `Live Hermes session ${session.id} started.`,
+      actor: "system",
+      toolName: null,
+      artifactId: null,
+      approvalId: null,
+      durationMs: null,
+      metadata: {
+        phase: "start",
+        sessionSource: getSessionSourceMetadata(session),
+      },
+    },
+  ];
+
+  if (session.is_active) {
+    events.push({
+      id: `evt-${session.id}-lifecycle-active`,
+      runId,
+      timestamp: toIsoFromUnixSeconds(session.last_active) ?? startTimestamp,
+      kind: "system",
+      status: "active",
+      title: "Session active",
+      detail: `Live Hermes session ${session.id} is still active.`,
+      actor: "system",
+      toolName: null,
+      artifactId: null,
+      approvalId: null,
+      durationMs: null,
+      metadata: {
+        phase: "heartbeat",
+        sessionSource: getSessionSourceMetadata(session),
+      },
+    });
+  } else if (session.ended_at !== null && session.ended_at !== undefined) {
+    events.push({
+      id: `evt-${session.id}-lifecycle-complete`,
+      runId,
+      timestamp: toIsoFromUnixSeconds(session.ended_at) ?? toIsoFromUnixSeconds(session.last_active) ?? startTimestamp,
+      kind: "system",
+      status: "completed",
+      title: "Session completed",
+      detail: `Live Hermes session ${session.id} ended.`,
+      actor: "system",
+      toolName: null,
+      artifactId: null,
+      approvalId: null,
+      durationMs: null,
+      metadata: {
+        phase: "completion",
+        sessionSource: getSessionSourceMetadata(session),
+      },
+    });
+  }
+
+  return events;
+}
+
+function buildArtifactEvents(artifact: RuntimeArtifactSource): RuntimeTimelineEventSource[] {
+  return [
+    {
+      id: `evt-${artifact.id}-created`,
+      runId: artifact.runId,
+      timestamp: artifact.createdAt,
+      kind: "artifact",
+      status: "completed",
+      title: "Transcript created",
+      detail: `${artifact.label} created.`,
+      actor: "system",
+      toolName: null,
+      artifactId: artifact.id,
+      approvalId: null,
+      durationMs: null,
+      metadata: {
+        artifactKind: artifact.kind,
+      },
     },
   ];
 }
@@ -109,7 +225,7 @@ function buildMessageEvents(runId: string, sessionId: string, message: SessionMe
     {
       id: `evt-${sessionId}-message-${index}`,
       runId,
-      timestamp: toIsoFromUnixSeconds(message.timestamp) ?? new Date(0).toISOString(),
+      timestamp: toIsoFromUnixSeconds(message.timestamp) ?? ISO_EPOCH,
       kind: "message",
       status: "completed",
       title: message.role === "user" ? "User message" : "Assistant message",
@@ -126,7 +242,7 @@ function buildMessageEvents(runId: string, sessionId: string, message: SessionMe
 
 function buildToolEvents(runId: string, sessionId: string, message: SessionMessage, index: number): RuntimeTimelineEventSource[] {
   const events: RuntimeTimelineEventSource[] = [];
-  const timestamp = toIsoFromUnixSeconds(message.timestamp) ?? new Date(0).toISOString();
+  const timestamp = toIsoFromUnixSeconds(message.timestamp) ?? ISO_EPOCH;
 
   if (message.role === "tool") {
     events.push({
@@ -186,7 +302,7 @@ export function buildRuntimeSnapshotFromSessions(input: {
       repository: null,
       defaultBranch: null,
       policyPreset: "runtime-observe",
-      updatedAt: new Date().toISOString(),
+      updatedAt: getWorkspaceUpdatedAt(input.sessions, input.messagesBySessionId),
     },
   ];
 
@@ -205,11 +321,18 @@ export function buildRuntimeSnapshotFromSessions(input: {
     const run = buildRun(session, messages);
     runs.push(run);
 
-    artifacts.push(...buildTranscriptArtifact(run.id, session, messages));
+    events.push(...buildLifecycleEvents(run.id, session));
+
+    const transcriptArtifacts = buildTranscriptArtifact(run.id, session, messages);
+    artifacts.push(...transcriptArtifacts);
 
     for (const [index, message] of messages.entries()) {
       events.push(...buildMessageEvents(run.id, session.id, message, index));
       events.push(...buildToolEvents(run.id, session.id, message, index));
+    }
+
+    for (const artifact of transcriptArtifacts) {
+      events.push(...buildArtifactEvents(artifact));
     }
   }
 
