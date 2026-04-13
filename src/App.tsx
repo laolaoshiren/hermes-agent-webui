@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import {
   Activity,
@@ -32,12 +32,35 @@ import { Badge } from "@/components/ui/badge";
 
 function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const [, setLanguageVersion] = useState(0);
+
+  useEffect(() => {
+    const handleLanguageChanged = (lng: string) => {
+      document.documentElement.lang = lng;
+      setLanguageVersion((value) => value + 1);
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+    document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language ?? "en";
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, [i18n]);
+
   const current = i18n.resolvedLanguage?.startsWith("zh") ? "zh-CN" : "en";
+  const setLanguage = async (lng: "en" | "zh-CN") => {
+    await i18n.changeLanguage(lng);
+    document.documentElement.lang = lng;
+    localStorage.setItem("i18nextLng", lng);
+    setLanguageVersion((value) => value + 1);
+  };
+
   return (
     <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
       <button
         type="button"
-        onClick={() => void i18n.changeLanguage("en")}
+        onClick={() => void setLanguage("en")}
         className={current === "en" ? "text-foreground" : "hover:text-foreground"}
       >
         EN
@@ -45,7 +68,7 @@ function LanguageSwitcher() {
       <span>/</span>
       <button
         type="button"
-        onClick={() => void i18n.changeLanguage("zh-CN")}
+        onClick={() => void setLanguage("zh-CN")}
         className={current === "zh-CN" ? "text-foreground" : "hover:text-foreground"}
       >
         中文
