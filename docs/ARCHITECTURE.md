@@ -28,6 +28,8 @@ Hermes Control Center will not replace Hermes runtime internals. It will compose
 - product-facing runtime entities are documented in `docs/RUNTIME_CONTRACT.md`
 - frontend pages should converge on shared `workspace/session/run/event/approval/artifact` models instead of page-specific placeholder data
 - backend integration should prefer adapter layers that map Hermes-native responses into the product contract
+- adapter inputs should live in `src/features/runtime/adapterTypes.ts`, with pure mapping in `src/features/runtime/adapters.ts`
+- fixture data should flow through the adapter seam too, so mock/runtime parity improves as live integration lands
 
 ## Product model in progress
 

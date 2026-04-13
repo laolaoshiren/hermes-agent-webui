@@ -18,6 +18,11 @@ export default defineConfig(({ mode }) => {
       outDir: "dist",
       emptyOutDir: true,
     },
+    test: {
+      globals: true,
+      include: ["src/**/*.test.ts"],
+      passWithNoTests: true,
+    },
     server: {
       proxy: {
         "/api": apiOrigin,

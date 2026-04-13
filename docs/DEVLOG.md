@@ -78,6 +78,54 @@ This log is intentionally public-facing and continuously append-only so both the
   - add adapter-facing runtime selectors/mappers from Hermes session/runtime responses into the shared contract
   - decide the next issue split for timeline replay depth vs approval action surfaces
 
+## 2026-04-13 17:15 +08:00
+
+- Promoted the approval-review slice into `develop` after fixing reviewer-found null-safety gaps and confirming PR #9 checks were green.
+- Continued issue #2 on fresh branch `feat/issue-2-runtime-adapter-scaffolding` with the first adapter-boundary increment:
+  - added `docs/plans/2026-04-13-issue-2-runtime-adapter-scaffolding.md`
+  - added `src/features/runtime/adapterTypes.ts` to describe Hermes-facing runtime adapter inputs
+  - added `src/features/runtime/adapters.ts` with pure snapshot builders plus invariant validation for ids, relationships, and event link fields
+  - refactored `src/features/runtime/mockData.ts` so the product shell now consumes an adapter-built runtime snapshot instead of hand-assembled contract arrays
+  - extended `docs/RUNTIME_CONTRACT.md` and `docs/ARCHITECTURE.md` with the adapter boundary and ownership rules
+- Validation status:
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Next focus:
+  - push the adapter-scaffolding branch and open/update a review thread into `develop`
+  - connect the adapter seam to live `/api/sessions` + session-message hydration instead of fixture-only sources
+  - decide the next focused runtime slice between replay timeline enrichment and approval action surfaces
+
+## 2026-04-13 17:45 +08:00
+
+- Continued issue #2 on `feat/issue-2-runtime-adapter-scaffolding` with runtime adapter test coverage:
+  - added a lightweight Vitest harness to the existing Vite + TypeScript setup
+  - added focused `buildRuntimeSnapshot()` coverage for happy-path mapping, derived session previews, sorted events, and run/workspace aggregates
+  - locked invariant regressions for duplicate ids, missing linked entities, invalid event-kind link fields, and session/run workspace mismatches
+- Validation status:
+  - `npm run test -- --run` ✅
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Next focus:
+  - hydrate the runtime adapter from live Hermes session and runtime endpoints
+  - extend coverage as timeline replay and approval action surfaces gain real backend integration
+
+## 2026-04-13 17:55 +08:00
+
+- Wrapped the runtime-adapter test wave into reviewable GitHub flow:
+  - committed and pushed `[verified] test: add runtime adapter coverage`
+  - opened PR #10 into `develop` for issue #2
+  - merged ready PR #9 (`feat: add approval review drill-in surface`) after confirming GitHub checks were green and the branch was mergeable
+- Validation status:
+  - `npm run test -- --run` ✅
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Next focus:
+  - rebase runtime adapter work on the latest `develop` if needed after PR #9 promotion
+  - start live `/api/sessions` + session-message hydration through the adapter seam behind the new test harness
+
 ## Working principles
 
 - plan-driven execution
