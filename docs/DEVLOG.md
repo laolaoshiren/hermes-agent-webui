@@ -27,6 +27,10 @@ This log is intentionally public-facing and continuously append-only so both the
   - added URL sanitization for external links in markdown and key-management surfaces
   - added explicit initial-load error states for Status / Config / Keys views
   - verified `npm run lint`, `npm run typecheck`, and `npm run build`
+- Repository governance wave started on feature branch `feat/repository-governance`:
+  - added `CONTRIBUTING.md`
+  - added issue templates and PR template
+  - preparing a formal PR into `develop`
 
 ## Working principles
 
