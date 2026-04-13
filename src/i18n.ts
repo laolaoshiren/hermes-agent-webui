@@ -10,15 +10,21 @@ void i18n
   .use(initReactI18next)
   .init({
     fallbackLng: "en",
-    supportedLngs: ["en", "zh-CN"],
+    supportedLngs: ["en", "zh", "zh-CN"],
     nonExplicitSupportedLngs: true,
+    load: "languageOnly",
     defaultNS: "app",
     resources: {
       en: { app: enApp },
+      zh: { app: zhApp },
       "zh-CN": { app: zhApp },
     },
     interpolation: {
       escapeValue: false,
+    },
+    detection: {
+      order: ["localStorage", "navigator", "htmlTag"],
+      caches: ["localStorage"],
     },
   });
 

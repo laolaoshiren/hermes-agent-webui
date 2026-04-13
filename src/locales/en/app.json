@@ -11,11 +11,461 @@
     "cron": "Cron",
     "skills": "Skills",
     "config": "Config",
-    "keys": "Keys"
+    "keys": "Keys",
+    "ops": "Ops"
   },
   "overview": {
     "eyebrow": "Program direction",
-    "title": "Hermes Control Center",
-    "description": "A product-grade web platform for Hermes Agent: workspace-first UX, replayable autonomous runs, approvals, observability, and multilingual operations from the start."
+    "title": "Hermes Agent WebUI",
+    "description": "A chat-first web app for Hermes Agent focused on secure daily use, workspace continuity, and public-ready deployment.",
+    "badge": "v0.1 foundation",
+    "thesisTitle": "Product thesis",
+    "thesisBody1": "Hermes already has a strong runtime, session store, tool surface, and an emerging admin UI. This project extends that base into a product-grade control center rather than rewriting Hermes from scratch.",
+    "thesisBody2": "The goal is to combine the best ideas from agent workbenches, operational dashboards, and collaborative run review systems into one cohesive web experience.",
+    "executionRailsTitle": "Execution rails",
+    "runtimePulseTitle": "Runtime pulse",
+    "runtimePulseDescription": "The shell now tracks shared product objects for sessions, runs, approvals, and replay events before live backend adapters land.",
+    "focusAreas": {
+      "workspaceFirstTitle": "Workspace-first UX",
+      "workspaceFirstBody": "Move beyond a flat chat surface into project-scoped workspaces, reusable presets, and long-lived execution context.",
+      "replayableRunsTitle": "Replayable runs",
+      "replayableRunsBody": "Represent tool calls, approvals, browser sessions, and process events as durable timeline entries that can be inspected after the fact.",
+      "operationalReviewTitle": "Operational review",
+      "operationalReviewBody": "Support approval inboxes, release discipline, CI signals, and run-state monitoring in the same product shell."
+    },
+    "milestones": {
+      "foundationLabel": "Foundation",
+      "foundationDetail": "routing, i18n, docs, CI, project shell",
+      "runtimeLabel": "Runtime UX",
+      "runtimeDetail": "chat/runs/events/streaming integration",
+      "opsLabel": "Collaborative Ops",
+      "opsDetail": "approvals, review queues, team workflows",
+      "multiUserLabel": "Multi-user readiness",
+      "multiUserDetail": "authn/authz, shared workspaces, deployment hardening"
+    },
+    "metrics": {
+      "activeRuns": "Active runs",
+      "pendingApprovals": "Pending approvals",
+      "timelineEvents": "Timeline events",
+      "artifacts": "Artifacts"
+    },
+    "tags": {
+      "openclaw": "OpenClaw control-plane mindset",
+      "poco": "Poco workspace ergonomics",
+      "missionControl": "Mission Control ops dashboard",
+      "openhands": "OpenHands layering",
+      "librechat": "LibreChat session UX"
+    }
+  },
+  "workspaces": {
+    "eyebrow": "Workspace operations",
+    "title": "Workspaces",
+    "description": "Review workspace-scoped repository context, runtime workload, and operator handoff without leaving the shared product shell.",
+    "badge": "workspace review preview",
+    "summaryTitle": "Workspace summary",
+    "indexTitle": "Workspace index",
+    "selectedWorkspaceTitle": "Selected workspace",
+    "selectedWorkspaceLabel": "Current workspace review",
+    "selectedWorkspaceBody": "Workspace review surface for repository context, policy posture, and runtime handoff.",
+    "openWorkspaceReview": "Open workspace review",
+    "repositoryLabel": "Repository",
+    "defaultBranchLabel": "Default branch",
+    "policyPresetLabel": "Policy preset",
+    "latestActivityLabel": "Latest activity",
+    "operatorHandoffTitle": "Operator handoff",
+    "runQueueTitle": "Workspace run queue",
+    "runQueueBody_one": "{{count}} run currently linked to this workspace.",
+    "runQueueBody_other": "{{count}} runs currently linked to this workspace.",
+    "sessionQueueBody_one": "{{count}} session currently linked to this workspace.",
+    "sessionQueueBody_other": "{{count}} sessions currently linked to this workspace.",
+    "approvalsQueueBody_one": "{{count}} pending approval currently linked to this workspace.",
+    "approvalsQueueBody_other": "{{count}} pending approvals currently linked to this workspace.",
+    "primarySessionTitle": "Primary session",
+    "primaryRunTitle": "Primary run",
+    "primaryApprovalTitle": "Primary approval",
+    "openSessionReview": "Open session review",
+    "openRunReview": "Open run review",
+    "openWorkspaceSessionQueue": "Open workspace session queue",
+    "openWorkspaceRunQueue": "Open workspace run queue",
+    "openWorkspaceApprovalsQueue": "Open workspace approvals queue",
+    "openApprovalReview": "Open approval review",
+    "noRepository": "No repository linked",
+    "notSet": "Not set",
+    "noSessionLinked": "No session linked yet",
+    "noRunLinked": "No run linked yet",
+    "noApprovalLinked": "No approval linked yet",
+    "emptyStateTitle": "No workspaces available yet",
+    "emptyStateBody": "Connect runtime-backed workspace records or fixture data to populate this review surface.",
+    "statuses": {
+      "active": "Active",
+      "paused": "Paused",
+      "archived": "Archived"
+    },
+    "metrics": {
+      "sessions": "Sessions",
+      "runs": "Runs",
+      "activeRuns": "Active runs",
+      "pendingApprovals": "Pending approvals",
+      "artifacts": "Artifacts"
+    }
+  },
+  "runs": {
+    "eyebrow": "Runtime UX",
+    "title": "Runs",
+    "description": "Runs are product-facing execution attempts inside a session. The shell now renders a shared contract for run state, approvals, artifacts, and replay events.",
+    "badge": "runtime contract preview",
+    "statusSummaryTitle": "Run status summary",
+    "workspaceQueueTitle": "Workspace-scoped queue",
+    "workspaceScopeLabel": "Active workspace scope",
+    "workspaceQueueBody_one": "Showing {{count}} run linked to {{workspace}}.",
+    "workspaceQueueBody_other": "Showing {{count}} runs linked to {{workspace}}.",
+    "returnToWorkspace": "Return to workspace review",
+    "selectedRunTitle": "Selected run",
+    "trustContextLabel": "Trust context",
+    "trustContextTitle": "Run trust context",
+    "sessionHandoffLabel": "Session handoff",
+    "workspaceLabel": "Workspace",
+    "repositoryLabel": "Repository",
+    "defaultBranchLabel": "Default branch",
+    "policyPresetLabel": "Policy preset",
+    "openSessionReview": "Open session review",
+    "noWorkspaceLinked": "No workspace linked",
+    "noRepositoryLinked": "No repository linked",
+    "notSet": "Not set",
+    "timelineTitle": "Replay timeline preview",
+    "artifactsTitle": "Artifacts linked to run",
+    "sessionLabel": "Session",
+    "triggerLabel": "Trigger",
+    "actorLabel": "Primary actor",
+    "replaySummaryEyebrow": "Replay summary",
+    "replaySummaryTitle": "Selected run replay context",
+    "replayEventsBadge_one": "1 replay event",
+    "replayEventsBadge_other": "{{count}} replay events",
+    "messageEventsLabel": "Messages",
+    "toolCallEventsLabel": "Tool calls",
+    "systemEventsLabel": "System events",
+    "latestReplayEventLabel": "Latest replay event",
+    "noReplayEvents": "No replay events yet",
+    "replaySummaryEmptyBody": "This run does not have replay events yet, so counts and latest event time remain empty.",
+    "approvalLabel": "Approvals",
+    "artifactLabel": "Artifacts",
+    "eventLabel": "Events",
+    "emptyArtifacts": "No artifacts linked yet.",
+    "virtualArtifact": "Virtual artifact",
+    "bytesLabel": "bytes",
+    "millisecondsLabel": "ms",
+    "triggers": {
+      "manual": "Manual",
+      "cron": "Cron",
+      "webhook": "Webhook",
+      "api": "API"
+    },
+    "statuses": {
+      "queued": "Queued",
+      "running": "Running",
+      "awaiting_approval": "Awaiting approval",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "eventKinds": {
+      "message": "Message",
+      "tool_call": "Tool call",
+      "approval": "Approval",
+      "artifact": "Artifact",
+      "system": "System"
+    },
+    "eventStatuses": {
+      "pending": "Pending",
+      "active": "Active",
+      "completed": "Completed",
+      "failed": "Failed"
+    },
+    "artifactKinds": {
+      "diff": "Diff",
+      "log": "Log",
+      "transcript": "Transcript",
+      "screenshot": "Screenshot",
+      "report": "Report"
+    },
+    "startedLabel": "Started",
+    "endedLabel": "Ended",
+    "liveLabel": "Live / not ended",
+    "selectedRunLabel": "Currently selected run",
+    "openRunLabel": "Open run review",
+    "relatedApprovalsTitle": "Approvals linked to selected run",
+    "openApproval": "Open approval review",
+    "emptyApprovals": "No approvals linked to this run.",
+    "emptyTimeline": "No replay events are available for this run yet.",
+    "emptyStateTitle": "No runs available yet",
+    "emptyStateBody": "Connect a runtime adapter or start a session-backed run to populate this review surface.",
+    "emptyWorkspaceStateTitle": "No runs are linked to this workspace yet",
+    "emptyWorkspaceStateBody": "{{workspace}} does not currently expose any runs in the shared runtime snapshot."
+  },
+  "approvals": {
+    "eyebrow": "Governance",
+    "title": "Approvals",
+    "description": "Approvals are durable policy records with scope, actor, expiry, and audit metadata — not one-off modal prompts.",
+    "badge": "policy queue preview",
+    "summaryTitle": "Approval queue summary",
+    "workspaceQueueTitle": "Workspace-scoped approvals",
+    "workspaceScopeLabel": "Active workspace scope",
+    "workspaceQueueBody_one": "Showing {{count}} approval linked to {{workspace}}.",
+    "workspaceQueueBody_other": "Showing {{count}} approvals linked to {{workspace}}.",
+    "returnToWorkspace": "Return to workspace review",
+    "queueTitle": "Review queue",
+    "scopeLabel": "Scope",
+    "requestedByLabel": "Requested by",
+    "workspaceLabel": "Workspace",
+    "repositoryLabel": "Repository",
+    "defaultBranchLabel": "Default branch",
+    "policyPresetLabel": "Policy preset",
+    "sessionLabel": "Session",
+    "runLabel": "Run",
+    "expiresLabel": "Expires",
+    "reviewerLabel": "Reviewer",
+    "resolutionLabel": "Resolution",
+    "statuses": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "expired": "Expired"
+    },
+    "scopes": {
+      "filesystem": "Filesystem",
+      "secrets": "Secrets",
+      "network": "Network",
+      "deployment": "Deployment",
+      "governance": "Governance"
+    },
+    "metrics": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "expiringSoon": "Expiring soon"
+    },
+    "selectedApprovalTitle": "Selected approval",
+    "selectedApprovalLabel": "Currently selected approval",
+    "openApprovalLabel": "Open approval review",
+    "requestedAtLabel": "Requested at",
+    "relatedRunTitle": "Related run context",
+    "relatedRunStatusLabel": "Run status",
+    "latestRunEventLabel": "Latest run event",
+    "replayEventsLabel": "Replay events",
+    "openWorkspaceReview": "Open workspace review",
+    "openSessionReview": "Open session review",
+    "openRunReview": "Open run review",
+    "notSet": "Not set",
+    "noRepositoryLinked": "No repository linked",
+    "emptyStateTitle": "No approvals available yet",
+    "emptyStateBody": "Pending review requests will appear here once runtime policy events are connected.",
+    "emptyWorkspaceStateTitle": "No approvals are linked to {{workspace}} yet",
+    "emptyWorkspaceStateBody": "{{workspace}} does not currently expose approval records in the shared runtime snapshot.",
+    "relatedRunMissingBody": "The related run for this approval is not currently available in the shared runtime snapshot."
+  },
+  "sessions": {
+    "eyebrow": "Chat workspace",
+    "title": "Sessions",
+    "description": "Inspect live Hermes sessions, review transcript history, and hand off from session state into the shared runtime run surface.",
+    "badge": "session review preview",
+    "explorerTitle": "Recent chats",
+    "explorerSummary": "Open a conversation, search past messages, or jump back into recent work.",
+    "workspaceQueueTitle": "Workspace-scoped sessions",
+    "workspaceScopeLabel": "Active workspace scope",
+    "workspaceQueueBody_one": "Showing {{count}} session linked to {{workspace}}.",
+    "workspaceQueueBody_other": "Showing {{count}} sessions linked to {{workspace}}.",
+    "returnToWorkspace": "Return to workspace review",
+    "searchPlaceholder": "Search message content...",
+    "clearSearch": "Clear search",
+    "emptyStateTitle": "No sessions yet",
+    "emptyStateBody": "Start a conversation to see it here.",
+    "emptyWorkspaceStateTitle": "No sessions are linked to this workspace yet",
+    "emptyWorkspaceStateBody": "{{workspace}} does not currently expose any sessions in the shared runtime snapshot.",
+    "noSearchResults": "No sessions match your search",
+    "selectedTitle": "Selected session",
+    "chatTitle": "Conversation",
+    "chatDescription": "Use the existing Hermes session history as the default landing experience, then send the next turn directly from this page.",
+    "newChat": "New chat",
+    "emptyConversationTitle": "No session selected yet",
+    "chatEmptyTitle": "Ready for the next turn",
+    "chatEmptyBody": "Open an existing session or create a new chat to start talking to Hermes from the default workspace shell.",
+    "composerLabel": "Message box",
+    "composerHint": "Use this page as the fastest path to chat with Hermes, continue older sessions, and keep work tied to the right workspace.",
+    "composerPlaceholder": "Send the next instruction to Hermes…",
+    "chatLoopHint": "Messages send through the Hermes-backed session chat route when the backend is available.",
+    "send": "Send",
+    "sending": "Sending…",
+    "backendUnavailableTitle": "Hermes backend unavailable",
+    "backendUnavailableBody": "The session/chat backend could not be reached from this browser session: {{message}}",
+    "backendUnavailableShort": "Backend unavailable — the composer will fail until Hermes is reachable.",
+    "chatErrorTitle": "Chat action failed",
+    "chatErrorBody": "The last create/send attempt did not complete successfully: {{message}}",
+    "createSessionFailedToast": "Failed to create a new session: {{message}}",
+    "sendFailedToast": "Failed to send message: {{message}}",
+    "deleteSessionFailedToast": "Failed to delete session: {{message}}",
+    "selectedSessionLabel": "Current session review",
+    "openSessionReview": "Open session review",
+    "runtimeHandoffTitle": "Runtime handoff",
+    "runtimeHandoffEmpty": "This session does not yet map to a derived runtime run in the shared snapshot.",
+    "relatedRunLabel": "Related run",
+    "replayContextLabel": "Replay trust context",
+    "replayContextTitle": "Selected session replay posture",
+    "replayEventsBadge_one": "1 replay event",
+    "replayEventsBadge_other": "{{count}} replay events",
+    "latestReplayEventLabel": "Latest replay event",
+    "replayHandoffLabel": "Replay handoff",
+    "replayHandoffBody": "Stay in session review for transcript context, or jump into run review when replay details and linked approvals/artifacts need closer inspection.",
+    "noReplayEvents": "No replay events linked to the selected session yet.",
+    "openRunReview": "Open run review",
+    "noPreview": "No preview is available for this session yet.",
+    "noMessages": "No messages",
+    "liveBadge": "Live",
+    "untitledSession": "Untitled session",
+    "localSource": "local",
+    "unknownModel": "unknown",
+    "deleteSession": "Delete session",
+    "matchBadge": "match",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "toolCallToggle": "{{action}} tool call {{name}}",
+    "toolLabel": "Tool: {{name}}",
+    "messageCountLabel_one": "{{count}} msg",
+    "messageCountLabel_other": "{{count}} msgs",
+    "toolCountLabel_one": "{{count}} tool",
+    "toolCountLabel_other": "{{count}} tools",
+    "roles": {
+      "user": "User",
+      "assistant": "Assistant",
+      "system": "System",
+      "tool": "Tool"
+    },
+    "metrics": {
+      "messages": "Messages",
+      "toolCalls": "Tool calls",
+      "linkedRuns": "Linked runs",
+      "timelineEvents": "Timeline events",
+      "approvals": "Approvals",
+      "artifacts": "Artifacts"
+    },
+    "metadata": {
+      "source": "Source",
+      "model": "Model",
+      "started": "Started",
+      "lastActive": "Last active",
+      "runtimeStatus": "Run status",
+      "runtimeStarted": "Run started",
+      "repository": "Repository",
+      "policyPreset": "Policy preset"
+    },
+    "notSet": "Not set",
+    "noRepositoryLinked": "No repository linked",
+    "runtimeHandoffPending": "Open a session review route to hydrate runtime linkage and handoff metrics."
+  },
+  "runtimeContent": {
+    "runs": {
+      "run-runtime-contract": {
+        "title": "Define runtime contract foundation",
+        "summary": "Documenting product-facing runtime entities and wiring the Runs/Approvals shell to shared fixtures."
+      },
+      "run-approval-review": {
+        "title": "Review and promote repository governance PR",
+        "summary": "Merged the repository-governance work into develop after validating the branch state and CI status."
+      }
+    },
+    "approvals": {
+      "approval-push-develop": {
+        "title": "Promote runtime contract work for review",
+        "reason": "Open-source maintainer flow requires a reviewable branch and PR before changes land in develop."
+      },
+      "approval-repo-governance-merge": {
+        "title": "Merge repository governance PR",
+        "reason": "The contribution guide and templates were verified as ready for develop promotion.",
+        "resolutionNote": "Merged locally into develop and pushed after confirming the branch diff was documentation-only."
+      }
+    },
+    "artifacts": {
+      "artifact-runtime-doc": {
+        "label": "Runtime contract foundation"
+      },
+      "artifact-runtime-plan": {
+        "label": "Implementation plan"
+      },
+      "artifact-pr-summary": {
+        "label": "Repository governance promotion summary"
+      }
+    },
+    "events": {
+      "evt-runtime-1": {
+        "title": "Runtime contract task started",
+        "detail": "The scheduled maintainer run selected issue #2 as the highest-value next increment."
+      },
+      "evt-runtime-2": {
+        "title": "Repository state inspection",
+        "detail": "Checked git status, branches, recent commits, roadmap, devlog, open PRs, and issues before making changes."
+      },
+      "evt-runtime-3": {
+        "title": "Implementation plan written",
+        "detail": "Saved a task-level plan for the runtime contract foundation increment under docs/plans."
+      },
+      "evt-runtime-4": {
+        "title": "Contract document updated",
+        "detail": "Defined workspace, session, run, timeline, approval, and artifact entities with an integration mapping back to Hermes surfaces."
+      },
+      "evt-runtime-5": {
+        "title": "Review gate queued",
+        "detail": "A pending governance approval tracks the branch and PR promotion step for the runtime contract changes."
+      },
+      "evt-governance-1": {
+        "title": "PR #6 diff reviewed",
+        "detail": "Compared the repository-governance branch against develop and confirmed a documentation-only increment."
+      },
+      "evt-governance-2": {
+        "title": "Governance merge approved",
+        "detail": "The repository governance increment was promoted into develop as a coherent baseline hardening step."
+      },
+      "evt-governance-3": {
+        "title": "Develop updated",
+        "detail": "Squash-merged repository governance changes locally and pushed develop to keep the repository coherent for the next task branch."
+      }
+    }
+  },
+  "ops": {
+    "eyebrow": "Project operations",
+    "title": "Live project progress board",
+    "description": "A minimal owner-facing board showing what Hermes is doing now, how many worker lanes are active, and what each autonomous employee is responsible for.",
+    "commandTitle": "Command desk",
+    "currentMission": "Current mission",
+    "currentFocus": "Current focus",
+    "employeeBoardTitle": "Employee / subagent board",
+    "currentTaskLabel": "Current task",
+    "latestOutputLabel": "Latest output",
+    "workstreamsTitle": "Workstreams",
+    "progressLabel": "Progress",
+    "activityWindowTitle": "Activity window",
+    "activityWindowBody": "This board is intentionally simple: it exposes the controller lane, active subagents, automation lanes, and the current sprint focus in one place.",
+    "ownerViewTitle": "Owner view",
+    "ownerViewBody": "Use this page as the fastest way to see who is working, what is being built, and whether the autonomous project machine is still moving.",
+    "metrics": {
+      "totalEmployees": "Total employees",
+      "totalEmployeesDetail": "All active human-like lanes, subagents, and automation workers currently modeled for this project.",
+      "activeSubagents": "Active subagents",
+      "activeSubagentsDetail": "Independent coding/review lanes currently assigned to implementation or verification work.",
+      "activeWorkers": "Workers in motion",
+      "activeWorkersDetail": "People or automation lanes currently running, reviewing, or reporting.",
+      "automationLanes": "Automation lanes",
+      "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
+    }
+  },
+  "appShell": {
+    "productName": "Hermes Agent WebUI",
+    "productTagline": "Chat-first web app for Hermes Agent",
+    "foundationBadge": "Live incubation build",
+    "footerTagline": "Owner-first, self-hosted, and built for real daily use"
+  },
+  "runtimeHydration": {
+    "sourceLive": "Live runtime",
+    "sourceFixture": "Fixture fallback",
+    "loading": "Loading live sessions…",
+    "loadingTitle": "Loading live runtime",
+    "loadingBody": "Fetching sessions and replay data from the Hermes backend before showing route-specific details.",
+    "fallbackWarning": "Fixture fallback active: {{message}}"
   }
 }

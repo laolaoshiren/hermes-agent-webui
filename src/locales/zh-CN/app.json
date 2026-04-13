@@ -11,11 +11,461 @@
     "cron": "定时任务",
     "skills": "技能",
     "config": "配置",
-    "keys": "密钥"
+    "keys": "密钥",
+    "ops": "运营看板"
   },
   "overview": {
     "eyebrow": "项目方向",
-    "title": "Hermes Control Center",
-    "description": "面向 Hermes Agent 的产品级 Web 平台：从一开始就支持工作区优先、可回放自治运行、审批流、可观测性，以及中英文国际化。"
+    "title": "Hermes Agent WebUI",
+    "description": "面向 Hermes Agent 的聊天优先 Web 应用，重点解决安全日常使用、工作区连续性和公网可部署能力。",
+    "badge": "v0.1 基础阶段",
+    "thesisTitle": "产品命题",
+    "thesisBody1": "Hermes 已经具备稳固的运行时、会话存储、工具体系和逐步成形的管理界面。本项目的目标是在此基础上扩展出产品级控制中心，而不是从零重写 Hermes。",
+    "thesisBody2": "我们的目标是把代理工作台、运维仪表盘和协作式运行复盘系统的最佳实践整合成一个统一的 Web 体验。",
+    "executionRailsTitle": "执行轨道",
+    "runtimePulseTitle": "运行时脉搏",
+    "runtimePulseDescription": "在接入真实后端适配层之前，产品壳层已经开始围绕会话、运行、审批与回放事件等共享对象建模。",
+    "focusAreas": {
+      "workspaceFirstTitle": "工作区优先体验",
+      "workspaceFirstBody": "从扁平聊天界面升级为以项目为中心的工作区、可复用预设，以及长生命周期执行上下文。",
+      "replayableRunsTitle": "可回放运行",
+      "replayableRunsBody": "把工具调用、审批、浏览器会话和进程事件表示为可在事后检查的持久时间线条目。",
+      "operationalReviewTitle": "运维审查",
+      "operationalReviewBody": "在同一产品壳层中支持审批队列、发布纪律、CI 信号以及运行状态监控。"
+    },
+    "milestones": {
+      "foundationLabel": "基础阶段",
+      "foundationDetail": "路由、国际化、文档、CI、产品壳层",
+      "runtimeLabel": "运行时体验",
+      "runtimeDetail": "聊天/运行/事件/流式集成",
+      "opsLabel": "协作运维",
+      "opsDetail": "审批、审查队列、团队工作流",
+      "multiUserLabel": "多用户准备",
+      "multiUserDetail": "认证鉴权、共享工作区、部署加固"
+    },
+    "metrics": {
+      "activeRuns": "活跃运行",
+      "pendingApprovals": "待处理审批",
+      "timelineEvents": "时间线事件",
+      "artifacts": "产物"
+    },
+    "tags": {
+      "openclaw": "OpenClaw 控制平面思路",
+      "poco": "Poco 工作区体验",
+      "missionControl": "Mission Control 运维仪表盘",
+      "openhands": "OpenHands 分层方式",
+      "librechat": "LibreChat 会话体验"
+    }
+  },
+  "workspaces": {
+    "eyebrow": "工作区运维",
+    "title": "工作区",
+    "description": "在统一产品壳层中审阅工作区级别的仓库上下文、运行负载和运维交接，而不必跳出当前界面。",
+    "badge": "工作区审查预览",
+    "summaryTitle": "工作区摘要",
+    "indexTitle": "工作区列表",
+    "selectedWorkspaceTitle": "当前工作区",
+    "selectedWorkspaceLabel": "当前工作区审查",
+    "selectedWorkspaceBody": "工作区审查界面用于呈现仓库上下文、策略姿态和运行时交接信息。",
+    "openWorkspaceReview": "打开工作区审查",
+    "repositoryLabel": "仓库",
+    "defaultBranchLabel": "默认分支",
+    "policyPresetLabel": "策略预设",
+    "latestActivityLabel": "最近活动",
+    "operatorHandoffTitle": "运维交接",
+    "runQueueTitle": "工作区运行队列",
+    "runQueueBody_one": "当前有 {{count}} 个运行关联到这个工作区。",
+    "runQueueBody_other": "当前有 {{count}} 个运行关联到这个工作区。",
+    "sessionQueueBody_one": "当前有 {{count}} 个会话关联到这个工作区。",
+    "sessionQueueBody_other": "当前有 {{count}} 个会话关联到这个工作区。",
+    "approvalsQueueBody_one": "当前有 {{count}} 个待审批项关联到这个工作区。",
+    "approvalsQueueBody_other": "当前有 {{count}} 个待审批项关联到这个工作区。",
+    "primarySessionTitle": "主会话",
+    "primaryRunTitle": "主运行",
+    "primaryApprovalTitle": "主审批",
+    "openSessionReview": "打开会话审查",
+    "openRunReview": "打开运行审查",
+    "openWorkspaceSessionQueue": "打开工作区会话队列",
+    "openWorkspaceRunQueue": "打开工作区运行队列",
+    "openWorkspaceApprovalsQueue": "打开工作区审批队列",
+    "openApprovalReview": "打开审批审查",
+    "noRepository": "尚未关联仓库",
+    "notSet": "未设置",
+    "noSessionLinked": "尚未关联会话",
+    "noRunLinked": "尚未关联运行",
+    "noApprovalLinked": "尚未关联审批",
+    "emptyStateTitle": "暂时还没有可用工作区",
+    "emptyStateBody": "接入运行时工作区记录或示例数据后，这个审查界面就会显示内容。",
+    "statuses": {
+      "active": "运行中",
+      "paused": "已暂停",
+      "archived": "已归档"
+    },
+    "metrics": {
+      "sessions": "会话",
+      "runs": "运行",
+      "activeRuns": "活跃运行",
+      "pendingApprovals": "待审批",
+      "artifacts": "产物"
+    }
+  },
+  "runs": {
+    "eyebrow": "运行时体验",
+    "title": "运行",
+    "description": "运行是会话内部面向产品的执行尝试对象。当前壳层已经开始渲染关于运行状态、审批、产物和回放事件的共享契约。",
+    "badge": "运行时契约预览",
+    "statusSummaryTitle": "运行状态总览",
+    "workspaceQueueTitle": "工作区范围运行队列",
+    "workspaceScopeLabel": "当前工作区范围",
+    "workspaceQueueBody_one": "正在显示 {{workspace}} 关联的 {{count}} 个运行。",
+    "workspaceQueueBody_other": "正在显示 {{workspace}} 关联的 {{count}} 个运行。",
+    "returnToWorkspace": "返回工作区审查",
+    "selectedRunTitle": "选中的运行",
+    "trustContextLabel": "信任上下文",
+    "trustContextTitle": "运行信任上下文",
+    "sessionHandoffLabel": "会话交接",
+    "workspaceLabel": "工作区",
+    "repositoryLabel": "仓库",
+    "defaultBranchLabel": "默认分支",
+    "policyPresetLabel": "策略预设",
+    "openSessionReview": "查看会话审查",
+    "noWorkspaceLinked": "尚未关联工作区",
+    "noRepositoryLinked": "尚未关联仓库",
+    "notSet": "未设置",
+    "timelineTitle": "回放时间线预览",
+    "artifactsTitle": "关联产物",
+    "sessionLabel": "会话",
+    "triggerLabel": "触发方式",
+    "actorLabel": "主执行者",
+    "replaySummaryEyebrow": "回放摘要",
+    "replaySummaryTitle": "当前运行的回放上下文",
+    "replayEventsBadge_one": "{{count}} 个回放事件",
+    "replayEventsBadge_other": "{{count}} 个回放事件",
+    "messageEventsLabel": "消息",
+    "toolCallEventsLabel": "工具调用",
+    "systemEventsLabel": "系统事件",
+    "latestReplayEventLabel": "最近回放事件",
+    "noReplayEvents": "暂时还没有回放事件",
+    "replaySummaryEmptyBody": "该运行暂时没有回放事件，因此计数和最近事件时间目前为空。",
+    "approvalLabel": "审批",
+    "artifactLabel": "产物",
+    "eventLabel": "事件",
+    "emptyArtifacts": "暂时没有关联产物。",
+    "virtualArtifact": "虚拟产物",
+    "bytesLabel": "字节",
+    "millisecondsLabel": "毫秒",
+    "triggers": {
+      "manual": "手动",
+      "cron": "定时任务",
+      "webhook": "Webhook",
+      "api": "API"
+    },
+    "statuses": {
+      "queued": "排队中",
+      "running": "运行中",
+      "awaiting_approval": "等待审批",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "eventKinds": {
+      "message": "消息",
+      "tool_call": "工具调用",
+      "approval": "审批",
+      "artifact": "产物",
+      "system": "系统"
+    },
+    "eventStatuses": {
+      "pending": "待处理",
+      "active": "进行中",
+      "completed": "已完成",
+      "failed": "失败"
+    },
+    "artifactKinds": {
+      "diff": "差异",
+      "log": "日志",
+      "transcript": "转录",
+      "screenshot": "截图",
+      "report": "报告"
+    },
+    "startedLabel": "开始时间",
+    "endedLabel": "结束时间",
+    "liveLabel": "仍在运行 / 尚未结束",
+    "selectedRunLabel": "当前选中运行",
+    "openRunLabel": "查看运行审查",
+    "relatedApprovalsTitle": "与当前运行关联的审批",
+    "openApproval": "查看审批审查",
+    "emptyApprovals": "该运行暂时没有关联审批。",
+    "emptyTimeline": "该运行暂时还没有可展示的回放事件。",
+    "emptyStateTitle": "暂时还没有可用运行",
+    "emptyStateBody": "接入运行时适配层或启动带会话上下文的运行后，这里会出现可审查的运行记录。",
+    "emptyWorkspaceStateTitle": "这个工作区暂时还没有关联运行",
+    "emptyWorkspaceStateBody": "{{workspace}} 当前还没有在共享运行时快照中暴露任何运行。"
+  },
+  "approvals": {
+    "eyebrow": "治理",
+    "title": "审批",
+    "description": "审批应被设计为具有范围、发起者、过期时间与审计元数据的持久策略记录，而不是一次性弹窗。",
+    "badge": "策略队列预览",
+    "summaryTitle": "审批队列摘要",
+    "workspaceQueueTitle": "工作区范围审批队列",
+    "workspaceScopeLabel": "当前工作区范围",
+    "workspaceQueueBody_one": "正在显示 {{workspace}} 关联的 {{count}} 个审批项。",
+    "workspaceQueueBody_other": "正在显示 {{workspace}} 关联的 {{count}} 个审批项。",
+    "returnToWorkspace": "返回工作区审查",
+    "queueTitle": "审查队列",
+    "scopeLabel": "范围",
+    "requestedByLabel": "发起者",
+    "workspaceLabel": "工作区",
+    "repositoryLabel": "仓库",
+    "defaultBranchLabel": "默认分支",
+    "policyPresetLabel": "策略预设",
+    "sessionLabel": "会话",
+    "runLabel": "运行",
+    "expiresLabel": "过期时间",
+    "reviewerLabel": "审查者",
+    "resolutionLabel": "处理结果",
+    "statuses": {
+      "pending": "待处理",
+      "approved": "已批准",
+      "rejected": "已拒绝",
+      "expired": "已过期"
+    },
+    "scopes": {
+      "filesystem": "文件系统",
+      "secrets": "密钥",
+      "network": "网络",
+      "deployment": "部署",
+      "governance": "治理"
+    },
+    "metrics": {
+      "pending": "待处理",
+      "approved": "已批准",
+      "expiringSoon": "即将过期"
+    },
+    "selectedApprovalTitle": "当前选中审批",
+    "selectedApprovalLabel": "当前选中的审批项",
+    "openApprovalLabel": "查看审批审查",
+    "requestedAtLabel": "发起时间",
+    "relatedRunTitle": "关联运行上下文",
+    "relatedRunStatusLabel": "运行状态",
+    "latestRunEventLabel": "最近运行事件",
+    "replayEventsLabel": "回放事件数",
+    "openWorkspaceReview": "打开工作区审查",
+    "openSessionReview": "打开会话审查",
+    "openRunReview": "查看运行审查",
+    "notSet": "未设置",
+    "noRepositoryLinked": "尚未关联仓库",
+    "emptyStateTitle": "暂时还没有可用审批",
+    "emptyStateBody": "当运行时策略事件接入后，待审查的审批项会显示在这里。",
+    "emptyWorkspaceStateTitle": "{{workspace}} 暂时还没有关联审批项",
+    "emptyWorkspaceStateBody": "{{workspace}} 当前还没有在共享运行时快照中暴露审批记录。",
+    "relatedRunMissingBody": "该审批关联的运行当前未出现在共享运行时快照中。"
+  },
+  "sessions": {
+    "eyebrow": "聊天工作台",
+    "title": "会话",
+    "description": "检查实时 Hermes 会话、审阅转录历史，并把会话状态顺畅交接到共享运行时的运行审查界面。",
+    "badge": "会话审查预览",
+    "explorerTitle": "最近聊天",
+    "explorerSummary": "打开一段对话、搜索过去的消息，或者继续最近的工作。",
+    "workspaceQueueTitle": "工作区范围会话",
+    "workspaceScopeLabel": "当前工作区范围",
+    "workspaceQueueBody_one": "正在显示 {{workspace}} 关联的 {{count}} 个会话。",
+    "workspaceQueueBody_other": "正在显示 {{workspace}} 关联的 {{count}} 个会话。",
+    "returnToWorkspace": "返回工作区审查",
+    "searchPlaceholder": "搜索消息内容...",
+    "clearSearch": "清空搜索",
+    "emptyStateTitle": "暂时还没有会话",
+    "emptyStateBody": "开始一次对话后，这里会显示会话记录。",
+    "emptyWorkspaceStateTitle": "这个工作区暂时还没有关联会话",
+    "emptyWorkspaceStateBody": "{{workspace}} 当前还没有在共享运行时快照中暴露任何会话。",
+    "noSearchResults": "没有会话匹配当前搜索",
+    "selectedTitle": "当前选中会话",
+    "chatTitle": "对话",
+    "chatDescription": "把现有 Hermes 会话历史直接升级成默认落地体验，并在同一页面继续发送下一轮消息。",
+    "newChat": "新建聊天",
+    "emptyConversationTitle": "暂时还没有选中的会话",
+    "chatEmptyTitle": "准备开始下一轮对话",
+    "chatEmptyBody": "打开一个已有会话，或新建聊天，在默认工作台里直接开始和 Hermes 对话。",
+    "composerLabel": "消息输入框",
+    "composerHint": "把这里当成和 Hermes 对话的最快入口：继续旧会话、发起新聊天，并把工作保留在正确的工作区里。",
+    "composerPlaceholder": "向 Hermes 发送下一条指令…",
+    "chatLoopHint": "当后端可用时，这里的消息会通过 Hermes 会话聊天路由直接发送。",
+    "send": "发送",
+    "sending": "发送中…",
+    "backendUnavailableTitle": "Hermes 后端不可用",
+    "backendUnavailableBody": "当前浏览器会话无法连接会话/聊天后端：{{message}}",
+    "backendUnavailableShort": "后端当前不可用——在 Hermes 恢复可达之前，输入框发送会失败。",
+    "chatErrorTitle": "聊天操作失败",
+    "chatErrorBody": "最近一次新建/发送操作没有成功完成：{{message}}",
+    "createSessionFailedToast": "新建会话失败：{{message}}",
+    "sendFailedToast": "发送消息失败：{{message}}",
+    "deleteSessionFailedToast": "删除会话失败：{{message}}",
+    "selectedSessionLabel": "当前会话审查",
+    "openSessionReview": "查看会话审查",
+    "runtimeHandoffTitle": "运行时交接",
+    "runtimeHandoffEmpty": "这个会话暂时还没有在共享快照中映射到派生运行。",
+    "relatedRunLabel": "关联运行",
+    "replayContextLabel": "会话回放信任上下文",
+    "replayContextTitle": "当前会话的回放态势",
+    "replayEventsBadge_one": "{{count}} 个回放事件",
+    "replayEventsBadge_other": "{{count}} 个回放事件",
+    "latestReplayEventLabel": "最近回放事件",
+    "replayHandoffLabel": "回放交接",
+    "replayHandoffBody": "如果只是继续查看对话上下文，可以留在会话审查；如果需要深入检查回放细节及其关联审批/产物，请跳转到运行审查。",
+    "noReplayEvents": "当前选中会话暂时还没有关联回放事件。",
+    "openRunReview": "查看运行审查",
+    "noPreview": "这个会话暂时没有可用预览。",
+    "noMessages": "暂无消息",
+    "liveBadge": "实时",
+    "untitledSession": "未命名会话",
+    "localSource": "本地",
+    "unknownModel": "未知",
+    "deleteSession": "删除会话",
+    "matchBadge": "命中",
+    "collapse": "收起",
+    "expand": "展开",
+    "toolCallToggle": "{{action}} 工具调用 {{name}}",
+    "toolLabel": "工具：{{name}}",
+    "messageCountLabel_one": "{{count}} 条消息",
+    "messageCountLabel_other": "{{count}} 条消息",
+    "toolCountLabel_one": "{{count}} 次工具调用",
+    "toolCountLabel_other": "{{count}} 次工具调用",
+    "roles": {
+      "user": "用户",
+      "assistant": "助手",
+      "system": "系统",
+      "tool": "工具"
+    },
+    "metrics": {
+      "messages": "消息",
+      "toolCalls": "工具调用",
+      "linkedRuns": "关联运行",
+      "timelineEvents": "时间线事件",
+      "approvals": "审批",
+      "artifacts": "产物"
+    },
+    "metadata": {
+      "source": "来源",
+      "model": "模型",
+      "started": "开始时间",
+      "lastActive": "最近活跃",
+      "runtimeStatus": "运行状态",
+      "runtimeStarted": "运行开始时间",
+      "repository": "仓库",
+      "policyPreset": "策略预设"
+    },
+    "notSet": "未设置",
+    "noRepositoryLinked": "尚未关联仓库",
+    "runtimeHandoffPending": "打开某个会话审查路由后，这里才会加载运行时关联与交接指标。"
+  },
+  "runtimeContent": {
+    "runs": {
+      "run-runtime-contract": {
+        "title": "定义运行时契约基础层",
+        "summary": "正在梳理面向产品的运行时实体，并让运行/审批页面切换到共享契约示例数据。"
+      },
+      "run-approval-review": {
+        "title": "审查并推进仓库治理 PR",
+        "summary": "在确认分支状态与 CI 情况后，已将仓库治理改动合并进 develop。"
+      }
+    },
+    "approvals": {
+      "approval-push-develop": {
+        "title": "推进运行时契约改动进入评审",
+        "reason": "开源维护者流程要求改动先在可评审分支和 PR 中沉淀，再进入 develop。"
+      },
+      "approval-repo-governance-merge": {
+        "title": "合并仓库治理 PR",
+        "reason": "贡献指南与模板已验证完毕，可以进入 develop 作为治理基线。",
+        "resolutionNote": "在确认分支差异仅为文档治理变更后，已本地合并并推送到 develop。"
+      }
+    },
+    "artifacts": {
+      "artifact-runtime-doc": {
+        "label": "运行时契约基础文档"
+      },
+      "artifact-runtime-plan": {
+        "label": "实施计划"
+      },
+      "artifact-pr-summary": {
+        "label": "仓库治理推进摘要"
+      }
+    },
+    "events": {
+      "evt-runtime-1": {
+        "title": "运行时契约任务启动",
+        "detail": "本次定时维护运行选择了 issue #2 作为当前最高价值的下一步增量。"
+      },
+      "evt-runtime-2": {
+        "title": "检查仓库状态",
+        "detail": "在改动之前检查了 git 状态、分支、最近提交、路线图、开发日志、开放 PR 与 issue。"
+      },
+      "evt-runtime-3": {
+        "title": "写入实施计划",
+        "detail": "已将运行时契约基础层增量的细粒度实施计划保存到 docs/plans。"
+      },
+      "evt-runtime-4": {
+        "title": "更新契约文档",
+        "detail": "已定义工作区、会话、运行、时间线、审批与产物实体，并补充其与 Hermes 现有能力的映射关系。"
+      },
+      "evt-runtime-5": {
+        "title": "排入审查关卡",
+        "detail": "新增一个待处理的治理审批，用于跟踪运行时契约改动的分支与 PR 推进步骤。"
+      },
+      "evt-governance-1": {
+        "title": "已审查 PR #6 差异",
+        "detail": "对比 repository-governance 分支与 develop 后，确认该增量仅涉及文档治理。"
+      },
+      "evt-governance-2": {
+        "title": "治理合并已批准",
+        "detail": "仓库治理增量已作为一致且可审查的基础加固步骤推进到 develop。"
+      },
+      "evt-governance-3": {
+        "title": "develop 已更新",
+        "detail": "已在本地压缩合并仓库治理改动并推送 develop，确保下一条任务分支建立在连贯状态之上。"
+      }
+    }
+  },
+  "ops": {
+    "eyebrow": "项目运营",
+    "title": "实时项目进度板",
+    "description": "一个面向项目所有者的极简看板，用来查看 Hermes 当前在做什么、多少员工/子代理正在工作，以及每个自主员工负责什么。",
+    "commandTitle": "指挥台",
+    "currentMission": "当前任务目标",
+    "currentFocus": "当前重点",
+    "employeeBoardTitle": "员工 / 子代理看板",
+    "currentTaskLabel": "当前任务",
+    "latestOutputLabel": "最新产出",
+    "workstreamsTitle": "工作流",
+    "progressLabel": "进度",
+    "activityWindowTitle": "活动窗口",
+    "activityWindowBody": "这个页面刻意保持简单：把控制器、活跃子代理、自动化通道以及当前冲刺重点集中显示在一个地方。",
+    "ownerViewTitle": "老板视角",
+    "ownerViewBody": "以后你想快速确认“谁在干活、在做什么、项目有没有继续推进”，直接看这里就行。",
+    "metrics": {
+      "totalEmployees": "员工总数",
+      "totalEmployeesDetail": "当前为项目建模的所有人类化工作通道、子代理与自动化员工。",
+      "activeSubagents": "活跃子代理",
+      "activeSubagentsDetail": "正在承担实现或验证任务的独立编码/审查通道。",
+      "activeWorkers": "工作中的员工",
+      "activeWorkersDetail": "当前正在运行、审查或汇报的人员或自动化通道。",
+      "automationLanes": "自动化通道",
+      "automationLanesDetail": "通过 cron、汇报、发布等方式持续推进项目的自动员工。"
+    }
+  },
+  "appShell": {
+    "productName": "Hermes Agent WebUI",
+    "productTagline": "面向 Hermes Agent 的聊天优先 Web 应用",
+    "foundationBadge": "在线孵化构建",
+    "footerTagline": "单人优先、自托管、面向真实日常使用"
+  },
+  "runtimeHydration": {
+    "sourceLive": "实时运行时",
+    "sourceFixture": "示例回退",
+    "loading": "正在加载实时会话…",
+    "loadingTitle": "正在加载实时运行时",
+    "loadingBody": "正在从 Hermes 后端获取会话和回放数据，然后再展示对应路由的详情。",
+    "fallbackWarning": "当前使用示例回退：{{message}}"
   }
 }

@@ -1,14 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import {
-  Activity,
-  BarChart3,
   CheckSquare,
   Clock3,
-  FileText,
   FolderKanban,
-  KeyRound,
-  LayoutDashboard,
   MessageSquareText,
   Package,
   PlaySquare,
@@ -32,12 +27,35 @@ import { Badge } from "@/components/ui/badge";
 
 function LanguageSwitcher() {
   const { i18n } = useTranslation();
+  const [, setLanguageVersion] = useState(0);
+
+  useEffect(() => {
+    const handleLanguageChanged = (lng: string) => {
+      document.documentElement.lang = lng;
+      setLanguageVersion((value) => value + 1);
+    };
+
+    i18n.on("languageChanged", handleLanguageChanged);
+    document.documentElement.lang = i18n.resolvedLanguage ?? i18n.language ?? "en";
+
+    return () => {
+      i18n.off("languageChanged", handleLanguageChanged);
+    };
+  }, [i18n]);
+
   const current = i18n.resolvedLanguage?.startsWith("zh") ? "zh-CN" : "en";
+  const setLanguage = async (lng: "en" | "zh-CN") => {
+    await i18n.changeLanguage(lng);
+    document.documentElement.lang = lng;
+    localStorage.setItem("i18nextLng", lng);
+    setLanguageVersion((value) => value + 1);
+  };
+
   return (
     <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-muted-foreground">
       <button
         type="button"
-        onClick={() => void i18n.changeLanguage("en")}
+        onClick={() => void setLanguage("en")}
         className={current === "en" ? "text-foreground" : "hover:text-foreground"}
       >
         EN
@@ -45,7 +63,7 @@ function LanguageSwitcher() {
       <span>/</span>
       <button
         type="button"
-        onClick={() => void i18n.changeLanguage("zh-CN")}
+        onClick={() => void setLanguage("zh-CN")}
         className={current === "zh-CN" ? "text-foreground" : "hover:text-foreground"}
       >
         中文
@@ -59,18 +77,13 @@ export default function App() {
 
   const nav = useMemo(
     () => [
-      { to: "/overview", label: t("nav.overview"), icon: LayoutDashboard },
+      { to: "/sessions", label: t("nav.sessions"), icon: MessageSquareText },
       { to: "/workspaces", label: t("nav.workspaces"), icon: FolderKanban },
       { to: "/runs", label: t("nav.runs"), icon: PlaySquare },
       { to: "/approvals", label: t("nav.approvals"), icon: CheckSquare },
-      { to: "/status", label: t("nav.status"), icon: Activity },
-      { to: "/sessions", label: t("nav.sessions"), icon: MessageSquareText },
-      { to: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
-      { to: "/logs", label: t("nav.logs"), icon: FileText },
       { to: "/cron", label: t("nav.cron"), icon: Clock3 },
       { to: "/skills", label: t("nav.skills"), icon: Package },
       { to: "/config", label: t("nav.config"), icon: Settings },
-      { to: "/keys", label: t("nav.keys"), icon: KeyRound },
     ],
     [t],
   );
@@ -85,10 +98,10 @@ export default function App() {
           <div className="flex min-w-[220px] items-center border-r border-border px-5 shrink-0">
             <div>
               <div className="font-collapse text-xl font-bold tracking-wider uppercase blend-lighter">
-                Hermes Control Center
+                {t("appShell.productName")}
               </div>
               <div className="font-display text-[0.68rem] uppercase tracking-[0.2em] text-muted-foreground">
-                Web platform for Hermes Agent
+                {t("appShell.productTagline")}
               </div>
             </div>
           </div>
@@ -118,7 +131,7 @@ export default function App() {
 
           <div className="ml-auto flex items-center gap-3 px-4">
             <Badge variant="outline" className="hidden sm:inline-flex text-[10px] tracking-[0.18em] uppercase">
-              Foundation Sprint
+              {t("appShell.foundationBadge")}
             </Badge>
             <LanguageSwitcher />
           </div>
@@ -127,30 +140,34 @@ export default function App() {
 
       <main className="relative z-2 mx-auto w-full max-w-[1480px] flex-1 px-6 py-8">
         <Routes>
-          <Route path="/" element={<Navigate to="/overview" replace />} />
+          <Route path="/" element={<Navigate to="/sessions" replace />} />
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/workspaces" element={<WorkspacesPage />} />
+          <Route path="/workspaces/:workspaceSlug" element={<WorkspacesPage />} />
           <Route path="/runs" element={<RunsPage />} />
+          <Route path="/runs/:runId" element={<RunsPage />} />
           <Route path="/approvals" element={<ApprovalsPage />} />
+          <Route path="/approvals/:approvalId" element={<ApprovalsPage />} />
           <Route path="/status" element={<StatusPage />} />
           <Route path="/sessions" element={<SessionsPage />} />
+          <Route path="/sessions/:sessionId" element={<SessionsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/logs" element={<LogsPage />} />
           <Route path="/cron" element={<CronPage />} />
           <Route path="/skills" element={<SkillsPage />} />
           <Route path="/config" element={<ConfigPage />} />
           <Route path="/keys" element={<EnvPage />} />
-          <Route path="*" element={<Navigate to="/overview" replace />} />
+          <Route path="*" element={<Navigate to="/sessions" replace />} />
         </Routes>
       </main>
 
       <footer className="relative z-2 border-t border-border">
         <div className="mx-auto flex max-w-[1480px] items-center justify-between px-6 py-3">
           <span className="font-display text-[0.8rem] tracking-[0.12em] uppercase opacity-70">
-            Hermes Control Center
+            {t("appShell.productName")}
           </span>
           <span className="font-display text-[0.7rem] tracking-[0.15em] uppercase text-foreground/40">
-            Independent OSS incubation for Hermes Agent
+            {t("appShell.footerTagline")}
           </span>
         </div>
       </footer>

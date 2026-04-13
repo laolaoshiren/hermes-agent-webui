@@ -1,47 +1,96 @@
-# Hermes Control Center
+# Hermes Agent WebUI
 
-Hermes Control Center is a product-grade web UI for Hermes Agent.
+Hermes Agent WebUI is a chat-first web app for Hermes Agent.
 
-This repository exists to evolve Hermes from a useful CLI/gateway/admin surface into a full web workspace with:
-- chat and autonomous run management
-- project-centric workflows
-- approvals and operational review queues
-- session replay, artifacts, logs, and observability
-- internationalization from day one
-- a disciplined large-project workflow: roadmap, issues, milestones, CI, PRs, releases, and development logs
+It is being built to beat the current default choices for Hermes on the dimensions normal people actually feel first:
+- a clearer chat experience
+- safer public deployment
+- better day-to-day owner workflow
+- easier switching between sessions, workspace, and agent activity
 
-## Why a separate repository first?
+This project is not trying to replace Hermes core.
+It is trying to become the best serious web frontend for Hermes.
 
-The initial development strategy is:
-1. move fast in an independent open-source repo
-2. iterate on architecture, UX, and delivery discipline
-3. upstream the stable pieces back into Hermes when the structure is proven
+## Why this exists
 
-This keeps the iteration loop fast while reducing risk to Hermes core.
+Today, Hermes users mostly choose between:
+- the official built-in web/admin surfaces
+- Open WebUI connected through the Hermes API server
+- community WebUI projects like `nesquena/hermes-webui`
 
-## Current phase
+Those options already prove there is real demand for a strong Hermes web frontend.
 
-Phase 0 / Foundation:
-- bootstrap the standalone workspace from Hermes' existing `web/` app
-- establish routing, i18n, planning docs, CI, and development log discipline
-- define the product architecture and delivery roadmap
-- begin the first product shell for overview, workspaces, runs, approvals, and operations
+Our goal is to ship a frontend that is:
+- chat-first instead of control-panel-first
+- owner-first instead of enterprise-heavy
+- public-deployable with real auth and sane defaults
+- modern enough to attract contributors, not just end users
 
-## Development
+## Try the demo
+
+Current live surfaces on the author's server:
+- Demo workspace: `http://192.168.4.135:4173`
+- Backend status endpoint: `http://192.168.4.135:9119/api/status`
+
+![Hermes Agent WebUI demo homepage](assets/demo-homepage.png)
+
+Note:
+- the UI is still moving quickly
+- first-load rough edges are expected during active incubation
+- the public-ready auth and deployment layer is being built next
+
+## What you should expect right now
+
+Already real:
+- session list and session hydration path
+- chat-oriented sessions surface
+- config/env/cron/skills integration path
+- Hermes-backed MVP adapter for session/chat flows
+- roadmap / architecture / devlog / CI discipline
+
+Still actively being transformed:
+- app shell is being refocused from control-center framing to chat-first product framing
+- public-safe auth and deployment flow
+- stronger workspace panel and runtime stream UX
+- better GitHub presentation with screenshots, demo polish, and contributor onboarding
+
+## Product direction
+
+Primary product priorities:
+1. chat-first session workflow
+2. workspace-aware Hermes usage
+3. owner-first secure deployment
+4. contributor-friendly modern stack
+5. fast iteration in a standalone repo, with stable pieces upstreamed later when proven
+
+## Local development
 
 ```bash
 npm install
+npm run backend:mvp
 npm run dev
 ```
 
-By default Vite proxies both `/api` and `/v1` to `http://127.0.0.1:9119`.
-Override with:
+By default Vite proxies `/api` and `/v1` to `http://127.0.0.1:9119`.
+
+## MVP backend adapter
 
 ```bash
-VITE_HERMES_API_ORIGIN=http://127.0.0.1:9119 npm run dev
+cd /root/hermes-agent-webui
+npm run backend:mvp
 ```
 
-## Build
+Current adapter endpoints:
+- `GET /api/status`
+- `GET /api/sessions`
+- `GET /api/sessions/:id/messages`
+- `POST /api/session/new`
+- `POST /api/chat`
+- `DELETE /api/sessions/:id`
+
+The current adapter shells out to the installed `hermes` CLI for replies and stores adapter session state under `~/.hermes/control-center-mvp/`.
+
+## Build checks
 
 ```bash
 npm run build
@@ -52,16 +101,25 @@ npm run typecheck
 ## Repository conventions
 
 - `docs/DEVLOG.md` records continuous project activity in public, human-readable form.
-- `docs/ROADMAP.md` captures the staged execution plan.
-- `docs/ARCHITECTURE.md` captures system boundaries and design constraints.
+- `docs/ROADMAP.md` captures staged execution.
+- `docs/ARCHITECTURE.md` records system boundaries and design constraints.
 - `docs/plans/` contains implementation plans detailed enough for parallel subagents.
 
-## Product direction
+## Current competitive strategy
+
+The near-term goal is simple:
+- copy what users already love from strong Hermes web frontends
+- fix the pain points they still complain about
+- build original advantages around public-safe deployment, owner-first flow, and cleaner product UX
+
+## Inspirations
 
 Primary inspirations and lessons incorporated into this project:
-- OpenClaw: control-plane and gateway mindset
-- Poco: project/workspace + artifact + playback ergonomics
-- Mission Control: task board + live activity stream
-- OpenHands: maintainable product layering
-- LibreChat: strong session and streaming UX
-- Open WebUI: extensibility and admin surface depth
+- Hermes official web/admin surfaces
+- Open WebUI
+- nesquena/hermes-webui
+- OpenClaw
+- Poco
+- Mission Control
+- OpenHands
+- LibreChat
