@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
-import { deriveSessionReview, getDefaultSession } from "@/pages/sessionReview";
+import { getApprovalsForRun, getArtifactsForRun, getTimelineForRun } from "@/features/runtime/selectors";
 import type { SessionInfo } from "@/lib/api";
+import { deriveSessionReview, getDefaultSession } from "@/pages/sessionReview";
 
 function createSession(overrides: Partial<SessionInfo> = {}): SessionInfo {
   return {
@@ -60,6 +61,22 @@ describe("sessionReview", () => {
     expect(review.metrics.timelineEvents).toBe(
       runtimeContractSnapshot.events.filter((event) => event.runId === runningRun.id).length,
     );
+  });
+
+  it("derives replay trust context for the selected session's related run", () => {
+    const selectedRuntimeSession = runtimeContractSnapshot.sessions[0]!;
+    const review = deriveSessionReview(
+      [createSession({ id: selectedRuntimeSession.id, is_active: true })],
+      runtimeContractSnapshot,
+      selectedRuntimeSession.id,
+    );
+    const expectedTimeline = review.relatedRun ? getTimelineForRun(runtimeContractSnapshot, review.relatedRun.id) : [];
+
+    expect(review.replaySummary.messageCount + review.replaySummary.toolCallCount + review.replaySummary.systemEventCount).toBeGreaterThan(0);
+    expect(review.latestReplayEvent?.runId).toBe(review.relatedRun?.id ?? null);
+    expect(review.latestReplayEvent).toEqual(expectedTimeline[expectedTimeline.length - 1] ?? null);
+    expect(review.relatedApprovals).toEqual(review.relatedRun ? getApprovalsForRun(runtimeContractSnapshot, review.relatedRun.id) : []);
+    expect(review.relatedArtifacts).toEqual(review.relatedRun ? getArtifactsForRun(runtimeContractSnapshot, review.relatedRun.id) : []);
   });
 
   it("marks invalid route ids for redirect to the canonical selected session", () => {

@@ -185,6 +185,7 @@ The control center can now derive a `RuntimeContractSnapshot` from live `/api/se
 - `SessionMessage[]` from `/api/sessions/:id/messages` provides preview/backfill material for timeline hydration
 - run/approval/artifact/event source records should stay explicit in `src/features/runtime/adapterTypes.ts` until live backend endpoints settle
 - session-review pages may combine live `SessionInfo` transport fields with contract-derived run linkage, but they should do so through a thin selector/helper layer rather than mixing raw adapter logic into route components
+- when a selected session has a primary related run, replay trust context (latest replay event, replay counts, linked approvals, linked artifacts) should be derived from the shared contract selectors rather than recomputed independently in page components
 
 ### Frontend-owned adapter outputs
 
