@@ -1,4 +1,4 @@
-# Contributing to Hermes Control Center
+# Contributing to Hermes Agent Web UI
 
 Thanks for contributing.
 

@@ -146,7 +146,7 @@ describe("SessionsPage route review surface", () => {
     const { markup } = renderSessionsRoute(`/sessions?workspace=hermes-control-center`);
 
     expect(markup).toContain("Workspace-scoped sessions");
-    expect(markup).toContain("Showing 1 session linked to Hermes Control Center.");
+    expect(markup).toContain("Showing 1 session linked to Hermes Agent Web UI.");
     expect(markup).toContain("Return to workspace review");
   });
 
@@ -187,7 +187,7 @@ describe("SessionsPage route review surface", () => {
 
     expect(markup).toContain("Workspace-scoped sessions");
     expect(markup).toContain("No sessions are linked to this workspace yet");
-    expect(markup).toContain("Hermes Control Center does not currently expose any sessions in the shared runtime snapshot.");
+    expect(markup).toContain("Hermes Agent Web UI does not currently expose any sessions in the shared runtime snapshot.");
   });
 
   it("localizes the replay trust surface in Simplified Chinese", async () => {

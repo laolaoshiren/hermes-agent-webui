@@ -2,7 +2,7 @@
 
 ## Core decision
 
-Hermes Control Center will not replace Hermes runtime internals. It will compose existing Hermes surfaces into a product-grade web experience.
+Hermes Agent Web UI will not replace Hermes runtime internals. It will compose existing Hermes surfaces into a product-grade web experience.
 
 ## Existing Hermes capabilities we are building on
 

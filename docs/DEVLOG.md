@@ -2,6 +2,25 @@
 
 This log is intentionally public-facing and continuously append-only so both the repository owner and future contributors can track what happened, why it happened, and what is currently in motion.
 
+## 2026-04-14 07:11 +08:00
+
+- Reviewed the canonical repository state from a clean checkout at `/root/hermes-control-center` and confirmed the GitHub repo rename now resolves to `laolaoshiren/hermes-agent-webui` while local/public product surfaces still lagged behind.
+- Monitored and merged PR #35 (`fix: preserve session UX during runtime hydration`) into `develop` after confirming mergeability and successful CI.
+- Started issue #34 on branch `feat/issue-34-brand-rename` with a saved implementation plan at `docs/plans/2026-04-14-issue-34-brand-seo-rename.md`.
+- Completed the first brand/SEO alignment wave for the renamed repo:
+  - updated fixture-driven runtime naming and localized overview/shell copy from **Hermes Control Center** to **Hermes Agent Web UI**
+  - added focused regression coverage for workspace, run, session, and overview surfaces
+  - aligned README, contributing guide, package metadata, browser title/description, architecture docs, and runtime contract wording with the new UI-first product identity
+- Validation status:
+  - `npm run lint` ✅ (known non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ (existing Vite chunk-size warning only)
+  - `npm run test -- src/pages/WorkspacesPage.test.ts src/pages/RunsPage.test.ts src/pages/SessionsPage.route.test.ts src/pages/OverviewPage.test.ts --run` ✅
+  - independent branch review against `origin/develop...HEAD` ✅ with no security or logic issues found
+- Next focus:
+  - finish the GitHub growth lane under issue #33 (README polish, bilingual discoverability, badges/community packaging)
+  - or deepen runtime-facing product metadata/testing so browser/document-level branding and future rename surfaces stay locked down
+
 ## 2026-04-13 15:04 +08:00
 
 - Project incubator repository created: `laolaoshiren/hermes-control-center`

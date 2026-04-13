@@ -16,7 +16,7 @@
   },
   "overview": {
     "eyebrow": "项目方向",
-    "title": "Hermes Control Center",
+    "title": "Hermes Agent Web UI",
     "description": "面向 Hermes Agent 的产品级 Web 平台：从一开始就支持工作区优先、可回放自治运行、审批流、可观测性，以及中英文国际化。",
     "badge": "v0.1 基础阶段",
     "thesisTitle": "产品命题",
@@ -455,7 +455,7 @@
     }
   },
   "appShell": {
-    "productName": "Hermes Control Center",
+    "productName": "Hermes Agent Web UI",
     "productTagline": "Hermes Agent 的 Web 平台",
     "foundationBadge": "基础冲刺阶段",
     "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"

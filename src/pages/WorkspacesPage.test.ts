@@ -77,7 +77,7 @@ describe("WorkspacesPage", () => {
   it("renders the selected workspace review and operator handoff links", () => {
     const markup = renderWorkspaceRoute("/workspaces/hermes-control-center");
 
-    expect(markup).toContain("Hermes Control Center");
+    expect(markup).toContain("Hermes Agent Web UI");
     expect(markup).toContain("Workspace review surface");
     expect(markup).toContain("maintainer-safe");
     expect(markup).toContain("Open session review");
@@ -98,7 +98,7 @@ describe("WorkspacesPage", () => {
     const markup = renderWorkspaceRoute("/workspaces");
 
     expect(markup).toContain("Current workspace review");
-    expect(markup).toContain("Hermes Control Center");
+    expect(markup).toContain("Hermes Agent Web UI");
     expect(markup).toContain("laolaoshiren/hermes-control-center");
   });
 

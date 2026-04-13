@@ -13,7 +13,7 @@ import type {
 const workspaces: RuntimeWorkspaceSource[] = [
   {
     id: "ws-hcc",
-    name: "Hermes Control Center",
+    name: "Hermes Agent Web UI",
     slug: "hermes-control-center",
     status: "active",
     repository: {
@@ -50,7 +50,7 @@ const sessionMessages: Record<string, SessionMessage[]> = {
   "sess-20260413-runtime-contract": [
     {
       role: "system",
-      content: "Scheduled maintainer run booted for Hermes Control Center.",
+      content: "Scheduled maintainer run booted for Hermes Agent Web UI.",
       timestamp: Math.floor(Date.parse("2026-04-13T07:12:00Z") / 1000),
     },
     {
