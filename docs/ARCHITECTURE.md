@@ -53,3 +53,12 @@ Hermes Control Center will not replace Hermes runtime internals. It will compose
 Runtime shell pages no longer depend only on fixture selectors. A React Query hook now fetches `/api/sessions`, hydrates `/api/sessions/:id/messages` in parallel, builds the shared runtime snapshot through a pure live adapter, and falls back to the fixture snapshot if hydration fails.
 
 This keeps the shell route-safe during backend failures while allowing Overview, Runs, and Approvals to render from real Hermes session data when available.
+
+## Replay timeline enrichment
+
+Replay semantics now stay inside the adapter boundary instead of leaking into page components.
+
+- `src/features/runtime/liveAdapter.ts` derives deterministic lifecycle `system` events and transcript-linked `artifact` events from live session/message input
+- `src/pages/runsReplaySummary.ts` computes selected-run replay metrics from contract events only
+- `src/pages/RunsPage.tsx` renders a replay-summary card for the selected run while preserving the existing live/fixture source badge and fallback warning behavior
+- route-level UI continues to consume `RuntimeContractSnapshot` selectors and summaries rather than raw Hermes session payloads

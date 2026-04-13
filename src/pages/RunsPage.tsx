@@ -14,6 +14,7 @@ import type {
   TimelineEventStatus,
 } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
+import { deriveReplaySummary } from "@/pages/runsReplaySummary";
 
 function formatTimestamp(value: string | null) {
   if (!value) {
@@ -205,6 +206,8 @@ export default function RunsPage() {
   const selectedApprovals = getApprovalsForRun(snapshot, selectedRun.id);
   const selectedStartedAt = formatTimestamp(selectedRun.startedAt);
   const selectedEndedAt = formatTimestamp(selectedRun.endedAt);
+  const replaySummary = deriveReplaySummary(selectedTimeline);
+  const latestReplayEventAt = formatTimestamp(replaySummary.latestEventTimestamp);
 
   const statusSummary = snapshot.runs.map((run) => ({
     id: run.id,
@@ -271,6 +274,41 @@ export default function RunsPage() {
               <div className="leading-6 text-muted-foreground">{getRunSummary(selectedRun, t)}</div>
             </div>
 
+            <div className="border border-border bg-background/60 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.replaySummaryEyebrow")}</div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{t("runs.replaySummaryTitle")}</div>
+                </div>
+                <Badge variant="outline">{t("runs.replayEventsBadge", { count: selectedTimeline.length })}</Badge>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div className="border border-border/80 bg-background p-3">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.messageEventsLabel")}</div>
+                  <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{replaySummary.messageCount}</div>
+                </div>
+                <div className="border border-border/80 bg-background p-3">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.toolCallEventsLabel")}</div>
+                  <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{replaySummary.toolCallCount}</div>
+                </div>
+                <div className="border border-border/80 bg-background p-3">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.systemEventsLabel")}</div>
+                  <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{replaySummary.systemEventCount}</div>
+                </div>
+                <div className="border border-border/80 bg-background p-3">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.latestReplayEventLabel")}</div>
+                  <div className="mt-2 text-sm font-medium leading-6 text-foreground">
+                    {latestReplayEventAt ?? t("runs.noReplayEvents")}
+                  </div>
+                </div>
+              </div>
+
+              {selectedTimeline.length === 0 ? (
+                <div className="mt-4 text-sm leading-6 text-muted-foreground">{t("runs.replaySummaryEmptyBody")}</div>
+              ) : null}
+            </div>
+
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-4 border border-border bg-background/60 p-4 text-sm">
                 <div>
@@ -320,9 +358,11 @@ export default function RunsPage() {
             <CardTitle>{t("runs.timelineTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {selectedTimeline.map((event) => (
-              <TimelineEventRow key={event.id} event={event} />
-            ))}
+            {selectedTimeline.length > 0 ? (
+              selectedTimeline.map((event) => <TimelineEventRow key={event.id} event={event} />)
+            ) : (
+              <div className="text-sm leading-6 text-muted-foreground">{t("runs.emptyTimeline")}</div>
+            )}
           </CardContent>
         </Card>
 

@@ -149,6 +149,31 @@ This log is intentionally public-facing and continuously append-only so both the
   - decide the next issue #2 split between richer run replay semantics and durable approval backend ingestion
   - consider page-level integration tests for live vs fixture runtime query states as the shell gets more dynamic
 
+## 2026-04-13 19:49 +08:00
+
+- Continued issue #2 on fresh branch `feat/issue-2-replay-timeline-enrichment` with a replay-focused runtime slice:
+  - added `docs/plans/2026-04-13-issue-2-replay-timeline-enrichment.md`
+  - enriched `src/features/runtime/liveAdapter.ts` so live session hydration now emits deterministic lifecycle `system` events, transcript-linked `artifact` events, and type-safe metadata
+  - expanded `src/features/runtime/liveAdapter.test.ts` to cover replay lifecycle behavior, deterministic timestamps, null/blank fallbacks, and epoch-edge cases
+  - added `src/pages/runsReplaySummary.ts` plus focused tests to derive selected-run replay counts from contract events
+  - updated `src/pages/RunsPage.tsx` with a replay-summary card and honest empty-state messaging for runs that have no replay events
+  - localized the new replay-summary shell copy in English + Simplified Chinese and added static-markup page coverage in `src/pages/RunsPage.test.ts`
+  - documented the replay-timeline increment in `docs/RUNTIME_CONTRACT.md` and `docs/ARCHITECTURE.md`
+- Validation status:
+  - `npm run test -- --run src/features/runtime/liveAdapter.test.ts src/pages/runsReplaySummary.test.ts src/pages/RunsPage.test.ts` ✅
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ (existing Vite chunk-size warning remains non-blocking)
+- Review status:
+  - Task 1 spec compliance review ✅ PASS
+  - Task 1 code quality review ✅ APPROVED after deterministic timestamp and type-safety fixes
+  - Task 2 spec compliance review ✅ PASS
+  - Task 2 code quality review ✅ APPROVED
+- Next focus:
+  - push this replay-timeline slice and open a PR into `develop`
+  - continue issue #2 with richer live replay semantics for approval and artifact ingestion once backend surfaces exist
+  - consider trimming the main bundle as replay/runtime UI keeps growing
+
 ## Working principles
 
 - plan-driven execution
