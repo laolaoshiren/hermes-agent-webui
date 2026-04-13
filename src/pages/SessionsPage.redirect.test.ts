@@ -33,7 +33,7 @@ const sessions: SessionInfo[] = [
 ];
 
 type RuntimeQueryState = {
-  data: {
+  data?: {
     source: "fixture" | "live";
     snapshot: typeof runtimeContractSnapshot;
     error: string | null;
@@ -128,6 +128,18 @@ describe("SessionsPage redirect behavior", () => {
 
     expect(location.pathname).toBe(`/sessions/${selectedRuntimeSession.id}`);
     expect(location.search).toBe("");
+  });
+
+  it("does not clear workspace scope while runtime hydration is pending without a snapshot", async () => {
+    runtimeQueryState = {
+      data: undefined,
+      isPending: true,
+    };
+
+    const location = await renderSessionsRoute("/sessions?workspace=missing-workspace");
+
+    expect(location.pathname).toBe("/sessions");
+    expect(location.search).toBe("?workspace=missing-workspace");
   });
 
   it("preserves a valid workspace scope when canonicalizing a session route", async () => {

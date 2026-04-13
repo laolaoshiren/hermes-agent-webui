@@ -37,7 +37,7 @@ const sessions: SessionInfo[] = [
 ];
 
 type RuntimeQueryState = {
-  data: {
+  data?: {
     source: "fixture" | "live";
     snapshot: typeof runtimeContractSnapshot;
     error: string | null;
@@ -150,7 +150,7 @@ describe("SessionsPage route review surface", () => {
     expect(markup).toContain("Return to workspace review");
   });
 
-  it("shows runtime hydration loading before applying workspace-scoped redirects", () => {
+  it("keeps the sessions shell visible while runtime hydration is still pending", () => {
     runtimeQueryState = {
       data: {
         source: "fixture",
@@ -163,7 +163,11 @@ describe("SessionsPage route review surface", () => {
     const { markup } = renderSessionsRoute(`/sessions?workspace=hermes-control-center`);
 
     expect(markup).toContain("Hydrating live runtime");
-    expect(markup).toContain("Loading sessions and replay data from the Hermes backend before rendering route-specific runtime details.");
+    expect(markup).toContain("Workspace-scoped sessions");
+    expect(markup).toContain("Return to workspace review");
+    expect(markup).not.toContain(
+      "Loading sessions and replay data from the Hermes backend before rendering route-specific runtime details.",
+    );
   });
 
   it("keeps workspace scope on session review and related run handoff", () => {
