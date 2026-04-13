@@ -11,7 +11,7 @@ function getSnapshot(): RuntimeContractSnapshot {
   return runtimeContractSnapshot;
 }
 
-export function getDefaultRun(): RunSummary {
+export function getDefaultRun(): RunSummary | null {
   const snapshot = getSnapshot();
   return snapshot.runs.find((run) => run.status === "running") ?? snapshot.runs[0];
 }

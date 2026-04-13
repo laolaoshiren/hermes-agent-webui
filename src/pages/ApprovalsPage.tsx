@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
-import { getApprovalById, getDefaultRun, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
+import { getApprovalById, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
 import type { ApprovalStatus, ApprovalSummary } from "@/features/runtime/types";
 
 function formatTimestamp(value: string | null) {
@@ -60,13 +60,33 @@ export default function ApprovalsPage() {
   const defaultApproval = runtimeContractSnapshot.approvals.find((approval) => approval.status === "pending") ?? runtimeContractSnapshot.approvals[0];
   const matchedApproval = approvalId ? getApprovalById(approvalId) : null;
 
+  if (!defaultApproval) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow={t("approvals.eyebrow")}
+          title={t("approvals.title")}
+          description={t("approvals.description")}
+          badge={t("approvals.badge")}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("approvals.emptyStateTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm leading-6 text-muted-foreground">{t("approvals.emptyStateBody")}</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (approvalId && !matchedApproval) {
     return <Navigate to={`/approvals/${defaultApproval.id}`} replace />;
   }
 
   const selectedApproval = matchedApproval ?? defaultApproval;
-  const relatedRun = getRunById(selectedApproval.runId) ?? getDefaultRun();
-  const relatedTimeline = getTimelineForRun(relatedRun.id);
+  const relatedRun = getRunById(selectedApproval.runId);
+  const relatedTimeline = relatedRun ? getTimelineForRun(relatedRun.id) : [];
   const latestRelatedEvent = relatedTimeline[relatedTimeline.length - 1] ?? null;
 
   const metrics = {
@@ -204,27 +224,35 @@ export default function ApprovalsPage() {
               <CardTitle>{t("approvals.relatedRunTitle")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
-              <div className="border border-border bg-background/60 p-4">
-                <div className="font-medium text-foreground">{getRunText(relatedRun.id, "title", relatedRun.title, t)}</div>
-                <div className="mt-2 leading-6 text-muted-foreground">{getRunText(relatedRun.id, "summary", relatedRun.summary, t)}</div>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.relatedRunStatusLabel")}</div>
-                    <div className="mt-1 font-medium text-foreground">{t(`runs.statuses.${relatedRun.status}`)}</div>
+              {relatedRun ? (
+                <>
+                  <div className="border border-border bg-background/60 p-4">
+                    <div className="font-medium text-foreground">{getRunText(relatedRun.id, "title", relatedRun.title, t)}</div>
+                    <div className="mt-2 leading-6 text-muted-foreground">{getRunText(relatedRun.id, "summary", relatedRun.summary, t)}</div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.relatedRunStatusLabel")}</div>
+                        <div className="mt-1 font-medium text-foreground">{t(`runs.statuses.${relatedRun.status}`)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.latestRunEventLabel")}</div>
+                        <div className="mt-1 font-medium text-foreground">{latestRelatedEvent ? formatTimestamp(latestRelatedEvent.timestamp) : "—"}</div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.latestRunEventLabel")}</div>
-                    <div className="mt-1 font-medium text-foreground">{latestRelatedEvent ? formatTimestamp(latestRelatedEvent.timestamp) : "—"}</div>
-                  </div>
-                </div>
-              </div>
 
-              <Link
-                to={`/runs/${relatedRun.id}`}
-                className="inline-flex items-center border border-border px-4 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
-              >
-                {t("approvals.openRunReview")}
-              </Link>
+                  <Link
+                    to={`/runs/${relatedRun.id}`}
+                    className="inline-flex items-center border border-border px-4 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
+                  >
+                    {t("approvals.openRunReview")}
+                  </Link>
+                </>
+              ) : (
+                <div className="border border-border bg-background/60 p-4 leading-6 text-muted-foreground">
+                  {t("approvals.relatedRunMissingBody")}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -142,6 +142,26 @@ export default function RunsPage() {
   const defaultRun = getDefaultRun();
   const matchedRun = runId ? getRunById(runId) : null;
 
+  if (!defaultRun) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow={t("runs.eyebrow")}
+          title={t("runs.title")}
+          description={t("runs.description")}
+          badge={t("runs.badge")}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("runs.emptyStateTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runs.emptyStateBody")}</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (runId && !matchedRun) {
     return <Navigate to={`/runs/${defaultRun.id}`} replace />;
   }
