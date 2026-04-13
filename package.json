@@ -1,5 +1,5 @@
 {
-  "name": "hermes-control-center",
+  "name": "hermes-agent-webui",
   "private": false,
   "version": "0.1.0",
   "type": "module",

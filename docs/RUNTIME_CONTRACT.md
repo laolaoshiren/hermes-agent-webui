@@ -1,6 +1,6 @@
 # Runtime Contract Foundation
 
-This document defines the first product-facing runtime contract for Hermes Control Center.
+This document defines the first product-facing runtime contract for Hermes Agent Web UI.
 
 The intent is **not** to rewrite Hermes internals. The intent is to give the web product a stable domain model that can sit on top of existing Hermes admin APIs, runtime APIs, session storage, and future streaming/event endpoints.
 
@@ -177,7 +177,7 @@ Artifacts are durable outputs attached to runs and timeline playback.
 
 The adapter seam should remain pure and deterministic: raw Hermes-facing payloads go in, product-facing runtime objects come out.
 
-The control center can now derive a `RuntimeContractSnapshot` from live `/api/sessions` records plus per-session message hydration.
+The Hermes Agent Web UI can now derive a `RuntimeContractSnapshot` from live `/api/sessions` records plus per-session message hydration.
 
 ### Frontend-owned adapter inputs
 
@@ -219,7 +219,7 @@ Until backend adapters exist, frontend pages may use realistic mock runtime data
 
 ## Live hydration baseline
 
-The control center can now derive a `RuntimeContractSnapshot` from live `/api/sessions` records plus per-session message hydration.
+The Hermes Agent Web UI can now derive a `RuntimeContractSnapshot` from live `/api/sessions` records plus per-session message hydration.
 
 - one runtime run is created for each live Hermes session in this baseline
 - `session.source === "cron"` maps to `cron`; all other sources map to `manual`

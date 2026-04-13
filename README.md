@@ -1,6 +1,6 @@
-# Hermes Control Center
+# Hermes Agent Web UI
 
-Hermes Control Center is a product-grade web UI for Hermes Agent.
+Hermes Agent Web UI is a fast, usable web interface for Hermes Agent.
 
 This repository exists to evolve Hermes from a useful CLI/gateway/admin surface into a full web workspace with:
 - chat and autonomous run management
