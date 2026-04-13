@@ -76,6 +76,8 @@
     "runQueueTitle": "Workspace run queue",
     "runQueueBody_one": "{{count}} run currently linked to this workspace.",
     "runQueueBody_other": "{{count}} runs currently linked to this workspace.",
+    "sessionQueueBody_one": "{{count}} session currently linked to this workspace.",
+    "sessionQueueBody_other": "{{count}} sessions currently linked to this workspace.",
     "approvalsQueueBody_one": "{{count}} pending approval currently linked to this workspace.",
     "approvalsQueueBody_other": "{{count}} pending approvals currently linked to this workspace.",
     "primarySessionTitle": "Primary session",
@@ -83,6 +85,7 @@
     "primaryApprovalTitle": "Primary approval",
     "openSessionReview": "Open session review",
     "openRunReview": "Open run review",
+    "openWorkspaceSessionQueue": "Open workspace session queue",
     "openWorkspaceRunQueue": "Open workspace run queue",
     "openWorkspaceApprovalsQueue": "Open workspace approvals queue",
     "openApprovalReview": "Open approval review",
@@ -254,6 +257,11 @@
     "badge": "session review preview",
     "explorerTitle": "Session explorer",
     "explorerSummary": "Search, expand, and review recent sessions.",
+    "workspaceQueueTitle": "Workspace-scoped sessions",
+    "workspaceScopeLabel": "Active workspace scope",
+    "workspaceQueueBody_one": "Showing {{count}} session linked to {{workspace}}.",
+    "workspaceQueueBody_other": "Showing {{count}} sessions linked to {{workspace}}.",
+    "returnToWorkspace": "Return to workspace review",
     "searchPlaceholder": "Search message content...",
     "clearSearch": "Clear search",
     "emptyStateTitle": "No sessions yet",
@@ -302,8 +310,12 @@
       "started": "Started",
       "lastActive": "Last active",
       "runtimeStatus": "Run status",
-      "runtimeStarted": "Run started"
+      "runtimeStarted": "Run started",
+      "repository": "Repository",
+      "policyPreset": "Policy preset"
     },
+    "notSet": "Not set",
+    "noRepositoryLinked": "No repository linked",
     "runtimeHandoffPending": "Open a session review route to hydrate runtime linkage and handoff metrics."
   },
   "runtimeContent": {

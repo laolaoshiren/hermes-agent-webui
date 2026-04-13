@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ChevronDown,
@@ -28,6 +28,7 @@ import { api } from "@/lib/api";
 import type { SessionInfo, SessionMessage, SessionSearchResult } from "@/lib/api";
 import { timeAgo } from "@/lib/utils";
 import { deriveSessionReview } from "@/pages/sessionReview";
+import { deriveSessionsWorkspaceFilter } from "@/pages/sessionsWorkspaceFilter";
 
 const ROLE_STYLES: Record<string, { bg: string; text: string; labelKey: string }> = {
   user: { bg: "bg-primary/10", text: "text-primary", labelKey: "sessions.roles.user" },
@@ -74,6 +75,28 @@ function formatRuntimeTimestamp(value: string | null | undefined) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function buildSessionPath(sessionId: string, workspaceSlug: string | null) {
+  return workspaceSlug ? `/sessions/${sessionId}?workspace=${workspaceSlug}` : `/sessions/${sessionId}`;
+}
+
+function buildRunPath(runId: string, workspaceSlug: string | null) {
+  return workspaceSlug ? `/runs/${runId}?workspace=${workspaceSlug}` : `/runs/${runId}`;
+}
+
+function getRepositoryLabel(snapshot: RuntimeContractSnapshot, workspaceId: string | null | undefined, fallback: string) {
+  if (!workspaceId) {
+    return fallback;
+  }
+
+  const workspace = snapshot.workspaces.find((item) => item.id === workspaceId) ?? null;
+  if (!workspace?.repository) {
+    return fallback;
+  }
+
+  const owner = workspace.repository.owner ? `${workspace.repository.owner}/` : "";
+  return `${owner}${workspace.repository.name}`;
 }
 
 function SnippetHighlight({ snippet }: { snippet: string }) {
@@ -210,6 +233,7 @@ function SessionRow({
   isSelected,
   onToggle,
   onDelete,
+  workspaceSlug,
 }: {
   session: SessionInfo;
   snippet?: string;
@@ -218,6 +242,7 @@ function SessionRow({
   isSelected: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  workspaceSlug: string | null;
 }) {
   const { t } = useTranslation();
   const [messages, setMessages] = useState<SessionMessage[] | null>(null);
@@ -283,7 +308,7 @@ function SessionRow({
             {session.source ?? t("sessions.localSource")}
           </Badge>
           <Link
-            to={`/sessions/${session.id}`}
+            to={buildSessionPath(session.id, workspaceSlug)}
             className={`inline-flex items-center rounded border px-2 py-1 text-[10px] uppercase tracking-[0.16em] transition-colors ${
               isSelected ? "border-foreground/50 text-foreground" : "border-border text-muted-foreground hover:text-foreground"
             }`}
@@ -328,7 +353,9 @@ export interface SessionsPageProps {
 export default function SessionsPage({ initialSessions }: SessionsPageProps = {}) {
   const { t } = useTranslation();
   const { sessionId } = useParams();
-  const runtimeEnabled = initialSessions !== undefined || Boolean(sessionId);
+  const [searchParams] = useSearchParams();
+  const workspaceSlug = searchParams.get("workspace");
+  const runtimeEnabled = initialSessions !== undefined || Boolean(sessionId) || Boolean(workspaceSlug);
   const runtimeQuery = useRuntimeSnapshot(runtimeEnabled);
   const snapshot = runtimeQuery.data?.snapshot ?? EMPTY_RUNTIME_SNAPSHOT;
   const runtimeSource = runtimeQuery.data?.source ?? null;
@@ -397,7 +424,12 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   }
 
   const filtered = searchResults ? sessions.filter((session) => snippetMap.has(session.id)) : sessions;
-  const review = deriveSessionReview(sessions, snapshot, sessionId);
+  const workspaceFilter = deriveSessionsWorkspaceFilter(snapshot, workspaceSlug);
+  const visibleSessionIds = new Set(workspaceFilter.filteredSessions.map((session) => session.id));
+  const visibleSessions = filtered.filter((session) => visibleSessionIds.has(session.id));
+  const review = deriveSessionReview(sessions, snapshot, sessionId, visibleSessionIds);
+  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
+  const scopedRepositoryLabel = getRepositoryLabel(snapshot, workspaceFilter.selectedWorkspace?.id, t("sessions.noRepositoryLinked"));
 
   if (loading) {
     return (
@@ -415,8 +447,32 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     );
   }
 
+  if (runtimeQuery.isPending) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          eyebrow={t("sessions.eyebrow")}
+          title={t("sessions.title")}
+          description={t("sessions.description")}
+          badge={t("sessions.badge")}
+        />
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("runtimeHydration.loadingTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runtimeHydration.loadingBody")}</CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (workspaceFilter.shouldClearInvalidWorkspace) {
+    return <Navigate to={sessionId ? `/sessions/${sessionId}` : "/sessions"} replace />;
+  }
+
   if (review.shouldRedirectToCanonical && review.canonicalSessionId) {
-    return <Navigate to={`/sessions/${review.canonicalSessionId}`} replace />;
+    return <Navigate to={buildSessionPath(review.canonicalSessionId, activeWorkspaceSlug)} replace />;
   }
 
   return (
@@ -449,7 +505,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                 <MessageSquare className="h-5 w-5 text-muted-foreground" />
                 <div className="text-sm font-medium text-foreground">{t("sessions.explorerSummary")}</div>
                 <Badge variant="secondary" className="text-xs">
-                  {sessions.length}
+                  {visibleSessions.length}
                 </Badge>
               </div>
               <div className="relative w-full md:w-72">
@@ -477,7 +533,36 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
               </div>
             </div>
 
-            {filtered.length === 0 ? (
+            {workspaceFilter.selectedWorkspace ? (
+              <div className="border border-border bg-background/60 p-4 text-sm">
+                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.workspaceScopeLabel")}</div>
+                <div className="mt-1 font-medium text-foreground">{t("sessions.workspaceQueueTitle")}</div>
+                <div className="mt-1 leading-6 text-muted-foreground">
+                  {t("sessions.workspaceQueueBody", {
+                    count: visibleSessions.length,
+                    workspace: workspaceFilter.selectedWorkspace.name,
+                  })}
+                </div>
+                <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.repository")}</div>
+                    <div className="mt-1 font-medium text-foreground">{scopedRepositoryLabel}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.policyPreset")}</div>
+                    <div className="mt-1 font-medium text-foreground">{workspaceFilter.selectedWorkspace.policyPreset ?? t("sessions.notSet")}</div>
+                  </div>
+                </div>
+                <Link
+                  to={`/workspaces/${workspaceFilter.selectedWorkspace.slug}`}
+                  className="mt-3 inline-flex items-center rounded border border-border px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
+                >
+                  {t("sessions.returnToWorkspace")}
+                </Link>
+              </div>
+            ) : null}
+
+            {visibleSessions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                 <Clock className="mb-3 h-8 w-8 opacity-40" />
                 <p className="text-sm font-medium">{search ? t("sessions.noSearchResults") : t("sessions.emptyStateTitle")}</p>
@@ -485,7 +570,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
-                {filtered.map((session) => (
+                {visibleSessions.map((session) => (
                   <SessionRow
                     key={session.id}
                     session={session}
@@ -495,6 +580,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                     isSelected={review.selectedSession?.id === session.id}
                     onToggle={() => setExpandedId((prev) => (prev === session.id ? null : session.id))}
                     onDelete={() => void handleDelete(session.id)}
+                    workspaceSlug={activeWorkspaceSlug}
                   />
                 ))}
               </div>
@@ -597,7 +683,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                     </div>
                   </div>
                   <Link
-                    to={`/runs/${review.relatedRun.id}`}
+                    to={buildRunPath(review.relatedRun.id, activeWorkspaceSlug)}
                     className="inline-flex items-center rounded border border-border px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
                   >
                     {t("sessions.openRunReview")}

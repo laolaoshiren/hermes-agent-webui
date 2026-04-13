@@ -76,6 +76,8 @@
     "runQueueTitle": "工作区运行队列",
     "runQueueBody_one": "当前有 {{count}} 个运行关联到这个工作区。",
     "runQueueBody_other": "当前有 {{count}} 个运行关联到这个工作区。",
+    "sessionQueueBody_one": "当前有 {{count}} 个会话关联到这个工作区。",
+    "sessionQueueBody_other": "当前有 {{count}} 个会话关联到这个工作区。",
     "approvalsQueueBody_one": "当前有 {{count}} 个待审批项关联到这个工作区。",
     "approvalsQueueBody_other": "当前有 {{count}} 个待审批项关联到这个工作区。",
     "primarySessionTitle": "主会话",
@@ -83,6 +85,7 @@
     "primaryApprovalTitle": "主审批",
     "openSessionReview": "打开会话审查",
     "openRunReview": "打开运行审查",
+    "openWorkspaceSessionQueue": "打开工作区会话队列",
     "openWorkspaceRunQueue": "打开工作区运行队列",
     "openWorkspaceApprovalsQueue": "打开工作区审批队列",
     "openApprovalReview": "打开审批审查",
@@ -254,6 +257,11 @@
     "badge": "会话审查预览",
     "explorerTitle": "会话浏览器",
     "explorerSummary": "搜索、展开并审查最近的会话。",
+    "workspaceQueueTitle": "工作区范围会话",
+    "workspaceScopeLabel": "当前工作区范围",
+    "workspaceQueueBody_one": "正在显示 {{workspace}} 关联的 {{count}} 个会话。",
+    "workspaceQueueBody_other": "正在显示 {{workspace}} 关联的 {{count}} 个会话。",
+    "returnToWorkspace": "返回工作区审查",
     "searchPlaceholder": "搜索消息内容...",
     "clearSearch": "清空搜索",
     "emptyStateTitle": "暂时还没有会话",
@@ -302,8 +310,12 @@
       "started": "开始时间",
       "lastActive": "最近活跃",
       "runtimeStatus": "运行状态",
-      "runtimeStarted": "运行开始时间"
+      "runtimeStarted": "运行开始时间",
+      "repository": "仓库",
+      "policyPreset": "策略预设"
     },
+    "notSet": "未设置",
+    "noRepositoryLinked": "尚未关联仓库",
     "runtimeHandoffPending": "打开某个会话审查路由后，这里才会加载运行时关联与交接指标。"
   },
   "runtimeContent": {
