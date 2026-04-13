@@ -59,6 +59,19 @@ This log is intentionally public-facing and continuously append-only so both the
   - keep the owner-visibility board updated as new worker lanes and milestones appear
   - begin adapter-layer work from existing Hermes session/runtime endpoints into the shared run/timeline contract
 
+## 2026-04-13 16:12 +08:00
+
+- Product direction has been explicitly corrected toward the original goal: ship a directly usable Hermes-connected web UI first, instead of continuing to prioritize shell polish over usability.
+- Created issue #29 to track the fast MVP pivot: `Fast MVP pivot: ship a directly usable Hermes Web UI similar to hermes-webui`.
+- Cloned and inspected `nesquena/hermes-webui` locally at `/root/reference-hermes-webui` as the immediate implementation reference.
+- Created focused branch `feat/issue-29-fast-mvp-parity` from `develop`.
+- Added `docs/plans/2026-04-13-fast-mvp-parity.md` to force the next work into a chat-first/session-first MVP path.
+- Updated `docs/ROADMAP.md` so Phase 1 explicitly prioritizes fast usable parity before deeper abstraction.
+- Immediate next focus:
+  - identify the single fastest working chat loop against Hermes
+  - make the default UI feel like a real app instead of a shell/architecture landing page
+  - ship the first version quickly, then iterate
+
 ## 2026-04-13 16:13 +08:00
 
 - Merged PR #7 (`feat: runtime contract foundation`) into `develop` after confirming the branch was mergeable and GitHub Actions checks were green.
@@ -398,3 +411,24 @@ This log is intentionally public-facing and continuously append-only so both the
   - run full verification for issue #27 (`npm run lint`, `npm run typecheck`, `npm run build`)
   - open a focused PR into `develop` once verification passes
   - continue tightening approval/session/replay handoff trust without breaking the shared runtime contract
+
+## 2026-04-14 03:14 +08:00
+
+- Checked repo and GitHub state at the start of the maintainer run, then promoted ready PR #28 (`feat: preserve approval review session scope`) into `develop` via fast-forward after confirming the branch was clean and GitHub Actions checks were green.
+- Continued issue #29 (`Fast MVP pivot: ship a directly usable Hermes Web UI similar to hermes-webui`) on `feat/issue-29-fast-mvp-parity` with the first chat-first/product-shell increment:
+  - kept the roadmap/plan updates that explicitly prioritize fast usable MVP parity before deeper shell abstraction
+  - inspected `/root/reference-hermes-webui` and selected the fastest backend path for the first send loop: `POST /api/session/new` plus `POST /api/chat` as the smallest coherent Hermes-backed MVP slice
+  - moved the default app landing route from `/overview` to `/sessions` and promoted Sessions to the first nav slot
+  - upgraded `src/pages/SessionsPage.tsx` from a review-only surface into a chat-first split view with a right-side conversation panel, composer, localized backend-unavailable states, and a `New chat` action
+  - extended `src/lib/api.ts` with additive session/chat helpers for the fast MVP route while preserving existing session read APIs
+  - localized all new composer/chat failure copy in English + Simplified Chinese
+  - added focused coverage in `src/lib/api.test.ts` and `src/pages/SessionsPage.chat.test.ts`
+- Validation status:
+  - `npm run test -- --run src/lib/api.test.ts src/pages/SessionsPage.chat.test.ts src/pages/SessionsPage.route.test.ts src/pages/SessionsPage.redirect.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - commit and push the issue #29 chat-first MVP slice, then open/update the PR into `develop`
+  - decide whether the next parity increment should add streaming (`/api/chat/start` + SSE) or a thin backend adapter when Hermes does not yet expose the fast chat routes
+  - keep the default experience obviously product-like while avoiding divergence from Hermes runtime/session architecture

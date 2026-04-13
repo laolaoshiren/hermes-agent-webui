@@ -20,11 +20,154 @@ async function getSessionToken(): Promise<string> {
   return _sessionToken;
 }
 
+function normalizeMessageContent(content: unknown): string | null {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    const textParts = content
+      .flatMap((part) => {
+        if (typeof part === "string") {
+          return [part];
+        }
+
+        if (part && typeof part === "object" && "text" in part && typeof part.text === "string") {
+          return [part.text];
+        }
+
+        return [];
+      })
+      .join("\n")
+      .trim();
+
+    return textParts || null;
+  }
+
+  return null;
+}
+
+function normalizeSessionMessages(messages: unknown): SessionMessage[] {
+  if (!Array.isArray(messages)) {
+    return [];
+  }
+
+  return messages.map((message) => {
+    const role =
+      message && typeof message === "object" && "role" in message && typeof message.role === "string"
+        ? message.role
+        : "system";
+    const normalizedRole = role === "user" || role === "assistant" || role === "system" || role === "tool" ? role : "system";
+    const timestamp =
+      message && typeof message === "object" && "timestamp" in message && typeof message.timestamp === "number"
+        ? message.timestamp
+        : undefined;
+    const toolCalls =
+      message && typeof message === "object" && "tool_calls" in message && Array.isArray(message.tool_calls)
+        ? (message.tool_calls as SessionMessage["tool_calls"])
+        : undefined;
+
+    return {
+      role: normalizedRole,
+      content: normalizeMessageContent(message && typeof message === "object" && "content" in message ? message.content : null),
+      timestamp,
+      tool_calls: toolCalls,
+      tool_name:
+        message && typeof message === "object" && "tool_name" in message && typeof message.tool_name === "string"
+          ? message.tool_name
+          : undefined,
+      tool_call_id:
+        message && typeof message === "object" && "tool_call_id" in message && typeof message.tool_call_id === "string"
+          ? message.tool_call_id
+          : undefined,
+    };
+  });
+}
+
+function buildPreview(messages: SessionMessage[]) {
+  const previewSource = [...messages].reverse().find((message) => typeof message.content === "string" && message.content.trim().length > 0);
+  return previewSource?.content ?? null;
+}
+
+export interface ChatSessionPayload {
+  session_id: string;
+  title?: string | null;
+  workspace?: string | null;
+  model?: string | null;
+  message_count?: number;
+  created_at?: number;
+  updated_at?: number;
+  source?: string | null;
+  input_tokens?: number;
+  output_tokens?: number;
+  tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }>;
+  messages?: unknown;
+}
+
+export function normalizeSessionInfo(payload: ChatSessionPayload): SessionInfo {
+  const messages = normalizeSessionMessages(payload.messages);
+  const startedAt = payload.created_at ?? payload.updated_at ?? Math.floor(Date.now() / 1000);
+  const lastActive = payload.updated_at ?? startedAt;
+
+  return {
+    id: payload.session_id,
+    source: payload.source ?? "webui",
+    model: payload.model ?? null,
+    title: payload.title ?? null,
+    started_at: startedAt,
+    ended_at: null,
+    last_active: lastActive,
+    is_active: false,
+    message_count: payload.message_count ?? messages.length,
+    tool_call_count: payload.tool_calls?.length ?? 0,
+    input_tokens: payload.input_tokens ?? 0,
+    output_tokens: payload.output_tokens ?? 0,
+    preview: buildPreview(messages),
+  };
+}
+
 export const api = {
   getStatus: () => fetchJSON<StatusResponse>("/api/status"),
   getSessions: () => fetchJSON<SessionInfo[]>("/api/sessions"),
   getSessionMessages: (id: string) =>
     fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`),
+  createSession: async (options: { model?: string; workspace?: string } = {}) => {
+    const response = await fetchJSON<{ session: ChatSessionPayload }>("/api/session/new", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(options),
+    });
+
+    return {
+      session: normalizeSessionInfo(response.session),
+      messages: normalizeSessionMessages(response.session.messages),
+    };
+  },
+  sendChatMessage: async (payload: { sessionId: string; message: string; model?: string; workspace?: string }) => {
+    const response = await fetchJSON<{
+      answer: string;
+      status: string;
+      session: ChatSessionPayload;
+      result?: Record<string, unknown>;
+    }>("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: payload.sessionId,
+        message: payload.message,
+        model: payload.model,
+        workspace: payload.workspace,
+      }),
+    });
+
+    return {
+      answer: response.answer,
+      status: response.status,
+      session: normalizeSessionInfo(response.session),
+      messages: normalizeSessionMessages(response.session.messages),
+      result: response.result ?? null,
+    };
+  },
   deleteSession: (id: string) =>
     fetchJSON<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}`, {
       method: "DELETE",

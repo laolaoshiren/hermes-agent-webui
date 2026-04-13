@@ -7,8 +7,9 @@
 - establish route-based product shell
 
 ## Phase 1 — Runtime-facing MVP
+- fast usable web UI parity first: chat-first, session-first, directly connected to Hermes
 - integrate runtime chat/runs surface
-- normalize session/run/event data contracts
+- normalize session/run/event data contracts after the first usable loop is online
 - expose timeline-driven run views
 - add basic approvals inbox and status summaries
 
