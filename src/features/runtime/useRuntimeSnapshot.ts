@@ -37,9 +37,10 @@ export async function fetchRuntimeSnapshot(): Promise<RuntimeSnapshotResult> {
   }
 }
 
-export function useRuntimeSnapshot() {
+export function useRuntimeSnapshot(enabled = true) {
   return useQuery({
     queryKey: ["runtime-snapshot"],
     queryFn: fetchRuntimeSnapshot,
+    enabled,
   });
 }

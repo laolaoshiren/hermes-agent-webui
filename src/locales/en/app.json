@@ -174,6 +174,65 @@
     "emptyStateBody": "Pending review requests will appear here once runtime policy events are connected.",
     "relatedRunMissingBody": "The related run for this approval is not currently available in the shared runtime snapshot."
   },
+  "sessions": {
+    "eyebrow": "Session operations",
+    "title": "Sessions",
+    "description": "Inspect live Hermes sessions, review transcript history, and hand off from session state into the shared runtime run surface.",
+    "badge": "session review preview",
+    "explorerTitle": "Session explorer",
+    "explorerSummary": "Search, expand, and review recent sessions.",
+    "searchPlaceholder": "Search message content...",
+    "clearSearch": "Clear search",
+    "emptyStateTitle": "No sessions yet",
+    "emptyStateBody": "Start a conversation to see it here.",
+    "noSearchResults": "No sessions match your search",
+    "selectedTitle": "Selected session",
+    "selectedSessionLabel": "Current session review",
+    "openSessionReview": "Open session review",
+    "runtimeHandoffTitle": "Runtime handoff",
+    "runtimeHandoffEmpty": "This session does not yet map to a derived runtime run in the shared snapshot.",
+    "relatedRunLabel": "Related run",
+    "openRunReview": "Open run review",
+    "noPreview": "No preview is available for this session yet.",
+    "noMessages": "No messages",
+    "liveBadge": "Live",
+    "untitledSession": "Untitled session",
+    "localSource": "local",
+    "unknownModel": "unknown",
+    "deleteSession": "Delete session",
+    "matchBadge": "match",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "toolCallToggle": "{{action}} tool call {{name}}",
+    "toolLabel": "Tool: {{name}}",
+    "messageCountLabel_one": "{{count}} msg",
+    "messageCountLabel_other": "{{count}} msgs",
+    "toolCountLabel_one": "{{count}} tool",
+    "toolCountLabel_other": "{{count}} tools",
+    "roles": {
+      "user": "User",
+      "assistant": "Assistant",
+      "system": "System",
+      "tool": "Tool"
+    },
+    "metrics": {
+      "messages": "Messages",
+      "toolCalls": "Tool calls",
+      "linkedRuns": "Linked runs",
+      "timelineEvents": "Timeline events",
+      "approvals": "Approvals",
+      "artifacts": "Artifacts"
+    },
+    "metadata": {
+      "source": "Source",
+      "model": "Model",
+      "started": "Started",
+      "lastActive": "Last active",
+      "runtimeStatus": "Run status",
+      "runtimeStarted": "Run started"
+    },
+    "runtimeHandoffPending": "Open a session review route to hydrate runtime linkage and handoff metrics."
+  },
   "runtimeContent": {
     "runs": {
       "run-runtime-contract": {

@@ -136,6 +136,7 @@ export default function App() {
           <Route path="/approvals/:approvalId" element={<ApprovalsPage />} />
           <Route path="/status" element={<StatusPage />} />
           <Route path="/sessions" element={<SessionsPage />} />
+          <Route path="/sessions/:sessionId" element={<SessionsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/logs" element={<LogsPage />} />
           <Route path="/cron" element={<CronPage />} />
