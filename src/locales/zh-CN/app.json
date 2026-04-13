@@ -174,6 +174,65 @@
     "emptyStateBody": "当运行时策略事件接入后，待审查的审批项会显示在这里。",
     "relatedRunMissingBody": "该审批关联的运行当前未出现在共享运行时快照中。"
   },
+  "sessions": {
+    "eyebrow": "会话运维",
+    "title": "会话",
+    "description": "检查实时 Hermes 会话、审阅转录历史，并把会话状态顺畅交接到共享运行时的运行审查界面。",
+    "badge": "会话审查预览",
+    "explorerTitle": "会话浏览器",
+    "explorerSummary": "搜索、展开并审查最近的会话。",
+    "searchPlaceholder": "搜索消息内容...",
+    "clearSearch": "清空搜索",
+    "emptyStateTitle": "暂时还没有会话",
+    "emptyStateBody": "开始一次对话后，这里会显示会话记录。",
+    "noSearchResults": "没有会话匹配当前搜索",
+    "selectedTitle": "当前选中会话",
+    "selectedSessionLabel": "当前会话审查",
+    "openSessionReview": "查看会话审查",
+    "runtimeHandoffTitle": "运行时交接",
+    "runtimeHandoffEmpty": "这个会话暂时还没有在共享快照中映射到派生运行。",
+    "relatedRunLabel": "关联运行",
+    "openRunReview": "查看运行审查",
+    "noPreview": "这个会话暂时没有可用预览。",
+    "noMessages": "暂无消息",
+    "liveBadge": "实时",
+    "untitledSession": "未命名会话",
+    "localSource": "本地",
+    "unknownModel": "未知",
+    "deleteSession": "删除会话",
+    "matchBadge": "命中",
+    "collapse": "收起",
+    "expand": "展开",
+    "toolCallToggle": "{{action}} 工具调用 {{name}}",
+    "toolLabel": "工具：{{name}}",
+    "messageCountLabel_one": "{{count}} 条消息",
+    "messageCountLabel_other": "{{count}} 条消息",
+    "toolCountLabel_one": "{{count}} 次工具调用",
+    "toolCountLabel_other": "{{count}} 次工具调用",
+    "roles": {
+      "user": "用户",
+      "assistant": "助手",
+      "system": "系统",
+      "tool": "工具"
+    },
+    "metrics": {
+      "messages": "消息",
+      "toolCalls": "工具调用",
+      "linkedRuns": "关联运行",
+      "timelineEvents": "时间线事件",
+      "approvals": "审批",
+      "artifacts": "产物"
+    },
+    "metadata": {
+      "source": "来源",
+      "model": "模型",
+      "started": "开始时间",
+      "lastActive": "最近活跃",
+      "runtimeStatus": "运行状态",
+      "runtimeStarted": "运行开始时间"
+    },
+    "runtimeHandoffPending": "打开某个会话审查路由后，这里才会加载运行时关联与交接指标。"
+  },
   "runtimeContent": {
     "runs": {
       "run-runtime-contract": {

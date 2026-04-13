@@ -174,6 +174,46 @@ This log is intentionally public-facing and continuously append-only so both the
   - continue issue #2 with richer live replay semantics for approval and artifact ingestion once backend surfaces exist
   - consider trimming the main bundle as replay/runtime UI keeps growing
 
+## 2026-04-13 20:54 +08:00
+
+- Created issue #13 (`Product shell: add session review surface and runtime handoff`) and implemented the first session-review product shell slice on fresh branch `feat/issue-13-session-review-surface`.
+- Added plan-driven implementation and code changes for the session review increment:
+  - added `docs/plans/2026-04-13-issue-13-session-review-surface.md`
+  - added route support for `/sessions/:sessionId`
+  - added `src/pages/sessionReview.ts` helper logic for canonical session selection, multi-run-aware handoff prioritization, and compact session metrics
+  - refactored `src/pages/SessionsPage.tsx` into a bilingual product shell that preserves transcript exploration while adding selected-session review and run handoff
+  - added focused test coverage in `src/pages/sessionReview.test.ts` and `src/pages/SessionsPage.route.test.ts`
+  - documented the session-review architecture/runtime-contract boundary in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent code quality review ✅ APPROVED after fixing multi-run handoff selection, reducing unnecessary runtime hydration on `/sessions`, and tightening route/helper coverage
+- Validation status:
+  - `npm run test -- --run src/pages/sessionReview.test.ts src/pages/SessionsPage.route.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - push issue #13 branch and open a PR into `develop`
+  - decide whether the next shell increment should target workspace foundations or deeper session/run replay linkage
+  - trim bundle growth as more runtime-facing shell surfaces land
+
+## 2026-04-13 21:19 +08:00
+
+- Performed the scheduled maintainer pass from `feat/issue-13-session-review-surface` after confirming there were no open PRs queued for merge and that issue #13 remains the active focused increment.
+- Re-validated the session-review branch before promotion:
+  - `npm run test -- --run src/pages/sessionReview.test.ts src/pages/SessionsPage.route.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Promotion focus for this run:
+  - append the public devlog for traceability
+  - push the branch state if needed
+  - open the issue #13 PR into `develop` so the session-review slice can move through CI and review
+- Next focus:
+  - monitor the new issue #13 PR until checks are green and mergeable
+  - then pick the next focused increment between workspace foundations and deeper session/run replay linkage
+  - keep bundle growth visible as runtime-facing product surfaces expand
+
 ## Working principles
 
 - plan-driven execution

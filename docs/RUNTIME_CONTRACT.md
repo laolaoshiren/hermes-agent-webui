@@ -177,11 +177,14 @@ Artifacts are durable outputs attached to runs and timeline playback.
 
 The adapter seam should remain pure and deterministic: raw Hermes-facing payloads go in, product-facing runtime objects come out.
 
+The control center can now derive a `RuntimeContractSnapshot` from live `/api/sessions` records plus per-session message hydration.
+
 ### Frontend-owned adapter inputs
 
 - `SessionInfo` from `/api/sessions` is the base session envelope
 - `SessionMessage[]` from `/api/sessions/:id/messages` provides preview/backfill material for timeline hydration
 - run/approval/artifact/event source records should stay explicit in `src/features/runtime/adapterTypes.ts` until live backend endpoints settle
+- session-review pages may combine live `SessionInfo` transport fields with contract-derived run linkage, but they should do so through a thin selector/helper layer rather than mixing raw adapter logic into route components
 
 ### Frontend-owned adapter outputs
 

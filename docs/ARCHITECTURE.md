@@ -52,7 +52,16 @@ Hermes Control Center will not replace Hermes runtime internals. It will compose
 
 Runtime shell pages no longer depend only on fixture selectors. A React Query hook now fetches `/api/sessions`, hydrates `/api/sessions/:id/messages` in parallel, builds the shared runtime snapshot through a pure live adapter, and falls back to the fixture snapshot if hydration fails.
 
-This keeps the shell route-safe during backend failures while allowing Overview, Runs, and Approvals to render from real Hermes session data when available.
+This keeps the shell route-safe during backend failures while allowing Overview, Runs, Approvals, and session-review affordances to render from real Hermes session data when available.
+
+## Session review surface
+
+The `/sessions` route remains the transcript explorer and search entry point, but it now also supports route-based selected-session review via `/sessions/:sessionId`.
+
+- live `SessionInfo[]` remains the source of truth for transcript browsing, deletion, and FTS-backed search
+- the shared `RuntimeContractSnapshot` is the source of truth for session→run linkage and compact runtime handoff metrics
+- page components should derive session review state through `src/pages/sessionReview.ts` instead of recomputing session/run relationships inline
+- selected-session UI must stay bilingual and should hand operators off to `/runs/:runId` when a derived runtime run exists
 
 ## Replay timeline enrichment
 
