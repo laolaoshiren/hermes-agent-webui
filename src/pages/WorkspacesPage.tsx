@@ -287,9 +287,12 @@ export default function WorkspacesPage() {
 
                 <div className="border border-border bg-background/60 p-4">
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("workspaces.primaryApprovalTitle")}</div>
-                  <div className="mt-1 font-medium text-foreground">{review.primaryApproval?.title ?? t("workspaces.noApprovalLinked")}</div>
+                  <div className="mt-1 font-medium text-foreground">{t("workspaces.approvalsQueueBody", { count: review.metrics.pendingApprovals })}</div>
+                  <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/approvals?workspace=${selectedWorkspace.slug}`}>
+                    {t("workspaces.openWorkspaceApprovalsQueue")}
+                  </Link>
                   {review.primaryApproval ? (
-                    <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/approvals/${review.primaryApproval.id}`}>
+                    <Link className="mt-2 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/approvals/${review.primaryApproval.id}?workspace=${selectedWorkspace.slug}`}>
                       {t("workspaces.openApprovalReview")}
                     </Link>
                   ) : null}

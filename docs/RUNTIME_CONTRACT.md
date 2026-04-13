@@ -238,3 +238,4 @@ The live adapter now derives more replay-ready structure without pushing Hermes-
 - the Runs page consumes replay summaries from contract events instead of re-reading raw `SessionInfo` or `SessionMessage` payloads
 - replay summary UI currently reports message, tool-call, and system-event counts plus the latest replay timestamp for the selected run
 - workspace-scoped run queues are route-safe via `/runs?workspace=:workspaceSlug`, which narrows the visible run list using shared `workspaceId` relationships without changing the underlying contract snapshot
+- workspace-scoped approval queues are route-safe via `/approvals?workspace=:workspaceSlug`, which narrows the visible approval list through run-to-workspace relationships while preserving the same approval, run, session, and replay objects used elsewhere in the shell

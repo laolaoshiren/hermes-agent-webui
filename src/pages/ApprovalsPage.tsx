@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { Navigate, Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
-import { getApprovalById, getDefaultApproval, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
-import type { ApprovalStatus, ApprovalSummary } from "@/features/runtime/types";
+import { getRunById, getTimelineForRun, getWorkspaceById } from "@/features/runtime/selectors";
+import type { ApprovalStatus, ApprovalSummary, WorkspaceSummary } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
+import { deriveApprovalsWorkspaceFilterState } from "@/pages/approvalsWorkspaceFilter";
 
 function formatTimestamp(value: string | null) {
   if (!value) return "—";
@@ -52,9 +54,28 @@ function getRunText(
   return t(`runtimeContent.runs.${runId}.${field}`, { defaultValue: fallback });
 }
 
+function getRepositoryLabel(workspace: WorkspaceSummary | null, t: (key: string, options?: Record<string, unknown>) => string) {
+  if (!workspace?.repository) {
+    return t("approvals.noRepositoryLinked");
+  }
+
+  const owner = workspace.repository.owner ? `${workspace.repository.owner}/` : "";
+  return `${owner}${workspace.repository.name}`;
+}
+
+function buildApprovalPath(approvalId: string, workspaceSlug: string | null) {
+  return workspaceSlug ? `/approvals/${approvalId}?workspace=${workspaceSlug}` : `/approvals/${approvalId}`;
+}
+
+function buildRunPath(runId: string, workspaceSlug: string | null) {
+  return workspaceSlug ? `/runs/${runId}?workspace=${workspaceSlug}` : `/runs/${runId}`;
+}
+
 export default function ApprovalsPage() {
   const { t } = useTranslation();
   const { approvalId } = useParams();
+  const [searchParams] = useSearchParams();
+  const workspaceSlug = searchParams.get("workspace");
   const runtimeQuery = useRuntimeSnapshot();
   const snapshot = runtimeQuery.data?.snapshot ?? runtimeContractSnapshot;
   const runtimeSource = runtimeQuery.data?.source ?? "fixture";
@@ -62,8 +83,10 @@ export default function ApprovalsPage() {
 
   const soonThresholdMs = 24 * 60 * 60 * 1000;
   const [comparisonTime] = useState(() => Date.now());
-  const defaultApproval = getDefaultApproval(snapshot);
-  const matchedApproval = approvalId ? getApprovalById(snapshot, approvalId) : null;
+  const workspaceFilter = deriveApprovalsWorkspaceFilterState(snapshot, workspaceSlug);
+  const visibleApprovals = workspaceFilter.filteredApprovals;
+  const defaultApproval = visibleApprovals.find((approval) => approval.status === "pending") ?? visibleApprovals[0] ?? null;
+  const matchedApproval = approvalId ? visibleApprovals.find((approval) => approval.id === approvalId) ?? null : null;
 
   if (runtimeQuery.isPending) {
     return (
@@ -83,6 +106,10 @@ export default function ApprovalsPage() {
         </Card>
       </div>
     );
+  }
+
+  if (workspaceFilter.shouldClearInvalidWorkspace) {
+    return <Navigate to={approvalId ? `/approvals/${approvalId}` : "/approvals"} replace />;
   }
 
   if (!defaultApproval) {
@@ -105,27 +132,39 @@ export default function ApprovalsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("approvals.emptyStateTitle")}</CardTitle>
+            <CardTitle>
+              {workspaceFilter.selectedWorkspace
+                ? t("approvals.emptyWorkspaceStateTitle", { workspace: workspaceFilter.selectedWorkspace.name })
+                : t("approvals.emptyStateTitle")}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-6 text-muted-foreground">{t("approvals.emptyStateBody")}</CardContent>
+          <CardContent className="text-sm leading-6 text-muted-foreground">
+            {workspaceFilter.selectedWorkspace
+              ? t("approvals.emptyWorkspaceStateBody", { workspace: workspaceFilter.selectedWorkspace.name })
+              : t("approvals.emptyStateBody")}
+          </CardContent>
         </Card>
       </div>
     );
   }
 
   if (approvalId && !matchedApproval) {
-    return <Navigate to={`/approvals/${defaultApproval.id}`} replace />;
+    return <Navigate to={buildApprovalPath(defaultApproval.id, workspaceFilter.selectedWorkspace?.slug ?? null)} replace />;
   }
 
   const selectedApproval = matchedApproval ?? defaultApproval;
   const relatedRun = getRunById(snapshot, selectedApproval.runId);
+  const relatedSession = relatedRun ? snapshot.sessions.find((session) => session.id === relatedRun.sessionId) ?? null : null;
+  const relatedWorkspace = relatedRun?.workspaceId ? getWorkspaceById(snapshot, relatedRun.workspaceId) : null;
+  const selectedWorkspace = workspaceFilter.selectedWorkspace ?? relatedWorkspace;
   const relatedTimeline = relatedRun ? getTimelineForRun(snapshot, relatedRun.id) : [];
   const latestRelatedEvent = relatedTimeline[relatedTimeline.length - 1] ?? null;
+  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
 
   const metrics = {
-    pending: snapshot.approvals.filter((approval) => approval.status === "pending").length,
-    approved: snapshot.approvals.filter((approval) => approval.status === "approved").length,
-    expiringSoon: snapshot.approvals.filter((approval) => {
+    pending: visibleApprovals.filter((approval) => approval.status === "pending").length,
+    approved: visibleApprovals.filter((approval) => approval.status === "approved").length,
+    expiringSoon: visibleApprovals.filter((approval) => {
       if (approval.status !== "pending" || !approval.expiresAt) {
         return false;
       }
@@ -151,6 +190,32 @@ export default function ApprovalsPage() {
           </div>
         }
       />
+
+      {workspaceFilter.selectedWorkspace ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>{t("approvals.workspaceQueueTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap items-center justify-between gap-4 text-sm">
+            <div className="space-y-2">
+              <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.workspaceScopeLabel")}</div>
+              <div className="font-medium text-foreground">{workspaceFilter.selectedWorkspace.name}</div>
+              <div className="leading-6 text-muted-foreground">
+                {t("approvals.workspaceQueueBody", {
+                  count: visibleApprovals.length,
+                  workspace: workspaceFilter.selectedWorkspace.name,
+                })}
+              </div>
+            </div>
+            <Link
+              to={`/workspaces/${workspaceFilter.selectedWorkspace.slug}`}
+              className="inline-flex items-center border border-border px-4 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
+            >
+              {t("approvals.returnToWorkspace")}
+            </Link>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>
@@ -178,13 +243,15 @@ export default function ApprovalsPage() {
             <CardTitle>{t("approvals.queueTitle")}</CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
-            {snapshot.approvals.map((approval) => {
+            {visibleApprovals.map((approval) => {
               const isSelected = approval.id === selectedApproval.id;
+              const approvalRun = getRunById(snapshot, approval.runId);
+              const approvalWorkspace = approvalRun?.workspaceId ? getWorkspaceById(snapshot, approvalRun.workspaceId) : null;
 
               return (
                 <Link
                   key={approval.id}
-                  to={`/approvals/${approval.id}`}
+                  to={buildApprovalPath(approval.id, workspaceFilter.selectedWorkspace?.slug ?? null)}
                   className={`block border bg-background/60 p-4 transition-colors hover:border-foreground/40 ${
                     isSelected ? "border-foreground/50" : "border-border"
                   }`}
@@ -192,16 +259,14 @@ export default function ApprovalsPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <div className="font-medium text-foreground">{getApprovalText(approval, "title", approval.title, t)}</div>
-                      <div className="mt-1 text-sm leading-6 text-muted-foreground">
-                        {getApprovalText(approval, "reason", approval.reason, t)}
-                      </div>
+                      <div className="mt-1 text-sm leading-6 text-muted-foreground">{getApprovalText(approval, "reason", approval.reason, t)}</div>
                     </div>
                     <Badge variant="outline" className={getStatusTone(approval.status)}>
                       {t(`approvals.statuses.${approval.status}`)}
                     </Badge>
                   </div>
 
-                  <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                  <div className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
                     <div>
                       <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.scopeLabel")}</div>
                       <div className="mt-1 font-medium text-foreground">{t(`approvals.scopes.${approval.scope}`)}</div>
@@ -209,6 +274,10 @@ export default function ApprovalsPage() {
                     <div>
                       <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.requestedByLabel")}</div>
                       <div className="mt-1 font-medium text-foreground">{approval.requestedBy}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.workspaceLabel")}</div>
+                      <div className="mt-1 font-medium text-foreground">{approvalWorkspace?.name ?? "—"}</div>
                     </div>
                   </div>
 
@@ -235,8 +304,28 @@ export default function ApprovalsPage() {
 
               <div className="grid gap-3 text-sm sm:grid-cols-2">
                 <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.workspaceLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedWorkspace?.name ?? "—"}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.repositoryLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{getRepositoryLabel(selectedWorkspace, t)}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.defaultBranchLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedWorkspace?.defaultBranch ?? t("approvals.notSet")}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.policyPresetLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{selectedWorkspace?.policyPreset ?? t("approvals.notSet")}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.runLabel")}</div>
-                  <div className="mt-1 font-medium text-foreground">{selectedApproval.runId}</div>
+                  <div className="mt-1 font-medium text-foreground">{relatedRun ? getRunText(relatedRun.id, "title", relatedRun.title, t) : selectedApproval.runId}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.sessionLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{relatedSession?.title ?? relatedSession?.id ?? "—"}</div>
                 </div>
                 <div className="border border-border bg-background/60 p-4">
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.requestedAtLabel")}</div>
@@ -250,12 +339,39 @@ export default function ApprovalsPage() {
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.reviewerLabel")}</div>
                   <div className="mt-1 font-medium text-foreground">{selectedApproval.reviewer ?? "—"}</div>
                 </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.latestRunEventLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{latestRelatedEvent ? formatTimestamp(latestRelatedEvent.timestamp) : "—"}</div>
+                </div>
+                <div className="border border-border bg-background/60 p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.replayEventsLabel")}</div>
+                  <div className="mt-1 font-medium text-foreground">{relatedTimeline.length}</div>
+                </div>
                 <div className="border border-border bg-background/60 p-4 sm:col-span-2">
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("approvals.resolutionLabel")}</div>
                   <div className="mt-1 font-medium text-foreground">
                     {getApprovalText(selectedApproval, "resolutionNote", selectedApproval.resolutionNote, t)}
                   </div>
                 </div>
+              </div>
+
+              <div className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.16em]">
+                {selectedWorkspace ? (
+                  <Link
+                    to={`/workspaces/${selectedWorkspace.slug}`}
+                    className="inline-flex items-center border border-border px-4 py-2 text-foreground transition-colors hover:border-foreground/40"
+                  >
+                    {t("approvals.openWorkspaceReview")}
+                  </Link>
+                ) : null}
+                {relatedSession ? (
+                  <Link
+                    to={`/sessions/${relatedSession.id}`}
+                    className="inline-flex items-center border border-border px-4 py-2 text-foreground transition-colors hover:border-foreground/40"
+                  >
+                    {t("approvals.openSessionReview")}
+                  </Link>
+                ) : null}
               </div>
             </CardContent>
           </Card>
@@ -283,7 +399,7 @@ export default function ApprovalsPage() {
                   </div>
 
                   <Link
-                    to={`/runs/${relatedRun.id}`}
+                    to={buildRunPath(relatedRun.id, activeWorkspaceSlug)}
                     className="inline-flex items-center border border-border px-4 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
                   >
                     {t("approvals.openRunReview")}
