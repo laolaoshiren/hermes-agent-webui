@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
-import { getRuntimeCounts } from "@/features/runtime/mockData";
+import { getRuntimeCounts } from "@/features/runtime/selectors";
 
 const runtimeCounts = getRuntimeCounts();
 

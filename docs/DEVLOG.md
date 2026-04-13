@@ -59,6 +59,25 @@ This log is intentionally public-facing and continuously append-only so both the
   - keep the owner-visibility board updated as new worker lanes and milestones appear
   - begin adapter-layer work from existing Hermes session/runtime endpoints into the shared run/timeline contract
 
+## 2026-04-13 16:13 +08:00
+
+- Merged PR #7 (`feat: runtime contract foundation`) into `develop` after confirming the branch was mergeable and GitHub Actions checks were green.
+- Continued issue #4 on fresh branch `feat/issue-4-approval-review-surface` with the first operator-facing approval review slice:
+  - added `docs/plans/2026-04-13-issue-4-approval-review-surface.md`
+  - added shared runtime selector helpers in `src/features/runtime/selectors.ts`
+  - added route-based drill-in for `/runs/:runId` and `/approvals/:approvalId`
+  - connected the Runs page to related approval review links and added selected-run context
+  - connected the Approvals page to a selected approval panel plus related-run review handoff
+  - localized all new shell chrome in English + Simplified Chinese
+- Validation status:
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Next focus:
+  - push this issue #4 slice and open a PR into `develop`
+  - add adapter-facing runtime selectors/mappers from Hermes session/runtime responses into the shared contract
+  - decide the next issue split for timeline replay depth vs approval action surfaces
+
 ## Working principles
 
 - plan-driven execution

@@ -265,33 +265,3 @@ export const runtimeContractSnapshot: RuntimeContractSnapshot = {
   artifacts,
   events,
 };
-
-export function getRunById(runId: string): RunSummary | undefined {
-  return runs.find((run) => run.id === runId);
-}
-
-export function getTimelineForRun(runId: string): RunTimelineEvent[] {
-  return events
-    .filter((event) => event.runId === runId)
-    .sort((left, right) => left.timestamp.localeCompare(right.timestamp));
-}
-
-export function getApprovalsForRun(runId: string): ApprovalSummary[] {
-  return approvals.filter((approval) => approval.runId === runId);
-}
-
-export function getArtifactsForRun(runId: string): ArtifactSummary[] {
-  return artifacts.filter((artifact) => artifact.runId === runId);
-}
-
-export function getRuntimeCounts() {
-  return {
-    workspaces: workspaces.length,
-    sessions: sessions.length,
-    runs: runs.length,
-    activeRuns: runs.filter((run) => run.status === "running" || run.status === "awaiting_approval").length,
-    pendingApprovals: approvals.filter((approval) => approval.status === "pending").length,
-    events: events.length,
-    artifacts: artifacts.length,
-  };
-}

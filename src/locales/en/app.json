@@ -108,7 +108,15 @@
       "transcript": "Transcript",
       "screenshot": "Screenshot",
       "report": "Report"
-    }
+    },
+    "startedLabel": "Started",
+    "endedLabel": "Ended",
+    "liveLabel": "Live / not ended",
+    "selectedRunLabel": "Currently selected run",
+    "openRunLabel": "Open run review",
+    "relatedApprovalsTitle": "Approvals linked to selected run",
+    "openApproval": "Open approval review",
+    "emptyApprovals": "No approvals linked to this run."
   },
   "approvals": {
     "eyebrow": "Governance",
@@ -140,7 +148,15 @@
       "pending": "Pending",
       "approved": "Approved",
       "expiringSoon": "Expiring soon"
-    }
+    },
+    "selectedApprovalTitle": "Selected approval",
+    "selectedApprovalLabel": "Currently selected approval",
+    "openApprovalLabel": "Open approval review",
+    "requestedAtLabel": "Requested at",
+    "relatedRunTitle": "Related run context",
+    "relatedRunStatusLabel": "Run status",
+    "latestRunEventLabel": "Latest run event",
+    "openRunReview": "Open run review"
   },
   "runtimeContent": {
     "runs": {
@@ -236,5 +252,11 @@
       "automationLanes": "Automation lanes",
       "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
     }
+  },
+  "appShell": {
+    "productName": "Hermes Control Center",
+    "productTagline": "Web platform for Hermes Agent",
+    "foundationBadge": "Foundation Sprint",
+    "footerTagline": "Independent OSS incubation for Hermes Agent"
   }
 }

@@ -108,7 +108,15 @@
       "transcript": "转录",
       "screenshot": "截图",
       "report": "报告"
-    }
+    },
+    "startedLabel": "开始时间",
+    "endedLabel": "结束时间",
+    "liveLabel": "仍在运行 / 尚未结束",
+    "selectedRunLabel": "当前选中运行",
+    "openRunLabel": "查看运行审查",
+    "relatedApprovalsTitle": "与当前运行关联的审批",
+    "openApproval": "查看审批审查",
+    "emptyApprovals": "该运行暂时没有关联审批。"
   },
   "approvals": {
     "eyebrow": "治理",
@@ -140,7 +148,15 @@
       "pending": "待处理",
       "approved": "已批准",
       "expiringSoon": "即将过期"
-    }
+    },
+    "selectedApprovalTitle": "当前选中审批",
+    "selectedApprovalLabel": "当前选中的审批项",
+    "openApprovalLabel": "查看审批审查",
+    "requestedAtLabel": "发起时间",
+    "relatedRunTitle": "关联运行上下文",
+    "relatedRunStatusLabel": "运行状态",
+    "latestRunEventLabel": "最近运行事件",
+    "openRunReview": "查看运行审查"
   },
   "runtimeContent": {
     "runs": {
@@ -236,5 +252,11 @@
       "automationLanes": "自动化通道",
       "automationLanesDetail": "通过 cron、汇报、发布等方式持续推进项目的自动员工。"
     }
+  },
+  "appShell": {
+    "productName": "Hermes Control Center",
+    "productTagline": "Hermes Agent 的 Web 平台",
+    "foundationBadge": "基础冲刺阶段",
+    "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"
   }
 }
