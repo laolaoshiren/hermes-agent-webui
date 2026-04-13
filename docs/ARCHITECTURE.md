@@ -61,7 +61,9 @@ The `/sessions` route remains the transcript explorer and search entry point, bu
 - live `SessionInfo[]` remains the source of truth for transcript browsing, deletion, and FTS-backed search
 - the shared `RuntimeContractSnapshot` is the source of truth for session→run linkage and compact runtime handoff metrics
 - page components should derive session review state through `src/pages/sessionReview.ts` instead of recomputing session/run relationships inline
+- workspace-scoped session filtering should be derived through `src/pages/sessionsWorkspaceFilter.ts`, not recomputed ad hoc in route components
 - selected-session UI must stay bilingual and should hand operators off to `/runs/:runId` when a derived runtime run exists
+- `/sessions` and `/sessions/:sessionId` may carry `?workspace=:workspaceSlug`; valid scope should narrow the visible session queue, remain visible in trust context chrome, and be preserved on canonical session/run handoff links
 
 ## Workspace review surface
 

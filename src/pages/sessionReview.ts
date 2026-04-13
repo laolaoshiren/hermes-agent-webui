@@ -23,6 +23,15 @@ export function getDefaultSession(sessions: SessionInfo[]): SessionInfo | null {
   return sessions.find((session) => session.is_active) ?? sessions[0] ?? null;
 }
 
+function getVisibleSessions(sessions: SessionInfo[], visibleSessionIds?: Iterable<string>) {
+  if (!visibleSessionIds) {
+    return sessions;
+  }
+
+  const visibleIds = new Set(visibleSessionIds);
+  return sessions.filter((session) => visibleIds.has(session.id));
+}
+
 function getRunPriority(status: RunStatus) {
   switch (status) {
     case "running":
@@ -63,9 +72,11 @@ export function deriveSessionReview(
   sessions: SessionInfo[],
   snapshot: RuntimeContractSnapshot,
   selectedSessionId: string | null | undefined,
+  visibleSessionIds?: Iterable<string>,
 ): SessionReviewState {
-  const matchedSession = selectedSessionId ? sessions.find((session) => session.id === selectedSessionId) ?? null : null;
-  const selectedSession = matchedSession ?? getDefaultSession(sessions);
+  const visibleSessions = getVisibleSessions(sessions, visibleSessionIds);
+  const matchedSession = selectedSessionId ? visibleSessions.find((session) => session.id === selectedSessionId) ?? null : null;
+  const selectedSession = matchedSession ?? getDefaultSession(visibleSessions);
   const runtimeSession = selectedSession ? snapshot.sessions.find((session) => session.id === selectedSession.id) ?? null : null;
   const relatedRun = chooseRelatedRun(snapshot, runtimeSession, selectedSession);
   const canonicalSessionId = selectedSession?.id ?? null;

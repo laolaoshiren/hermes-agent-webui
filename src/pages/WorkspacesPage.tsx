@@ -260,7 +260,10 @@ export default function WorkspacesPage() {
                 <div className="border border-border bg-background/60 p-4">
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("workspaces.runQueueTitle")}</div>
                   <div className="mt-1 font-medium text-foreground">{t("workspaces.runQueueBody", { count: review.metrics.runs })}</div>
-                  <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/runs?workspace=${selectedWorkspace.slug}`}>
+                  <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/sessions?workspace=${selectedWorkspace.slug}`}>
+                    {t("workspaces.openWorkspaceSessionQueue")}
+                  </Link>
+                  <Link className="mt-2 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/runs?workspace=${selectedWorkspace.slug}`}>
                     {t("workspaces.openWorkspaceRunQueue")}
                   </Link>
                 </div>
@@ -269,7 +272,7 @@ export default function WorkspacesPage() {
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("workspaces.primarySessionTitle")}</div>
                   <div className="mt-1 font-medium text-foreground">{review.primarySession?.title ?? t("workspaces.noSessionLinked")}</div>
                   {review.primarySession ? (
-                    <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/sessions/${review.primarySession.id}`}>
+                    <Link className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline" to={`/sessions/${review.primarySession.id}?workspace=${selectedWorkspace.slug}`}>
                       {t("workspaces.openSessionReview")}
                     </Link>
                   ) : null}

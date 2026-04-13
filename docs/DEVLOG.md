@@ -284,6 +284,30 @@ This log is intentionally public-facing and continuously append-only so both the
   - push the branch and open PR into `develop`
   - then decide whether the next workspace-model slice should target scoped session exploration or bundle-size trimming for the growing runtime shell
 
+## 2026-04-14 00:26 +08:00
+
+- Merged ready PR #20 (`feat: add workspace-scoped approvals review`) into `develop`, closed issue #19, and created issue #21 (`Product shell: add workspace-scoped session exploration and handoff`) from the next simulated-user/operator trust gap.
+- Continued on fresh branch `feat/issue-21-workspace-session-filter` with the workspace-scoped session increment:
+  - added `docs/plans/2026-04-13-issue-21-workspace-session-filter.md`
+  - added `src/pages/sessionsWorkspaceFilter.ts` plus focused coverage in `src/pages/sessionsWorkspaceFilter.test.ts`
+  - updated `src/pages/SessionsPage.tsx` and `src/pages/sessionReview.ts` so `/sessions` and `/sessions/:sessionId` honor `?workspace=<slug>`, preserve scoped handoff links, and avoid invalid redirects while runtime hydration is pending
+  - added route and redirect coverage in `src/pages/SessionsPage.route.test.ts` and `src/pages/SessionsPage.redirect.test.ts`
+  - updated `src/pages/WorkspacesPage.tsx` and `src/pages/WorkspacesPage.test.ts` so workspace handoff now includes a queue-style session link and preserves workspace scope on primary session review
+  - localized new shell copy in English + Simplified Chinese and documented the route-safe workspace session handoff in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+  - added `jsdom` as a dev dependency so redirect behavior can be verified through client-side router navigation tests
+- Review status:
+  - spec compliance review ✅ PASS
+  - independent code quality review ✅ APPROVED after fixing pending-hydration redirect behavior and tightening redirect coverage
+- Validation status:
+  - `npm run test -- --run src/pages/sessionsWorkspaceFilter.test.ts src/pages/SessionsPage.route.test.ts src/pages/SessionsPage.redirect.test.ts src/pages/WorkspacesPage.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - commit and push the issue #21 branch
+  - open the PR into `develop` with validation notes and close the issue on merge
+  - then decide whether the next workspace-model slice should target session-to-replay trust context or bundle-size trimming for the growing runtime shell
+
 ## Working principles
 
 - plan-driven execution
