@@ -111,6 +111,21 @@ This log is intentionally public-facing and continuously append-only so both the
   - hydrate the runtime adapter from live Hermes session and runtime endpoints
   - extend coverage as timeline replay and approval action surfaces gain real backend integration
 
+## 2026-04-13 17:55 +08:00
+
+- Wrapped the runtime-adapter test wave into reviewable GitHub flow:
+  - committed and pushed `[verified] test: add runtime adapter coverage`
+  - opened PR #10 into `develop` for issue #2
+  - merged ready PR #9 (`feat: add approval review drill-in surface`) after confirming GitHub checks were green and the branch was mergeable
+- Validation status:
+  - `npm run test -- --run` ✅
+  - `npm run lint` ✅ (existing non-blocking warning remains in `src/pages/CronPage.tsx` for `react-hooks/exhaustive-deps`)
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+- Next focus:
+  - rebase runtime adapter work on the latest `develop` if needed after PR #9 promotion
+  - start live `/api/sessions` + session-message hydration through the adapter seam behind the new test harness
+
 ## Working principles
 
 - plan-driven execution
