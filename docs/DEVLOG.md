@@ -308,6 +308,29 @@ This log is intentionally public-facing and continuously append-only so both the
   - open the PR into `develop` with validation notes and close the issue on merge
   - then decide whether the next workspace-model slice should target session-to-replay trust context or bundle-size trimming for the growing runtime shell
 
+## 2026-04-14 01:01 +08:00
+
+- Merged ready PR #22 (`feat: add workspace-scoped session exploration`) into `develop`, deleted the completed feature branch, and explicitly closed issue #21 to keep queue hygiene current.
+- Ran an internal simulated-user pass from the session-review surface and identified the next trust gap: operators could open a workspace-scoped session queue, but the selected-session panel still hid replay recency and handoff cues for the primary related run.
+- Created issue #23 (`Product shell: add session replay trust context and run handoff cues`) and continued on fresh branch `feat/issue-23-session-replay-context`.
+- Added the first session replay trust-context increment:
+  - added `docs/plans/2026-04-14-issue-23-session-replay-context.md`
+  - extended `src/pages/sessionReview.ts` so selected-session review now derives replay summary data, latest replay event, and linked approval/artifact collections from the primary related run
+  - updated `src/pages/SessionsPage.tsx` to render a replay-trust panel inside the selected-session runtime handoff surface while preserving workspace-scoped run links
+  - added focused coverage in `src/pages/sessionReview.test.ts`, `src/pages/SessionsPage.route.test.ts`, `src/pages/SessionsPage.redirect.test.ts`, and `src/pages/runsReplaySummary.test.ts`
+  - localized the new replay-trust shell copy in English + Simplified Chinese and documented the derivation rule in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+- Review status:
+  - spec compliance review ⚠️ initially flagged missing docs/devlog updates plus a replay-summary count mismatch; those gaps were fixed in this run
+- Validation status:
+  - `npm run test -- --run src/pages/runsReplaySummary.test.ts src/pages/sessionReview.test.ts src/pages/SessionsPage.route.test.ts src/pages/SessionsPage.redirect.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - run the final quality review for issue #23 and address anything it finds before promotion
+  - commit and push the branch, then open PR into `develop`
+  - continue improving replayability/workspace trust surfaces without breaking the shared runtime contract
+
 ## Working principles
 
 - plan-driven execution

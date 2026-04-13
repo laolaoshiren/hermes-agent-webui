@@ -1,5 +1,15 @@
 import type { SessionInfo } from "@/lib/api";
-import type { RuntimeContractSnapshot, RunStatus, RunSummary, SessionSummary } from "@/features/runtime/types";
+import { getApprovalsForRun, getArtifactsForRun, getTimelineForRun } from "@/features/runtime/selectors";
+import type {
+  ApprovalSummary,
+  ArtifactSummary,
+  RunStatus,
+  RunSummary,
+  RunTimelineEvent,
+  RuntimeContractSnapshot,
+  SessionSummary,
+} from "@/features/runtime/types";
+import { deriveReplaySummary, type ReplaySummary } from "@/pages/runsReplaySummary";
 
 export interface SessionReviewMetrics {
   messages: number;
@@ -17,6 +27,10 @@ export interface SessionReviewState {
   canonicalSessionId: string | null;
   shouldRedirectToCanonical: boolean;
   metrics: SessionReviewMetrics;
+  replaySummary: ReplaySummary;
+  latestReplayEvent: RunTimelineEvent | null;
+  relatedApprovals: ApprovalSummary[];
+  relatedArtifacts: ArtifactSummary[];
 }
 
 export function getDefaultSession(sessions: SessionInfo[]): SessionInfo | null {
@@ -49,7 +63,7 @@ function getRunPriority(status: RunStatus) {
   }
 }
 
-function chooseRelatedRun(snapshot: RuntimeContractSnapshot, runtimeSession: SessionSummary | null, selectedSession: SessionInfo | null) {
+function getRelatedRuns(snapshot: RuntimeContractSnapshot, runtimeSession: SessionSummary | null, selectedSession: SessionInfo | null) {
   const relatedRuns = runtimeSession?.runIds.length
     ? runtimeSession.runIds
         .map((runId) => snapshot.runs.find((run) => run.id === runId) ?? null)
@@ -65,7 +79,11 @@ function chooseRelatedRun(snapshot: RuntimeContractSnapshot, runtimeSession: Ses
     }
 
     return right.startedAt.localeCompare(left.startedAt);
-  })[0] ?? null;
+  });
+}
+
+function chooseRelatedRun(relatedRuns: RunSummary[]) {
+  return relatedRuns[0] ?? null;
 }
 
 export function deriveSessionReview(
@@ -78,7 +96,13 @@ export function deriveSessionReview(
   const matchedSession = selectedSessionId ? visibleSessions.find((session) => session.id === selectedSessionId) ?? null : null;
   const selectedSession = matchedSession ?? getDefaultSession(visibleSessions);
   const runtimeSession = selectedSession ? snapshot.sessions.find((session) => session.id === selectedSession.id) ?? null : null;
-  const relatedRun = chooseRelatedRun(snapshot, runtimeSession, selectedSession);
+  const relatedRuns = getRelatedRuns(snapshot, runtimeSession, selectedSession);
+  const relatedRun = chooseRelatedRun(relatedRuns);
+  const relatedTimeline = relatedRun ? getTimelineForRun(snapshot, relatedRun.id) : [];
+  const replaySummary = deriveReplaySummary(relatedTimeline);
+  const latestReplayEvent = relatedTimeline[relatedTimeline.length - 1] ?? null;
+  const relatedApprovals = relatedRun ? getApprovalsForRun(snapshot, relatedRun.id) : [];
+  const relatedArtifacts = relatedRun ? getArtifactsForRun(snapshot, relatedRun.id) : [];
   const canonicalSessionId = selectedSession?.id ?? null;
 
   return {
@@ -90,10 +114,14 @@ export function deriveSessionReview(
     metrics: {
       messages: selectedSession?.message_count ?? 0,
       toolCalls: selectedSession?.tool_call_count ?? 0,
-      linkedRuns: runtimeSession?.runIds.length ?? (relatedRun ? 1 : 0),
-      timelineEvents: relatedRun ? snapshot.events.filter((event) => event.runId === relatedRun.id).length : 0,
-      approvals: relatedRun ? snapshot.approvals.filter((approval) => approval.runId === relatedRun.id).length : 0,
-      artifacts: relatedRun ? snapshot.artifacts.filter((artifact) => artifact.runId === relatedRun.id).length : 0,
+      linkedRuns: relatedRuns.length,
+      timelineEvents: relatedTimeline.length,
+      approvals: relatedApprovals.length,
+      artifacts: relatedArtifacts.length,
     },
+    replaySummary,
+    latestReplayEvent,
+    relatedApprovals,
+    relatedArtifacts,
   };
 }

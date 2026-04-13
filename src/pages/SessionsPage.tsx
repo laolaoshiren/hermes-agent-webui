@@ -565,8 +565,20 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
             {visibleSessions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                 <Clock className="mb-3 h-8 w-8 opacity-40" />
-                <p className="text-sm font-medium">{search ? t("sessions.noSearchResults") : t("sessions.emptyStateTitle")}</p>
-                {!search ? <p className="mt-1 text-xs text-muted-foreground/60">{t("sessions.emptyStateBody")}</p> : null}
+                <p className="text-sm font-medium">
+                  {search
+                    ? t("sessions.noSearchResults")
+                    : workspaceFilter.selectedWorkspace
+                      ? t("sessions.emptyWorkspaceStateTitle", { workspace: workspaceFilter.selectedWorkspace.name })
+                      : t("sessions.emptyStateTitle")}
+                </p>
+                {!search ? (
+                  <p className="mt-1 text-xs text-muted-foreground/60">
+                    {workspaceFilter.selectedWorkspace
+                      ? t("sessions.emptyWorkspaceStateBody", { workspace: workspaceFilter.selectedWorkspace.name })
+                      : t("sessions.emptyStateBody")}
+                  </p>
+                ) : null}
               </div>
             ) : (
               <div className="flex flex-col gap-1.5">
@@ -682,6 +694,61 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                       <div className="mt-1 font-medium text-foreground">{formatRuntimeTimestamp(review.relatedRun.startedAt)}</div>
                     </div>
                   </div>
+
+                  <div className="border border-border/80 bg-background p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.replayContextLabel")}</div>
+                        <div className="mt-1 font-medium text-foreground">{t("sessions.replayContextTitle")}</div>
+                      </div>
+                      <Badge variant="outline">{t("sessions.replayEventsBadge", { count: review.replaySummary.totalEvents })}</Badge>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                      <div className="border border-border/80 bg-background/60 p-3">
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.messageEventsLabel")}</div>
+                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.messageCount}</div>
+                      </div>
+                      <div className="border border-border/80 bg-background/60 p-3">
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.toolCallEventsLabel")}</div>
+                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.toolCallCount}</div>
+                      </div>
+                      <div className="border border-border/80 bg-background/60 p-3">
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.systemEventsLabel")}</div>
+                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.systemEventCount}</div>
+                      </div>
+                      <div className="border border-border/80 bg-background/60 p-3">
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.approvals")}</div>
+                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.approvalEventCount}</div>
+                      </div>
+                      <div className="border border-border/80 bg-background/60 p-3">
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.artifacts")}</div>
+                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.artifactEventCount}</div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.latestReplayEventLabel")}</div>
+                        <div className="mt-1 font-medium text-foreground">
+                          {review.latestReplayEvent ? formatRuntimeTimestamp(review.latestReplayEvent.timestamp) : t("sessions.noReplayEvents")}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.linkedRuns")}</div>
+                        <div className="mt-1 font-medium text-foreground">{review.metrics.linkedRuns}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.relatedRunLabel")}</div>
+                        <div className="mt-1 font-medium text-foreground">{review.relatedRun.title}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.replayHandoffLabel")}</div>
+                        <div className="mt-1 leading-6 text-muted-foreground">{t("sessions.replayHandoffBody")}</div>
+                      </div>
+                    </div>
+                  </div>
+
                   <Link
                     to={buildRunPath(review.relatedRun.id, activeWorkspaceSlug)}
                     className="inline-flex items-center rounded border border-border px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"

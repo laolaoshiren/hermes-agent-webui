@@ -29,21 +29,29 @@ describe("deriveReplaySummary", () => {
       createEvent({ id: "event-2", timestamp: "2026-04-13T09:03:00Z", kind: "tool_call", toolName: "terminal" }),
       createEvent({ id: "event-3", timestamp: "2026-04-13T09:02:00Z", kind: "system" }),
       createEvent({ id: "event-4", timestamp: "2026-04-13T09:04:00Z", kind: "tool_call", toolName: "search_files" }),
+      createEvent({ id: "event-5", timestamp: "2026-04-13T09:05:00Z", kind: "approval", approvalId: "approval-1" }),
+      createEvent({ id: "event-6", timestamp: "2026-04-13T09:06:00Z", kind: "artifact", artifactId: "artifact-1" }),
     ]);
 
     expect(summary).toEqual({
+      totalEvents: 6,
       messageCount: 1,
       toolCallCount: 2,
       systemEventCount: 1,
-      latestEventTimestamp: "2026-04-13T09:04:00Z",
+      approvalEventCount: 1,
+      artifactEventCount: 1,
+      latestEventTimestamp: "2026-04-13T09:06:00Z",
     });
   });
 
   it("returns empty replay summary values when a run has no events", () => {
     expect(deriveReplaySummary([])).toEqual({
+      totalEvents: 0,
       messageCount: 0,
       toolCallCount: 0,
       systemEventCount: 0,
+      approvalEventCount: 0,
+      artifactEventCount: 0,
       latestEventTimestamp: null,
     });
   });
