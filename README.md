@@ -33,6 +33,7 @@ Our goal is to ship a frontend that is:
 Current packaging status:
 - first public alpha release is live: `v0.1.0-alpha.1`
 - CI is active
+- Docker + GHCR workflow is wired up
 - GitHub Pages deployment workflow is wired up and being brought online
 
 ## Try the demo
@@ -72,6 +73,23 @@ Primary product priorities:
 3. owner-first secure deployment
 4. contributor-friendly modern stack
 5. fast iteration in a standalone repo, with stable pieces upstreamed later when proven
+
+## Quick ship options
+
+Run in Docker:
+
+```bash
+docker build -t hermes-agent-webui .
+docker run --rm -p 8088:80 hermes-agent-webui
+```
+
+Or with Compose:
+
+```bash
+docker compose up --build
+```
+
+GHCR container publishing is wired through GitHub Actions.
 
 ## Local development
 

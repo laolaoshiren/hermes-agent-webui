@@ -70,27 +70,12 @@ function formatTimestamp(value: number | null | undefined) {
   }).format(new Date(value * 1000));
 }
 
-function formatRuntimeTimestamp(value: string | null | undefined) {
-  if (!value) {
-    return "—";
-  }
-
-  return new Intl.DateTimeFormat(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
-
 function buildSessionsPath(workspaceSlug: string | null) {
   return workspaceSlug ? `/sessions?workspace=${workspaceSlug}` : "/sessions";
 }
 
 function buildSessionPath(sessionId: string, workspaceSlug: string | null) {
   return workspaceSlug ? `/sessions/${sessionId}?workspace=${workspaceSlug}` : `/sessions/${sessionId}`;
-}
-
-function buildRunPath(runId: string, workspaceSlug: string | null) {
-  return workspaceSlug ? `/runs/${runId}?workspace=${workspaceSlug}` : `/runs/${runId}`;
 }
 
 function sortSessionsByLastActive(sessions: SessionInfo[]) {
@@ -393,8 +378,6 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const runtimeEnabled = initialSessions !== undefined || Boolean(sessionId) || Boolean(workspaceSlug);
   const runtimeQuery = useRuntimeSnapshot(runtimeEnabled);
   const snapshot = runtimeQuery.data?.snapshot ?? EMPTY_RUNTIME_SNAPSHOT;
-  const runtimeSource = runtimeQuery.data?.source ?? null;
-  const hydrationError = runtimeQuery.data?.error ?? null;
 
   const [sessions, setSessions] = useState<SessionInfo[]>(() => sortSessionsByLastActive(initialSessions ?? []));
   const [loading, setLoading] = useState(() => initialSessions === undefined);
@@ -693,21 +676,9 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     <div className="space-y-6">
       <Toast toast={toast} />
       <PageHeader
-        eyebrow={t("sessions.eyebrow")}
+        eyebrow={undefined}
         title={t("sessions.title")}
         description={t("sessions.description")}
-        badge={t("sessions.badge")}
-        actions={
-          <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em]">
-            {runtimeSource ? (
-              <Badge variant="outline">
-                {runtimeSource === "live" ? t("runtimeHydration.sourceLive") : t("runtimeHydration.sourceFixture")}
-              </Badge>
-            ) : null}
-            {runtimeStillLoading ? <span className="text-muted-foreground">{t("runtimeHydration.loadingTitle")}</span> : null}
-            {hydrationError ? <span className="text-warning">{t("runtimeHydration.fallbackWarning", { message: hydrationError })}</span> : null}
-          </div>
-        }
       />
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.95fr]">
@@ -820,7 +791,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div>
           <Card>
             <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
@@ -910,129 +881,6 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                   </Button>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>{t("sessions.runtimeHandoffTitle")}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {runtimeSource ? (
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="border border-border bg-background/60 p-4">
-                    <div className="text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.messages")}</div>
-                    <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{review.metrics.messages}</div>
-                  </div>
-                  <div className="border border-border bg-background/60 p-4">
-                    <div className="text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.toolCalls")}</div>
-                    <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{review.metrics.toolCalls}</div>
-                  </div>
-                  <div className="border border-border bg-background/60 p-4">
-                    <div className="text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.timelineEvents")}</div>
-                    <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{review.metrics.timelineEvents}</div>
-                  </div>
-                  <div className="border border-border bg-background/60 p-4">
-                    <div className="text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.linkedRuns")}</div>
-                    <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{review.metrics.linkedRuns}</div>
-                  </div>
-                  <div className="border border-border bg-background/60 p-4">
-                    <div className="text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.approvals")}</div>
-                    <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{review.metrics.approvals}</div>
-                  </div>
-                  <div className="border border-border bg-background/60 p-4">
-                    <div className="text-[0.72rem] uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.artifacts")}</div>
-                    <div className="mt-2 font-collapse text-3xl tracking-[0.08em] text-foreground">{review.metrics.artifacts}</div>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-sm leading-6 text-muted-foreground">{t("sessions.runtimeHandoffPending")}</div>
-              )}
-
-              {runtimeSource && review.relatedRun ? (
-                <div className="space-y-3 border border-border bg-background/60 p-4 text-sm">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.relatedRunLabel")}</div>
-                    <div className="mt-1 font-medium text-foreground">{review.relatedRun.title}</div>
-                    <div className="mt-1 leading-6 text-muted-foreground">{review.relatedRun.summary}</div>
-                  </div>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.runtimeStatus")}</div>
-                      <div className="mt-1 font-medium text-foreground">{t(`runs.statuses.${review.relatedRun.status}`)}</div>
-                    </div>
-                    <div>
-                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.runtimeStarted")}</div>
-                      <div className="mt-1 font-medium text-foreground">{formatRuntimeTimestamp(review.relatedRun.startedAt)}</div>
-                    </div>
-                  </div>
-
-                  <div className="border border-border/80 bg-background p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.replayContextLabel")}</div>
-                        <div className="mt-1 font-medium text-foreground">{t("sessions.replayContextTitle")}</div>
-                      </div>
-                      <Badge variant="outline">{t("sessions.replayEventsBadge", { count: review.replaySummary.totalEvents })}</Badge>
-                    </div>
-
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                      <div className="border border-border/80 bg-background/60 p-3">
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.messageEventsLabel")}</div>
-                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.messageCount}</div>
-                      </div>
-                      <div className="border border-border/80 bg-background/60 p-3">
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.toolCallEventsLabel")}</div>
-                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.toolCallCount}</div>
-                      </div>
-                      <div className="border border-border/80 bg-background/60 p-3">
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.systemEventsLabel")}</div>
-                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.systemEventCount}</div>
-                      </div>
-                      <div className="border border-border/80 bg-background/60 p-3">
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.approvals")}</div>
-                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.approvalEventCount}</div>
-                      </div>
-                      <div className="border border-border/80 bg-background/60 p-3">
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.artifacts")}</div>
-                        <div className="mt-2 font-collapse text-2xl tracking-[0.08em] text-foreground">{review.replaySummary.artifactEventCount}</div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                      <div>
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.latestReplayEventLabel")}</div>
-                        <div className="mt-1 font-medium text-foreground">
-                          {review.latestReplayEvent ? formatRuntimeTimestamp(review.latestReplayEvent.timestamp) : t("sessions.noReplayEvents")}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metrics.linkedRuns")}</div>
-                        <div className="mt-1 font-medium text-foreground">{review.metrics.linkedRuns}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.relatedRunLabel")}</div>
-                        <div className="mt-1 font-medium text-foreground">{review.relatedRun.title}</div>
-                      </div>
-                      <div>
-                        <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.replayHandoffLabel")}</div>
-                        <div className="mt-1 leading-6 text-muted-foreground">{t("sessions.replayHandoffBody")}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Link
-                    to={buildRunPath(review.relatedRun.id, effectiveWorkspaceSlug)}
-                    className="inline-flex items-center rounded border border-border px-3 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
-                  >
-                    {t("sessions.openRunReview")}
-                  </Link>
-                </div>
-              ) : null}
-
-              {runtimeSource && !review.relatedRun ? (
-                <div className="text-sm leading-6 text-muted-foreground">{t("sessions.runtimeHandoffEmpty")}</div>
-              ) : null}
             </CardContent>
           </Card>
         </div>
