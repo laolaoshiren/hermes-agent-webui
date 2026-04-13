@@ -238,6 +238,8 @@ The live adapter now derives more replay-ready structure without pushing Hermes-
 - adapter metadata stays deterministic and type-safe: workspace freshness is derived from session/message timestamps rather than wall-clock render time
 - the Runs page consumes replay summaries from contract events instead of re-reading raw `SessionInfo` or `SessionMessage` payloads
 - replay summary UI currently reports message, tool-call, and system-event counts plus the latest replay timestamp for the selected run
+- selected-run review now also surfaces trust context from linked session/workspace records, including route-safe session handoff plus workspace, repository, default-branch, and policy metadata when available
 - workspace-scoped run queues are route-safe via `/runs?workspace=:workspaceSlug`, which narrows the visible run list using shared `workspaceId` relationships without changing the underlying contract snapshot
+- workspace-scoped run review preserves the workspace query parameter on session and approval drill-in links only when the selected run belongs to the active workspace scope
 - workspace-scoped approval queues are route-safe via `/approvals?workspace=:workspaceSlug`, which narrows the visible approval list through run-to-workspace relationships while preserving the same approval, run, session, and replay objects used elsewhere in the shell
 - workspace-scoped session exploration is route-safe via `/sessions?workspace=:workspaceSlug` and `/sessions/:sessionId?workspace=:workspaceSlug`, which narrow transcript review to contract-linked sessions and preserve the workspace query parameter when handing off into related run review or returning to workspace review

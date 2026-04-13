@@ -15,6 +15,7 @@ import type {
 } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
 import { deriveReplaySummary } from "@/pages/runsReplaySummary";
+import { getScopedHandoffWorkspaceSlug } from "@/pages/runsReviewHandoff";
 import { deriveRunsWorkspaceFilterState } from "@/pages/runsWorkspaceFilter";
 
 function formatTimestamp(value: string | null) {
@@ -151,6 +152,24 @@ function buildRunHref(runId: string, workspaceSlug: string | null) {
   return `/runs/${runId}?${searchParams.toString()}`;
 }
 
+function buildSessionHref(sessionId: string, workspaceSlug: string | null) {
+  if (!workspaceSlug) {
+    return `/sessions/${sessionId}`;
+  }
+
+  const searchParams = new URLSearchParams({ workspace: workspaceSlug });
+  return `/sessions/${sessionId}?${searchParams.toString()}`;
+}
+
+function buildApprovalHref(approvalId: string, workspaceSlug: string | null) {
+  if (!workspaceSlug) {
+    return `/approvals/${approvalId}`;
+  }
+
+  const searchParams = new URLSearchParams({ workspace: workspaceSlug });
+  return `/approvals/${approvalId}?${searchParams.toString()}`;
+}
+
 function buildRunsIndexHref(workspaceSlug: string | null) {
   if (!workspaceSlug) {
     return "/runs";
@@ -242,6 +261,13 @@ export default function RunsPage() {
   }
 
   const selectedRun = matchedRun ?? defaultRun;
+  const selectedSession = snapshot.sessions.find((session) => session.id === selectedRun.sessionId) ?? null;
+  const selectedWorkspace = snapshot.workspaces.find((workspace) => workspace.id === selectedRun.workspaceId) ?? null;
+  const handoffWorkspaceSlug = getScopedHandoffWorkspaceSlug(
+    workspaceFilter.selectedWorkspace?.id,
+    workspaceFilter.selectedWorkspace?.slug,
+    selectedRun.workspaceId,
+  );
   const selectedTimeline = getTimelineForRun(snapshot, selectedRun.id);
   const selectedArtifacts = getArtifactsForRun(snapshot, selectedRun.id);
   const selectedApprovals = getApprovalsForRun(snapshot, selectedRun.id);
@@ -249,6 +275,10 @@ export default function RunsPage() {
   const selectedEndedAt = formatTimestamp(selectedRun.endedAt);
   const replaySummary = deriveReplaySummary(selectedTimeline);
   const latestReplayEventAt = formatTimestamp(replaySummary.latestEventTimestamp);
+  const selectedSessionTitle = selectedSession?.title ?? selectedSession?.id ?? selectedRun.sessionId;
+  const selectedRepositoryLabel = selectedWorkspace?.repository
+    ? `${selectedWorkspace.repository.owner ? `${selectedWorkspace.repository.owner}/` : ""}${selectedWorkspace.repository.name}`
+    : t("runs.noRepositoryLinked");
 
   const statusSummary = visibleRuns.map((run) => ({
     id: run.id,
@@ -379,6 +409,40 @@ export default function RunsPage() {
 
             <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
               <div className="space-y-4 border border-border bg-background/60 p-4 text-sm">
+                <div className="border border-border/80 bg-background p-4">
+                  <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.trustContextLabel")}</div>
+                  <div className="mt-1 text-sm font-medium text-foreground">{t("runs.trustContextTitle")}</div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.sessionHandoffLabel")}</div>
+                      <div className="mt-1 font-medium text-foreground">{selectedSessionTitle}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">{selectedRun.sessionId}</div>
+                      <Link
+                        to={buildSessionHref(selectedRun.sessionId, handoffWorkspaceSlug)}
+                        className="mt-3 inline-flex text-xs uppercase tracking-[0.16em] text-primary underline-offset-4 hover:underline"
+                      >
+                        {t("runs.openSessionReview")}
+                      </Link>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.workspaceLabel")}</div>
+                      <div className="mt-1 font-medium text-foreground">{selectedWorkspace?.name ?? t("runs.noWorkspaceLinked")}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.repositoryLabel")}</div>
+                      <div className="mt-1 font-medium text-foreground">{selectedRepositoryLabel}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.defaultBranchLabel")}</div>
+                      <div className="mt-1 font-medium text-foreground">{selectedWorkspace?.defaultBranch ?? t("runs.notSet")}</div>
+                    </div>
+                    <div className="sm:col-span-2">
+                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.policyPresetLabel")}</div>
+                      <div className="mt-1 font-medium text-foreground">{selectedWorkspace?.policyPreset ?? t("runs.notSet")}</div>
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.sessionLabel")}</div>
                   <div className="mt-1 font-medium text-foreground">{selectedRun.sessionId}</div>
@@ -444,7 +508,7 @@ export default function RunsPage() {
                 selectedApprovals.map((approval) => (
                   <Link
                     key={approval.id}
-                    to={`/approvals/${approval.id}`}
+                    to={buildApprovalHref(approval.id, handoffWorkspaceSlug)}
                     className="block border border-border bg-background/60 p-4 transition-colors hover:border-foreground/40"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
