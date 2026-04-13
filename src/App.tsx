@@ -1,14 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { NavLink, Navigate, Route, Routes } from "react-router-dom";
 import {
-  Activity,
-  BarChart3,
   CheckSquare,
   Clock3,
-  FileText,
   FolderKanban,
-  KeyRound,
-  LayoutDashboard,
   MessageSquareText,
   Package,
   PlaySquare,
@@ -83,17 +78,12 @@ export default function App() {
   const nav = useMemo(
     () => [
       { to: "/sessions", label: t("nav.sessions"), icon: MessageSquareText },
-      { to: "/overview", label: t("nav.overview"), icon: LayoutDashboard },
       { to: "/workspaces", label: t("nav.workspaces"), icon: FolderKanban },
       { to: "/runs", label: t("nav.runs"), icon: PlaySquare },
       { to: "/approvals", label: t("nav.approvals"), icon: CheckSquare },
-      { to: "/status", label: t("nav.status"), icon: Activity },
-      { to: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
-      { to: "/logs", label: t("nav.logs"), icon: FileText },
       { to: "/cron", label: t("nav.cron"), icon: Clock3 },
       { to: "/skills", label: t("nav.skills"), icon: Package },
       { to: "/config", label: t("nav.config"), icon: Settings },
-      { to: "/keys", label: t("nav.keys"), icon: KeyRound },
     ],
     [t],
   );

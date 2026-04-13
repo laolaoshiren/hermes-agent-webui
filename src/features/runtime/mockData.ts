@@ -13,14 +13,14 @@ import type {
 const workspaces: RuntimeWorkspaceSource[] = [
   {
     id: "ws-hcc",
-    name: "Hermes Control Center",
-    slug: "hermes-control-center",
+    name: "Hermes Agent WebUI",
+    slug: "hermes-agent-webui",
     status: "active",
     repository: {
       provider: "github",
       owner: "laolaoshiren",
-      name: "hermes-control-center",
-      url: "https://github.com/laolaoshiren/hermes-control-center",
+      name: "hermes-agent-webui",
+      url: "https://github.com/laolaoshiren/hermes-agent-webui",
     },
     defaultBranch: "develop",
     policyPreset: "maintainer-safe",
@@ -50,7 +50,7 @@ const sessionMessages: Record<string, SessionMessage[]> = {
   "sess-20260413-runtime-contract": [
     {
       role: "system",
-      content: "Scheduled maintainer run booted for Hermes Control Center.",
+      content: "Scheduled maintainer run booted for Hermes Agent WebUI.",
       timestamp: Math.floor(Date.parse("2026-04-13T07:12:00Z") / 1000),
     },
     {

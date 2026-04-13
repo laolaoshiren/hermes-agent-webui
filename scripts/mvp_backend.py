@@ -10,14 +10,38 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-HOST = os.environ.get("HERMES_CONTROL_CENTER_BACKEND_HOST", "127.0.0.1")
-PORT = int(os.environ.get("HERMES_CONTROL_CENTER_BACKEND_PORT", "9119"))
-STORE_DIR = Path(os.environ.get("HERMES_CONTROL_CENTER_BACKEND_STATE", "~/.hermes/control-center-mvp")).expanduser()
+def env_first(*names: str, default: str) -> str:
+    for name in names:
+        value = os.environ.get(name)
+        if value:
+            return value
+    return default
+
+
+HOST = env_first("HERMES_AGENT_WEBUI_BACKEND_HOST", "HERMES_CONTROL_CENTER_BACKEND_HOST", default="127.0.0.1")
+PORT = int(env_first("HERMES_AGENT_WEBUI_BACKEND_PORT", "HERMES_CONTROL_CENTER_BACKEND_PORT", default="9119"))
+STORE_DIR = Path(
+    env_first(
+        "HERMES_AGENT_WEBUI_BACKEND_STATE",
+        "HERMES_CONTROL_CENTER_BACKEND_STATE",
+        default="~/.hermes/hermes-agent-webui-mvp",
+    )
+).expanduser()
 SESSIONS_DIR = STORE_DIR / "sessions"
-COMMAND_TIMEOUT_SECONDS = int(os.environ.get("HERMES_CONTROL_CENTER_BACKEND_COMMAND_TIMEOUT", "180"))
+COMMAND_TIMEOUT_SECONDS = int(
+    env_first(
+        "HERMES_AGENT_WEBUI_BACKEND_COMMAND_TIMEOUT",
+        "HERMES_CONTROL_CENTER_BACKEND_COMMAND_TIMEOUT",
+        default="180",
+    )
+)
 ALLOWED_ORIGINS = {
     origin.strip()
-    for origin in os.environ.get("HERMES_CONTROL_CENTER_BACKEND_ALLOWED_ORIGINS", "").split(",")
+    for origin in env_first(
+        "HERMES_AGENT_WEBUI_BACKEND_ALLOWED_ORIGINS",
+        "HERMES_CONTROL_CENTER_BACKEND_ALLOWED_ORIGINS",
+        default="",
+    ).split(",")
     if origin.strip()
 }
 LOCK = threading.Lock()
@@ -76,7 +100,7 @@ def build_session_payload(session: dict) -> dict:
         "message_count": len(session.get("messages", [])),
         "created_at": session.get("created_at", now_ts()),
         "updated_at": session.get("updated_at", now_ts()),
-        "source": "control-center-mvp",
+        "source": "hermes-agent-webui-mvp",
         "input_tokens": session.get("input_tokens", 0),
         "output_tokens": session.get("output_tokens", 0),
         "tool_calls": session.get("tool_calls", []),
@@ -98,7 +122,7 @@ def build_session_summary(session: dict) -> dict:
     updated_at = int(session.get("updated_at", created_at))
     return {
         "id": session["session_id"],
-        "source": "control-center-mvp",
+        "source": "hermes-agent-webui-mvp",
         "workspace": session.get("workspace"),
         "model": session.get("model"),
         "title": session.get("title"),
@@ -230,17 +254,20 @@ class Handler(BaseHTTPRequestHandler):
 
     def _send(self, status: int, payload: dict | list):
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        self.send_response(status)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        origin = self._origin()
-        if origin and origin in ALLOWED_ORIGINS:
-            self.send_header("Access-Control-Allow-Origin", origin)
-            self.send_header("Vary", "Origin")
-            self.send_header("Access-Control-Allow-Headers", "Content-Type")
-            self.send_header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS")
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            origin = self._origin()
+            if origin and origin in ALLOWED_ORIGINS:
+                self.send_header("Access-Control-Allow-Origin", origin)
+                self.send_header("Vary", "Origin")
+                self.send_header("Access-Control-Allow-Headers", "Content-Type")
+                self.send_header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS")
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            return
 
     def do_OPTIONS(self):
         if not self._is_origin_allowed():
@@ -271,7 +298,7 @@ class Handler(BaseHTTPRequestHandler):
                         "hermes_home": str(Path("~/.hermes").expanduser()),
                         "latest_config_version": 1,
                         "release_date": time.strftime("%Y-%m-%d"),
-                        "version": "control-center-mvp-adapter",
+                        "version": "hermes-agent-webui-mvp-adapter",
                     },
                 )
                 return
@@ -379,6 +406,13 @@ class Handler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     ensure_dirs()
-    httpd = ThreadingHTTPServer((HOST, PORT), Handler)
-    print(f"Hermes Control Center MVP backend listening on http://{HOST}:{PORT}", flush=True)
+    try:
+        httpd = ThreadingHTTPServer((HOST, PORT), Handler)
+    except OSError as exc:
+        if exc.errno == 98:
+            raise SystemExit(
+                f"Port {PORT} is already in use. Set HERMES_AGENT_WEBUI_BACKEND_PORT (or legacy HERMES_CONTROL_CENTER_BACKEND_PORT) to another port."
+            ) from exc
+        raise
+    print(f"Hermes Agent WebUI MVP backend listening on http://{HOST}:{PORT}", flush=True)
     httpd.serve_forever()

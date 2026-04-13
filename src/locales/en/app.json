@@ -16,8 +16,8 @@
   },
   "overview": {
     "eyebrow": "Program direction",
-    "title": "Hermes Control Center",
-    "description": "A product-grade web platform for Hermes Agent: workspace-first UX, replayable autonomous runs, approvals, observability, and multilingual operations from the start.",
+    "title": "Hermes Agent WebUI",
+    "description": "A chat-first web app for Hermes Agent focused on secure daily use, workspace continuity, and public-ready deployment.",
     "badge": "v0.1 foundation",
     "thesisTitle": "Product thesis",
     "thesisBody1": "Hermes already has a strong runtime, session store, tool surface, and an emerging admin UI. This project extends that base into a product-grade control center rather than rewriting Hermes from scratch.",
@@ -262,12 +262,12 @@
     "relatedRunMissingBody": "The related run for this approval is not currently available in the shared runtime snapshot."
   },
   "sessions": {
-    "eyebrow": "Session operations",
+    "eyebrow": "Chat workspace",
     "title": "Sessions",
     "description": "Inspect live Hermes sessions, review transcript history, and hand off from session state into the shared runtime run surface.",
     "badge": "session review preview",
-    "explorerTitle": "Session explorer",
-    "explorerSummary": "Search and review recent sessions from the chat-first queue.",
+    "explorerTitle": "Recent chats",
+    "explorerSummary": "Open a conversation, search past messages, or jump back into recent work.",
     "workspaceQueueTitle": "Workspace-scoped sessions",
     "workspaceScopeLabel": "Active workspace scope",
     "workspaceQueueBody_one": "Showing {{count}} session linked to {{workspace}}.",
@@ -287,8 +287,8 @@
     "emptyConversationTitle": "No session selected yet",
     "chatEmptyTitle": "Ready for the next turn",
     "chatEmptyBody": "Open an existing session or create a new chat to start talking to Hermes from the default workspace shell.",
-    "composerLabel": "Composer",
-    "composerHint": "This is the fastest MVP path: session list on the left, transcript plus composer on the right.",
+    "composerLabel": "Message box",
+    "composerHint": "Use this page as the fastest path to chat with Hermes, continue older sessions, and keep work tied to the right workspace.",
     "composerPlaceholder": "Send the next instruction to Hermes…",
     "chatLoopHint": "Messages send through the Hermes-backed session chat route when the backend is available.",
     "send": "Send",
@@ -455,17 +455,17 @@
     }
   },
   "appShell": {
-    "productName": "Hermes Control Center",
-    "productTagline": "Web platform for Hermes Agent",
-    "foundationBadge": "Foundation Sprint",
-    "footerTagline": "Independent OSS incubation for Hermes Agent"
+    "productName": "Hermes Agent WebUI",
+    "productTagline": "Chat-first web app for Hermes Agent",
+    "foundationBadge": "Live incubation build",
+    "footerTagline": "Owner-first, self-hosted, and built for real daily use"
   },
   "runtimeHydration": {
     "sourceLive": "Live runtime",
     "sourceFixture": "Fixture fallback",
-    "loading": "Hydrating live sessions…",
-    "loadingTitle": "Hydrating live runtime",
-    "loadingBody": "Loading sessions and replay data from the Hermes backend before rendering route-specific runtime details.",
+    "loading": "Loading live sessions…",
+    "loadingTitle": "Loading live runtime",
+    "loadingBody": "Fetching sessions and replay data from the Hermes backend before showing route-specific details.",
     "fallbackWarning": "Fixture fallback active: {{message}}"
   }
 }

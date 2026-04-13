@@ -16,8 +16,8 @@
   },
   "overview": {
     "eyebrow": "项目方向",
-    "title": "Hermes Control Center",
-    "description": "面向 Hermes Agent 的产品级 Web 平台：从一开始就支持工作区优先、可回放自治运行、审批流、可观测性，以及中英文国际化。",
+    "title": "Hermes Agent WebUI",
+    "description": "面向 Hermes Agent 的聊天优先 Web 应用，重点解决安全日常使用、工作区连续性和公网可部署能力。",
     "badge": "v0.1 基础阶段",
     "thesisTitle": "产品命题",
     "thesisBody1": "Hermes 已经具备稳固的运行时、会话存储、工具体系和逐步成形的管理界面。本项目的目标是在此基础上扩展出产品级控制中心，而不是从零重写 Hermes。",
@@ -262,12 +262,12 @@
     "relatedRunMissingBody": "该审批关联的运行当前未出现在共享运行时快照中。"
   },
   "sessions": {
-    "eyebrow": "会话运维",
+    "eyebrow": "聊天工作台",
     "title": "会话",
     "description": "检查实时 Hermes 会话、审阅转录历史，并把会话状态顺畅交接到共享运行时的运行审查界面。",
     "badge": "会话审查预览",
-    "explorerTitle": "会话浏览器",
-    "explorerSummary": "在聊天优先队列中搜索并审查最近的会话。",
+    "explorerTitle": "最近聊天",
+    "explorerSummary": "打开一段对话、搜索过去的消息，或者继续最近的工作。",
     "workspaceQueueTitle": "工作区范围会话",
     "workspaceScopeLabel": "当前工作区范围",
     "workspaceQueueBody_one": "正在显示 {{workspace}} 关联的 {{count}} 个会话。",
@@ -287,8 +287,8 @@
     "emptyConversationTitle": "暂时还没有选中的会话",
     "chatEmptyTitle": "准备开始下一轮对话",
     "chatEmptyBody": "打开一个已有会话，或新建聊天，在默认工作台里直接开始和 Hermes 对话。",
-    "composerLabel": "输入区",
-    "composerHint": "这是当前最快的 MVP 路线：左侧会话列表，右侧转录历史与输入框。",
+    "composerLabel": "消息输入框",
+    "composerHint": "把这里当成和 Hermes 对话的最快入口：继续旧会话、发起新聊天，并把工作保留在正确的工作区里。",
     "composerPlaceholder": "向 Hermes 发送下一条指令…",
     "chatLoopHint": "当后端可用时，这里的消息会通过 Hermes 会话聊天路由直接发送。",
     "send": "发送",
@@ -455,17 +455,17 @@
     }
   },
   "appShell": {
-    "productName": "Hermes Control Center",
-    "productTagline": "Hermes Agent 的 Web 平台",
-    "foundationBadge": "基础冲刺阶段",
-    "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"
+    "productName": "Hermes Agent WebUI",
+    "productTagline": "面向 Hermes Agent 的聊天优先 Web 应用",
+    "foundationBadge": "在线孵化构建",
+    "footerTagline": "单人优先、自托管、面向真实日常使用"
   },
   "runtimeHydration": {
     "sourceLive": "实时运行时",
     "sourceFixture": "示例回退",
-    "loading": "正在注入实时会话…",
-    "loadingTitle": "正在注入实时运行时",
-    "loadingBody": "正在从 Hermes 后端加载会话与回放数据，然后再渲染对应路由的运行时详情。",
+    "loading": "正在加载实时会话…",
+    "loadingTitle": "正在加载实时运行时",
+    "loadingBody": "正在从 Hermes 后端获取会话和回放数据，然后再展示对应路由的详情。",
     "fallbackWarning": "当前使用示例回退：{{message}}"
   }
 }

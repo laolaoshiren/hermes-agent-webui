@@ -181,7 +181,7 @@ class MVPBackendHttpTest(unittest.TestCase):
         self.assertEqual(listed[0]["id"], session_id)
         self.assertEqual(listed[0]["workspace"], str(Path("~/repo").expanduser()))
         self.assertEqual(listed[0]["preview"], None)
-        self.assertEqual(listed[0]["source"], "control-center-mvp")
+        self.assertEqual(listed[0]["source"], "hermes-agent-webui-mvp")
 
         status, messages = self.request("GET", f"/api/sessions/{session_id}/messages")
         self.assertEqual(status, 200)
