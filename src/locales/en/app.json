@@ -1,0 +1,21 @@
+{
+  "nav": {
+    "overview": "Overview",
+    "workspaces": "Workspaces",
+    "runs": "Runs",
+    "approvals": "Approvals",
+    "status": "Status",
+    "sessions": "Sessions",
+    "analytics": "Analytics",
+    "logs": "Logs",
+    "cron": "Cron",
+    "skills": "Skills",
+    "config": "Config",
+    "keys": "Keys"
+  },
+  "overview": {
+    "eyebrow": "Program direction",
+    "title": "Hermes Control Center",
+    "description": "A product-grade web platform for Hermes Agent: workspace-first UX, replayable autonomous runs, approvals, observability, and multilingual operations from the start."
+  }
+}

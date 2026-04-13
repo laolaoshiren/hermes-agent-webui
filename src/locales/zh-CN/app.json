@@ -1,0 +1,21 @@
+{
+  "nav": {
+    "overview": "总览",
+    "workspaces": "工作区",
+    "runs": "运行",
+    "approvals": "审批",
+    "status": "状态",
+    "sessions": "会话",
+    "analytics": "分析",
+    "logs": "日志",
+    "cron": "定时任务",
+    "skills": "技能",
+    "config": "配置",
+    "keys": "密钥"
+  },
+  "overview": {
+    "eyebrow": "项目方向",
+    "title": "Hermes Control Center",
+    "description": "面向 Hermes Agent 的产品级 Web 平台：从一开始就支持工作区优先、可回放自治运行、审批流、可观测性，以及中英文国际化。"
+  }
+}
