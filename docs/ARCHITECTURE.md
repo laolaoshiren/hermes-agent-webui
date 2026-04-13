@@ -70,8 +70,17 @@ The `/workspaces` route is no longer a static placeholder. It is a read-only ope
 - workspace selection, canonical redirect behavior, and workload metrics should be derived through `src/pages/workspaceReview.ts`
 - page components should treat `RuntimeContractSnapshot.workspaces` plus linked session/run/approval/artifact relationships as the source of truth for workspace context
 - the route may render live-adapter workspaces even before dedicated backend workspace APIs exist, but the UI must stay explicit that this is review/handoff state rather than full workspace management
-- workspace review UI should hand operators off into `/sessions/:sessionId`, `/runs/:runId`, and `/approvals/:approvalId` instead of duplicating those deeper review surfaces
+- workspace review UI should hand operators off into `/sessions/:sessionId`, `/runs/:runId`, `/runs?workspace=:workspaceSlug`, and `/approvals/:approvalId` instead of duplicating those deeper review surfaces
 - new workspace shell copy must remain bilingual and follow the same live-vs-fixture hydration badge pattern used by other runtime pages
+
+## Workspace-scoped runs handoff
+
+The `/runs` route now accepts an optional `workspace` query parameter so operators can move from a selected workspace into a scoped run queue without losing context.
+
+- workspace queue scope should be derived through `src/pages/runsWorkspaceFilter.ts`, not recomputed inline in route components
+- the active workspace filter may narrow the visible run list, but it must never mutate the shared snapshot or invent new run records
+- queue links rendered from `WorkspacesPage` should point to `/runs?workspace=:workspaceSlug` so the state survives reloads and deep links
+- the Runs page should preserve its existing replay/approval/artifact review layout while making the active workspace scope visible and offering a direct return path to `/workspaces/:workspaceSlug`
 
 ## Replay timeline enrichment
 

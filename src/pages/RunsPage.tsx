@@ -1,10 +1,10 @@
-import { Navigate, Link, useParams } from "react-router-dom";
+import { Navigate, Link, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PageHeader from "@/components/PageHeader";
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
-import { getApprovalsForRun, getArtifactsForRun, getDefaultRun, getRunById, getTimelineForRun } from "@/features/runtime/selectors";
+import { getApprovalsForRun, getArtifactsForRun, getTimelineForRun } from "@/features/runtime/selectors";
 import type {
   ApprovalSummary,
   ArtifactSummary,
@@ -15,6 +15,7 @@ import type {
 } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
 import { deriveReplaySummary } from "@/pages/runsReplaySummary";
+import { deriveRunsWorkspaceFilterState } from "@/pages/runsWorkspaceFilter";
 
 function formatTimestamp(value: string | null) {
   if (!value) {
@@ -137,16 +138,42 @@ function getApprovalStatusTone(status: ApprovalSummary["status"]) {
   }
 }
 
+function getDefaultRunFromQueue(runs: RunSummary[]) {
+  return runs.find((run) => run.status === "running") ?? runs[0] ?? null;
+}
+
+function buildRunHref(runId: string, workspaceSlug: string | null) {
+  if (!workspaceSlug) {
+    return `/runs/${runId}`;
+  }
+
+  const searchParams = new URLSearchParams({ workspace: workspaceSlug });
+  return `/runs/${runId}?${searchParams.toString()}`;
+}
+
+function buildRunsIndexHref(workspaceSlug: string | null) {
+  if (!workspaceSlug) {
+    return "/runs";
+  }
+
+  const searchParams = new URLSearchParams({ workspace: workspaceSlug });
+  return `/runs?${searchParams.toString()}`;
+}
+
 export default function RunsPage() {
   const { t } = useTranslation();
   const { runId } = useParams();
+  const [searchParams] = useSearchParams();
   const runtimeQuery = useRuntimeSnapshot();
   const snapshot = runtimeQuery.data?.snapshot ?? runtimeContractSnapshot;
   const runtimeSource = runtimeQuery.data?.source ?? "fixture";
   const hydrationError = runtimeQuery.data?.error ?? null;
+  const workspaceSlug = searchParams.get("workspace");
+  const workspaceFilter = deriveRunsWorkspaceFilterState(snapshot, workspaceSlug);
+  const visibleRuns = workspaceFilter.filteredRuns;
 
-  const defaultRun = getDefaultRun(snapshot);
-  const matchedRun = runId ? getRunById(snapshot, runId) : null;
+  const defaultRun = getDefaultRunFromQueue(visibleRuns);
+  const matchedRun = runId ? visibleRuns.find((run) => run.id === runId) ?? null : null;
 
   if (runtimeQuery.isPending) {
     return (
@@ -166,6 +193,14 @@ export default function RunsPage() {
         </Card>
       </div>
     );
+  }
+
+  if (workspaceFilter.shouldClearInvalidWorkspace) {
+    if (runId) {
+      return <Navigate to={`/runs/${runId}`} replace />;
+    }
+
+    return <Navigate to="/runs" replace />;
   }
 
   if (!defaultRun) {
@@ -188,16 +223,22 @@ export default function RunsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("runs.emptyStateTitle")}</CardTitle>
+            <CardTitle>
+              {workspaceFilter.selectedWorkspace ? t("runs.emptyWorkspaceStateTitle") : t("runs.emptyStateTitle")}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="text-sm leading-6 text-muted-foreground">{t("runs.emptyStateBody")}</CardContent>
+          <CardContent className="text-sm leading-6 text-muted-foreground">
+            {workspaceFilter.selectedWorkspace
+              ? t("runs.emptyWorkspaceStateBody", { workspace: workspaceFilter.selectedWorkspace.name })
+              : t("runs.emptyStateBody")}
+          </CardContent>
         </Card>
       </div>
     );
   }
 
   if (runId && !matchedRun) {
-    return <Navigate to={`/runs/${defaultRun.id}`} replace />;
+    return <Navigate to={buildRunsIndexHref(workspaceFilter.selectedWorkspace?.slug ?? null)} replace />;
   }
 
   const selectedRun = matchedRun ?? defaultRun;
@@ -209,7 +250,7 @@ export default function RunsPage() {
   const replaySummary = deriveReplaySummary(selectedTimeline);
   const latestReplayEventAt = formatTimestamp(replaySummary.latestEventTimestamp);
 
-  const statusSummary = snapshot.runs.map((run) => ({
+  const statusSummary = visibleRuns.map((run) => ({
     id: run.id,
     title: getRunTitle(run, t),
     status: run.status,
@@ -234,7 +275,34 @@ export default function RunsPage() {
         }
       />
 
-      <div className="grid gap-4 xl:grid-cols-[0.95fr_1.35fr]">
+      <div className="space-y-4">
+        {workspaceFilter.selectedWorkspace ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>{t("runs.workspaceQueueTitle")}</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="border border-border bg-background/60 p-4">
+                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("runs.workspaceScopeLabel")}</div>
+                <div className="mt-1 text-lg font-medium text-foreground">{workspaceFilter.selectedWorkspace.name}</div>
+                <div className="mt-2 leading-6 text-muted-foreground">
+                  {t("runs.workspaceQueueBody", {
+                    workspace: workspaceFilter.selectedWorkspace.name,
+                    count: visibleRuns.length,
+                  })}
+                </div>
+                <Link
+                  className="mt-3 inline-flex text-sm text-primary underline-offset-4 hover:underline"
+                  to={`/workspaces/${workspaceFilter.selectedWorkspace.slug}`}
+                >
+                  {t("runs.returnToWorkspace")}
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        <div className="grid gap-4 xl:grid-cols-[0.95fr_1.35fr]">
         <Card>
           <CardHeader>
             <CardTitle>{t("runs.statusSummaryTitle")}</CardTitle>
@@ -243,7 +311,7 @@ export default function RunsPage() {
             {statusSummary.map((run) => (
               <Link
                 key={run.id}
-                to={`/runs/${run.id}`}
+                to={buildRunHref(run.id, workspaceFilter.selectedWorkspace?.slug ?? null)}
                 className={`block border bg-background/60 p-4 transition-colors hover:border-foreground/40 ${
                   run.isSelected ? "border-foreground/50" : "border-border"
                 }`}
@@ -410,6 +478,7 @@ export default function RunsPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
     </div>
   );
