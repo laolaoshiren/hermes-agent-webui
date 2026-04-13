@@ -6,6 +6,7 @@ import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import i18n from "@/i18n";
 import ApprovalsPage from "@/pages/ApprovalsPage";
+import { getScopedApprovalReviewWorkspaceSlug } from "@/pages/approvalReviewHandoff";
 import { runtimeContractSnapshot } from "@/features/runtime/mockData";
 
 const multiWorkspaceSnapshot = {
@@ -170,8 +171,17 @@ describe("ApprovalsPage workspace filter", () => {
 
     expect(markup).toContain("Workspace-scoped approvals");
     expect(markup).toContain("/runs/run-customer-support-triage?workspace=customer-support");
+    expect(markup).toContain("/sessions/sess-customer-support?workspace=customer-support");
     expect(markup).toContain("Customer support automation queue");
     expect(markup).toContain("Replay events");
+  });
+
+  it("only preserves scoped approval handoff when the related run belongs to the active workspace", () => {
+    expect(getScopedApprovalReviewWorkspaceSlug("ws-customer-support", "customer-support", "ws-customer-support")).toBe(
+      "customer-support",
+    );
+    expect(getScopedApprovalReviewWorkspaceSlug("ws-customer-support", "customer-support", "ws-hcc")).toBeNull();
+    expect(getScopedApprovalReviewWorkspaceSlug(null, "customer-support", "ws-customer-support")).toBeNull();
   });
 
   it("clears invalid workspace filters instead of rendering mismatched approval data", () => {

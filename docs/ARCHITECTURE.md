@@ -95,6 +95,7 @@ The `/approvals` route now accepts the same optional `workspace` query parameter
 - the active workspace filter may narrow the visible approval list, but it must never mutate the shared snapshot or fabricate approval state
 - queue links rendered from `WorkspacesPage` should point to `/approvals?workspace=:workspaceSlug` so the scoped approval inbox survives reloads and deep links
 - approval drill-in links should preserve the active workspace query parameter whenever the selected approval belongs to the scoped workspace
+- related run and session handoff links rendered from a workspace-scoped approval review should preserve the active workspace query parameter only when the linked run belongs to that scoped workspace
 - the Approvals page should surface workspace, repository, policy, run, session, and latest replay context without introducing write actions or bypassing the shared runtime selectors
 
 ## Replay timeline enrichment

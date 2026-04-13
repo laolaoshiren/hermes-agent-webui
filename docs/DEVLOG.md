@@ -380,3 +380,21 @@ This log is intentionally public-facing and continuously append-only so both the
   - push the final PR #26 fixup and merge it into `develop`
   - close issue #25 after promotion
   - run a fresh simulated-user pass to pick the next approval/replayability gap
+
+## 2026-04-14 02:31 +08:00
+
+- Merged PR #26 (`feat: add run review trust context and scoped handoff`) into `develop`, deleted the completed branch, and closed issue #25 to keep the queue accurate.
+- Ran a fresh simulated-user pass on the approval review surface and identified the next route-trust gap: workspace-scoped approval review preserved the run handoff, but `Open session review` still dropped the active workspace scope.
+- Created issue #27 (`Product shell: preserve workspace-scoped session handoff from approval review`) and started fresh branch `feat/issue-27-approval-session-handoff`.
+- Added the first implementation/planning slice for issue #27:
+  - added `docs/plans/2026-04-14-issue-27-approval-session-handoff.md`
+  - added `src/pages/approvalReviewHandoff.ts` to centralize workspace-safe approval review handoff rules
+  - updated `src/pages/ApprovalsPage.tsx` so related run and session drill-ins share the same scoped-workspace guard
+  - extended `src/pages/ApprovalsPage.workspaceFilter.test.ts` with scoped session-link coverage plus direct guard regression coverage
+  - documented the new approval-review handoff rule in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+- Validation status:
+  - `npm run test -- --run src/pages/ApprovalsPage.workspaceFilter.test.ts` ✅
+- Next focus:
+  - run full verification for issue #27 (`npm run lint`, `npm run typecheck`, `npm run build`)
+  - open a focused PR into `develop` once verification passes
+  - continue tightening approval/session/replay handoff trust without breaking the shared runtime contract

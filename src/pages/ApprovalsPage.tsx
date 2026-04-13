@@ -9,6 +9,7 @@ import { runtimeContractSnapshot } from "@/features/runtime/mockData";
 import { getRunById, getTimelineForRun, getWorkspaceById } from "@/features/runtime/selectors";
 import type { ApprovalStatus, ApprovalSummary, WorkspaceSummary } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
+import { getScopedApprovalReviewWorkspaceSlug } from "@/pages/approvalReviewHandoff";
 import { deriveApprovalsWorkspaceFilterState } from "@/pages/approvalsWorkspaceFilter";
 
 function formatTimestamp(value: string | null) {
@@ -69,6 +70,10 @@ function buildApprovalPath(approvalId: string, workspaceSlug: string | null) {
 
 function buildRunPath(runId: string, workspaceSlug: string | null) {
   return workspaceSlug ? `/runs/${runId}?workspace=${workspaceSlug}` : `/runs/${runId}`;
+}
+
+function buildSessionPath(sessionId: string, workspaceSlug: string | null) {
+  return workspaceSlug ? `/sessions/${sessionId}?workspace=${workspaceSlug}` : `/sessions/${sessionId}`;
 }
 
 export default function ApprovalsPage() {
@@ -159,7 +164,11 @@ export default function ApprovalsPage() {
   const selectedWorkspace = workspaceFilter.selectedWorkspace ?? relatedWorkspace;
   const relatedTimeline = relatedRun ? getTimelineForRun(snapshot, relatedRun.id) : [];
   const latestRelatedEvent = relatedTimeline[relatedTimeline.length - 1] ?? null;
-  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
+  const scopedWorkspaceSlug = getScopedApprovalReviewWorkspaceSlug(
+    workspaceFilter.selectedWorkspace?.id,
+    workspaceFilter.selectedWorkspace?.slug,
+    relatedRun?.workspaceId,
+  );
 
   const metrics = {
     pending: visibleApprovals.filter((approval) => approval.status === "pending").length,
@@ -366,7 +375,7 @@ export default function ApprovalsPage() {
                 ) : null}
                 {relatedSession ? (
                   <Link
-                    to={`/sessions/${relatedSession.id}`}
+                    to={buildSessionPath(relatedSession.id, scopedWorkspaceSlug)}
                     className="inline-flex items-center border border-border px-4 py-2 text-foreground transition-colors hover:border-foreground/40"
                   >
                     {t("approvals.openSessionReview")}
@@ -399,7 +408,7 @@ export default function ApprovalsPage() {
                   </div>
 
                   <Link
-                    to={buildRunPath(relatedRun.id, activeWorkspaceSlug)}
+                    to={buildRunPath(relatedRun.id, scopedWorkspaceSlug)}
                     className="inline-flex items-center border border-border px-4 py-2 text-xs uppercase tracking-[0.16em] text-foreground transition-colors hover:border-foreground/40"
                   >
                     {t("approvals.openRunReview")}
