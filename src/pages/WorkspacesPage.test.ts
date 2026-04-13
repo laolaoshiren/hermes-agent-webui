@@ -83,11 +83,13 @@ describe("WorkspacesPage", () => {
     expect(markup).toContain("Open session review");
     expect(markup).toContain("Open workspace run queue");
     expect(markup).toContain("Open run review");
+    expect(markup).toContain("Open workspace approvals queue");
     expect(markup).toContain("Open approval review");
     expect(markup).toContain("/runs?workspace=hermes-control-center");
+    expect(markup).toContain("/approvals?workspace=hermes-control-center");
     expect(markup).toContain("/sessions/sess-20260413-runtime-contract");
     expect(markup).toContain("/runs/run-runtime-adapter?workspace=hermes-control-center");
-    expect(markup).toContain("/approvals/approval-adapter-pr");
+    expect(markup).toContain("/approvals/approval-adapter-pr?workspace=hermes-control-center");
   });
 
   it("auto-selects the canonical workspace on the base route", () => {

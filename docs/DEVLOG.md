@@ -261,6 +261,29 @@ This log is intentionally public-facing and continuously append-only so both the
   - push issue #17 and open the PR into `develop`
   - if the PR goes green, merge it and then continue either with richer workspace-scoped approval/session filtering or with bundle-size trimming for the growing runtime shell
 
+## 2026-04-13 23:23 +08:00
+
+- Merged ready PR #18 (`feat: add workspace-scoped runs queue and handoff`) into `develop`, deleted the completed branch, and cleaned up issue hygiene by closing completed issues #15 and #17.
+- Ran an internal simulated-user + architecture pass after the merge and selected governance UX as the next highest-trust gap.
+- Created issue #19 (`Product shell: add workspace-scoped approvals queue and trust context`) and continued on fresh branch `feat/issue-19-workspace-approvals-filter`.
+- Added the first workspace-scoped approvals increment:
+  - added `docs/plans/2026-04-13-issue-19-workspace-approvals-filter.md`
+  - added `src/pages/approvalsWorkspaceFilter.ts` plus focused coverage in `src/pages/approvalsWorkspaceFilter.test.ts`
+  - updated `src/pages/ApprovalsPage.tsx` to honor `?workspace=<slug>`, preserve scoped deep links, and surface workspace/repository/policy/run/session trust context
+  - added route coverage in `src/pages/ApprovalsPage.workspaceFilter.test.ts`
+  - updated `src/pages/WorkspacesPage.tsx` and `src/pages/WorkspacesPage.test.ts` so workspace handoff now includes a queue-style approvals link and preserves scope on primary approval review
+  - localized new approvals/workspace handoff copy in English + Simplified Chinese
+  - documented the route-safe workspace approvals queue in `docs/ARCHITECTURE.md` and `docs/RUNTIME_CONTRACT.md`
+- Validation status:
+  - `npm run test -- --run src/pages/approvalsWorkspaceFilter.test.ts src/pages/ApprovalsPage.workspaceFilter.test.ts src/pages/WorkspacesPage.test.ts` ✅
+  - `npm run lint` ✅ with the pre-existing non-blocking `react-hooks/exhaustive-deps` warning in `src/pages/CronPage.tsx`
+  - `npm run typecheck` ✅
+  - `npm run build` ✅ with the existing non-blocking Vite chunk-size warning
+- Next focus:
+  - run independent spec/quality review on issue #19 and address any gaps before promotion
+  - push the branch and open PR into `develop`
+  - then decide whether the next workspace-model slice should target scoped session exploration or bundle-size trimming for the growing runtime shell
+
 ## Working principles
 
 - plan-driven execution
