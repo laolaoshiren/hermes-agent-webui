@@ -82,12 +82,12 @@ export default function App() {
 
   const nav = useMemo(
     () => [
+      { to: "/sessions", label: t("nav.sessions"), icon: MessageSquareText },
       { to: "/overview", label: t("nav.overview"), icon: LayoutDashboard },
       { to: "/workspaces", label: t("nav.workspaces"), icon: FolderKanban },
       { to: "/runs", label: t("nav.runs"), icon: PlaySquare },
       { to: "/approvals", label: t("nav.approvals"), icon: CheckSquare },
       { to: "/status", label: t("nav.status"), icon: Activity },
-      { to: "/sessions", label: t("nav.sessions"), icon: MessageSquareText },
       { to: "/analytics", label: t("nav.analytics"), icon: BarChart3 },
       { to: "/logs", label: t("nav.logs"), icon: FileText },
       { to: "/cron", label: t("nav.cron"), icon: Clock3 },
@@ -150,7 +150,7 @@ export default function App() {
 
       <main className="relative z-2 mx-auto w-full max-w-[1480px] flex-1 px-6 py-8">
         <Routes>
-          <Route path="/" element={<Navigate to="/overview" replace />} />
+          <Route path="/" element={<Navigate to="/sessions" replace />} />
           <Route path="/overview" element={<OverviewPage />} />
           <Route path="/workspaces" element={<WorkspacesPage />} />
           <Route path="/workspaces/:workspaceSlug" element={<WorkspacesPage />} />
@@ -167,7 +167,7 @@ export default function App() {
           <Route path="/skills" element={<SkillsPage />} />
           <Route path="/config" element={<ConfigPage />} />
           <Route path="/keys" element={<EnvPage />} />
-          <Route path="*" element={<Navigate to="/overview" replace />} />
+          <Route path="*" element={<Navigate to="/sessions" replace />} />
         </Routes>
       </main>
 

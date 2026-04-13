@@ -1,6 +1,6 @@
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, Navigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ChevronDown,
@@ -10,7 +10,9 @@ import {
   Hash,
   MessageCircle,
   MessageSquare,
+  Plus,
   Search,
+  SendHorizontal,
   Terminal,
   Trash2,
   X,
@@ -18,12 +20,14 @@ import {
 
 import PageHeader from "@/components/PageHeader";
 import { Markdown } from "@/components/Markdown";
+import { Toast } from "@/components/Toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import type { RuntimeContractSnapshot } from "@/features/runtime/types";
 import { useRuntimeSnapshot } from "@/features/runtime/useRuntimeSnapshot";
+import { useToast } from "@/hooks/useToast";
 import { api } from "@/lib/api";
 import type { SessionInfo, SessionMessage, SessionSearchResult } from "@/lib/api";
 import { timeAgo } from "@/lib/utils";
@@ -83,6 +87,44 @@ function buildSessionPath(sessionId: string, workspaceSlug: string | null) {
 
 function buildRunPath(runId: string, workspaceSlug: string | null) {
   return workspaceSlug ? `/runs/${runId}?workspace=${workspaceSlug}` : `/runs/${runId}`;
+}
+
+function sortSessionsByLastActive(sessions: SessionInfo[]) {
+  return [...sessions].sort((left, right) => right.last_active - left.last_active);
+}
+
+function upsertSession(sessions: SessionInfo[], nextSession: SessionInfo) {
+  return sortSessionsByLastActive([nextSession, ...sessions.filter((session) => session.id !== nextSession.id)]);
+}
+
+function createOptimisticUserMessage(content: string): SessionMessage {
+  return {
+    role: "user",
+    content,
+    timestamp: Math.floor(Date.now() / 1000),
+  };
+}
+
+function getErrorMessage(error: unknown) {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function getConversationTitle(session: SessionInfo | null | undefined, fallback: string) {
+  if (!session) {
+    return fallback;
+  }
+
+  return session.title?.trim() || session.preview?.trim() || session.id || fallback;
+}
+
+function getConversationSubtitle(session: SessionInfo | null | undefined, fallback: string) {
+  if (!session) {
+    return fallback;
+  }
+
+  const source = session.source ?? fallback;
+  const model = session.model ?? fallback;
+  return `${source} · ${model}`;
 }
 
 function getRepositoryLabel(snapshot: RuntimeContractSnapshot, workspaceId: string | null | undefined, fallback: string) {
@@ -204,6 +246,18 @@ function MessageList({ messages, highlight }: { messages: SessionMessage[]; high
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container || highlight) return;
+
+    if (typeof container.scrollTo === "function") {
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      return;
+    }
+
+    container.scrollTop = container.scrollHeight;
+  }, [messages, highlight]);
+
+  useEffect(() => {
     if (!highlight || !containerRef.current) return;
 
     const timer = setTimeout(() => {
@@ -228,38 +282,17 @@ function MessageList({ messages, highlight }: { messages: SessionMessage[]; high
 function SessionRow({
   session,
   snippet,
-  searchQuery,
-  isExpanded,
   isSelected,
-  onToggle,
   onDelete,
   workspaceSlug,
 }: {
   session: SessionInfo;
   snippet?: string;
-  searchQuery?: string;
-  isExpanded: boolean;
   isSelected: boolean;
-  onToggle: () => void;
   onDelete: () => void;
   workspaceSlug: string | null;
 }) {
   const { t } = useTranslation();
-  const [messages, setMessages] = useState<SessionMessage[] | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (isExpanded && messages === null && !loading) {
-      setLoading(true);
-      api
-        .getSessionMessages(session.id)
-        .then((resp) => setMessages(resp.messages))
-        .catch((err) => setError(String(err)))
-        .finally(() => setLoading(false));
-    }
-  }, [isExpanded, session.id, messages, loading]);
-
   const sourceInfo = (session.source ? SOURCE_CONFIG[session.source] : null) ?? {
     icon: Globe,
     color: "text-muted-foreground",
@@ -268,9 +301,21 @@ function SessionRow({
   const hasTitle = session.title && session.title !== "Untitled";
 
   return (
-    <div className={`overflow-hidden border transition-colors ${session.is_active ? "border-success/30 bg-success/[0.03]" : "border-border"}`}>
-      <div className="flex items-center justify-between p-3 transition-colors hover:bg-secondary/30">
-        <button type="button" className="flex min-w-0 flex-1 cursor-pointer items-center gap-3 text-left" onClick={onToggle}>
+    <div
+      className={`overflow-hidden border transition-colors ${
+        isSelected
+          ? "border-primary/40 bg-primary/[0.04]"
+          : session.is_active
+            ? "border-success/30 bg-success/[0.03]"
+            : "border-border"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-2 p-3 transition-colors hover:bg-secondary/30">
+        <Link
+          to={buildSessionPath(session.id, workspaceSlug)}
+          className="flex min-w-0 flex-1 items-start gap-3 text-left"
+          aria-current={isSelected ? "page" : undefined}
+        >
           <div className={`shrink-0 ${sourceInfo.color}`}>
             <SourceIcon className="h-4 w-4" />
           </div>
@@ -283,6 +328,11 @@ function SessionRow({
                 <Badge variant="success" className="shrink-0 text-[10px]">
                   <span className="mr-1 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-current" />
                   {t("sessions.liveBadge")}
+                </Badge>
+              ) : null}
+              {isSelected ? (
+                <Badge variant="outline" className="shrink-0 text-[10px]">
+                  {t("sessions.selectedSessionLabel")}
                 </Badge>
               ) : null}
             </div>
@@ -301,20 +351,12 @@ function SessionRow({
             </div>
             {snippet ? <SnippetHighlight snippet={snippet} /> : null}
           </div>
-        </button>
+        </Link>
 
         <div className="flex shrink-0 items-center gap-2">
           <Badge variant="outline" className="text-[10px]">
             {session.source ?? t("sessions.localSource")}
           </Badge>
-          <Link
-            to={buildSessionPath(session.id, workspaceSlug)}
-            className={`inline-flex items-center rounded border px-2 py-1 text-[10px] uppercase tracking-[0.16em] transition-colors ${
-              isSelected ? "border-foreground/50 text-foreground" : "border-border text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {isSelected ? t("sessions.selectedSessionLabel") : t("sessions.openSessionReview")}
-          </Link>
           <Button
             variant="ghost"
             size="icon"
@@ -329,19 +371,6 @@ function SessionRow({
           </Button>
         </div>
       </div>
-
-      {isExpanded ? (
-        <div className="border-t border-border bg-background/50 p-4">
-          {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            </div>
-          ) : null}
-          {error ? <p className="py-4 text-center text-sm text-destructive">{error}</p> : null}
-          {messages && messages.length === 0 ? <p className="py-4 text-center text-sm text-muted-foreground">{t("sessions.noMessages")}</p> : null}
-          {messages && messages.length > 0 ? <MessageList messages={messages} highlight={searchQuery} /> : null}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -352,6 +381,8 @@ export interface SessionsPageProps {
 
 export default function SessionsPage({ initialSessions }: SessionsPageProps = {}) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { toast, showToast } = useToast();
   const { sessionId } = useParams();
   const [searchParams] = useSearchParams();
   const workspaceSlug = searchParams.get("workspace");
@@ -361,19 +392,27 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const runtimeSource = runtimeQuery.data?.source ?? null;
   const hydrationError = runtimeQuery.data?.error ?? null;
 
-  const [sessions, setSessions] = useState<SessionInfo[]>(() => initialSessions ?? []);
+  const [sessions, setSessions] = useState<SessionInfo[]>(() => sortSessionsByLastActive(initialSessions ?? []));
   const [loading, setLoading] = useState(() => initialSessions === undefined);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<SessionSearchResult[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState<SessionMessage[] | null>(null);
+  const [selectedMessagesLoading, setSelectedMessagesLoading] = useState(false);
+  const [conversationError, setConversationError] = useState<string | null>(null);
+  const [composerValue, setComposerValue] = useState("");
+  const [sendPending, setSendPending] = useState(false);
+  const [optimisticWorkspaceSessionIdsBySlug, setOptimisticWorkspaceSessionIdsBySlug] = useState<Record<string, string[]>>({});
+  const pendingHydrationSessionIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const loadSessions = useCallback(() => {
+    setLoadError(null);
     api
       .getSessions()
-      .then(setSessions)
-      .catch(() => {})
+      .then((nextSessions) => setSessions(sortSessionsByLastActive(nextSessions)))
+      .catch((error) => setLoadError(getErrorMessage(error)))
       .finally(() => setLoading(false));
   }, []);
 
@@ -406,16 +445,6 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     };
   }, [search]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      await api.deleteSession(id);
-      setSessions((prev) => prev.filter((session) => session.id !== id));
-      if (expandedId === id) setExpandedId(null);
-    } catch {
-      // ignore delete failure for now
-    }
-  };
-
   const snippetMap = new Map<string, string>();
   if (searchResults) {
     for (const result of searchResults) {
@@ -425,11 +454,202 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
 
   const filtered = searchResults ? sessions.filter((session) => snippetMap.has(session.id)) : sessions;
   const workspaceFilter = deriveSessionsWorkspaceFilter(snapshot, workspaceSlug);
+  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
   const visibleSessionIds = new Set(workspaceFilter.filteredSessions.map((session) => session.id));
+  if (activeWorkspaceSlug) {
+    for (const optimisticSessionId of optimisticWorkspaceSessionIdsBySlug[activeWorkspaceSlug] ?? []) {
+      visibleSessionIds.add(optimisticSessionId);
+    }
+  }
   const visibleSessions = filtered.filter((session) => visibleSessionIds.has(session.id));
   const review = deriveSessionReview(sessions, snapshot, sessionId, visibleSessionIds);
-  const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
   const scopedRepositoryLabel = getRepositoryLabel(snapshot, workspaceFilter.selectedWorkspace?.id, t("sessions.noRepositoryLinked"));
+  const selectedSession = review.selectedSession ?? null;
+  const workspacePathMatchesScope = (workspacePath: string | null | undefined) => {
+    if (!activeWorkspaceSlug || typeof workspacePath !== "string" || workspacePath.length === 0) {
+      return false;
+    }
+
+    const tail = workspacePath.split("/").filter(Boolean).at(-1) ?? null;
+    const repositoryName = workspaceFilter.selectedWorkspace?.repository?.name ?? null;
+    return tail === activeWorkspaceSlug || (repositoryName !== null && tail === repositoryName);
+  };
+  const scopedChatWorkspacePath =
+    selectedSession?.workspace ??
+    visibleSessions.find((session) => typeof session.workspace === "string" && session.workspace.length > 0)?.workspace ??
+    sessions.find((session) => workspacePathMatchesScope(session.workspace))?.workspace ??
+    null;
+
+  useEffect(() => {
+    if (!selectedSession) {
+      setSelectedMessages([]);
+      setSelectedMessagesLoading(false);
+      setConversationError(null);
+      return;
+    }
+
+    if (pendingHydrationSessionIdRef.current === selectedSession.id) {
+      setSelectedMessagesLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setSelectedMessagesLoading(true);
+    setConversationError(null);
+
+    api
+      .getSessionMessages(selectedSession.id)
+      .then((response) => {
+        if (!cancelled) {
+          setSelectedMessages(response.messages);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setSelectedMessages(null);
+          setConversationError(getErrorMessage(error));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setSelectedMessagesLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSession]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await api.deleteSession(id);
+      setSessions((prev) => prev.filter((session) => session.id !== id));
+      if (selectedSession?.id === id) {
+        setSelectedMessages([]);
+      }
+    } catch (error) {
+      showToast(t("sessions.deleteSessionFailedToast", { message: getErrorMessage(error) }), "error");
+    }
+  };
+
+  const createSession = useCallback(
+    async ({
+      navigateToSession = true,
+      deferHydration = false,
+      workspaceSlug: nextWorkspaceSlug = null,
+      workspacePath = null,
+    }: {
+      navigateToSession?: boolean;
+      deferHydration?: boolean;
+      workspaceSlug?: string | null;
+      workspacePath?: string | null;
+    } = {}) => {
+      const response = await api.createSession({
+        model: selectedSession?.model ?? undefined,
+        workspace: workspacePath ?? undefined,
+      });
+      if (deferHydration) {
+        pendingHydrationSessionIdRef.current = response.session.id;
+      }
+      if (nextWorkspaceSlug) {
+        setOptimisticWorkspaceSessionIdsBySlug((prev) => {
+          const nextIds = prev[nextWorkspaceSlug] ?? [];
+          if (nextIds.includes(response.session.id)) {
+            return prev;
+          }
+
+          return {
+            ...prev,
+            [nextWorkspaceSlug]: [...nextIds, response.session.id],
+          };
+        });
+      }
+      setSessions((prev) => upsertSession(prev, response.session));
+      setSelectedMessages(response.messages);
+      setLoadError(null);
+      setConversationError(null);
+      if (navigateToSession) {
+        navigate(buildSessionPath(response.session.id, nextWorkspaceSlug));
+      }
+      return response.session;
+    },
+    [navigate, selectedSession?.model],
+  );
+
+  const handleNewChat = async () => {
+    try {
+      await createSession({
+        navigateToSession: true,
+        workspaceSlug: activeWorkspaceSlug,
+        workspacePath: scopedChatWorkspacePath,
+      });
+      setComposerValue("");
+    } catch (error) {
+      const message = getErrorMessage(error);
+      setConversationError(message);
+      showToast(t("sessions.createSessionFailedToast", { message }), "error");
+    }
+  };
+
+  const handleSendMessage = async () => {
+    const message = composerValue.trim();
+    if (!message || sendPending) {
+      return;
+    }
+
+    setSendPending(true);
+    let activeSession = selectedSession;
+    let previousMessages = selectedMessages ?? [];
+    const nextWorkspaceSlug = activeWorkspaceSlug;
+    const nextWorkspacePath = selectedSession?.workspace ?? scopedChatWorkspacePath;
+
+    try {
+      if (!activeSession) {
+        activeSession = await createSession({
+          navigateToSession: false,
+          deferHydration: true,
+          workspaceSlug: nextWorkspaceSlug,
+          workspacePath: nextWorkspacePath,
+        });
+        previousMessages = [];
+      }
+
+      setConversationError(null);
+      setSelectedMessages([...previousMessages, createOptimisticUserMessage(message)]);
+
+      const response = await api.sendChatMessage({
+        sessionId: activeSession.id,
+        message,
+        model: activeSession.model ?? undefined,
+        workspace: activeSession.workspace ?? nextWorkspacePath ?? undefined,
+      });
+
+      pendingHydrationSessionIdRef.current = null;
+      setSessions((prev) => upsertSession(prev, response.session));
+      setSelectedMessages(response.messages);
+      setComposerValue("");
+      setLoadError(null);
+      navigate(buildSessionPath(response.session.id, nextWorkspaceSlug));
+    } catch (error) {
+      pendingHydrationSessionIdRef.current = null;
+      const message = getErrorMessage(error);
+      setSelectedMessages(previousMessages);
+      setConversationError(message);
+      showToast(t("sessions.sendFailedToast", { message }), "error");
+    } finally {
+      setSendPending(false);
+    }
+  };
+
+  const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.key !== "Enter" || !(event.metaKey || event.ctrlKey)) {
+      return;
+    }
+
+    event.preventDefault();
+    void handleSendMessage();
+  };
 
   if (loading) {
     return (
@@ -477,6 +697,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
 
   return (
     <div className="space-y-6">
+      <Toast toast={toast} />
       <PageHeader
         eyebrow={t("sessions.eyebrow")}
         title={t("sessions.title")}
@@ -562,6 +783,13 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
               </div>
             ) : null}
 
+            {loadError ? (
+              <div className="border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
+                <div className="font-medium text-foreground">{t("sessions.backendUnavailableTitle")}</div>
+                <div className="mt-1 leading-6">{t("sessions.backendUnavailableBody", { message: loadError })}</div>
+              </div>
+            ) : null}
+
             {visibleSessions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                 <Clock className="mb-3 h-8 w-8 opacity-40" />
@@ -587,10 +815,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
                     key={session.id}
                     session={session}
                     snippet={snippetMap.get(session.id)}
-                    searchQuery={search || undefined}
-                    isExpanded={expandedId === session.id}
                     isSelected={review.selectedSession?.id === session.id}
-                    onToggle={() => setExpandedId((prev) => (prev === session.id ? null : session.id))}
                     onDelete={() => void handleDelete(session.id)}
                     workspaceSlug={activeWorkspaceSlug}
                   />
@@ -602,42 +827,85 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
 
         <div className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle>{t("sessions.selectedTitle")}</CardTitle>
+            <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div className="space-y-1">
+                <CardTitle>{t("sessions.chatTitle")}</CardTitle>
+                <CardDescription>{t("sessions.chatDescription")}</CardDescription>
+              </div>
+              <Button type="button" variant="outline" className="gap-2" onClick={() => void handleNewChat()} disabled={sendPending}>
+                <Plus className="h-4 w-4" />
+                {t("sessions.newChat")}
+              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              {review.selectedSession ? (
-                <>
-                  <div className="space-y-2 border border-border bg-background/60 p-4 text-sm">
-                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.selectedSessionLabel")}</div>
-                    <div className="text-xl font-medium text-foreground">
-                      {review.selectedSession.title?.trim() || review.selectedSession.preview?.trim() || review.selectedSession.id || t("sessions.untitledSession")}
-                    </div>
-                    <div className="leading-6 text-muted-foreground">{review.selectedSession.preview ?? t("sessions.noPreview")}</div>
+              <div className="space-y-2 border border-border bg-background/60 p-4 text-sm">
+                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.selectedSessionLabel")}</div>
+                <div className="text-xl font-medium text-foreground">{getConversationTitle(selectedSession, t("sessions.emptyConversationTitle"))}</div>
+                <div className="leading-6 text-muted-foreground">
+                  {selectedSession?.preview ?? t("sessions.chatEmptyBody")}
+                </div>
+                {selectedSession ? (
+                  <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    <Badge variant="outline">{getConversationSubtitle(selectedSession, t("sessions.unknownModel"))}</Badge>
+                    <span>{t("sessions.metadata.started")}: {formatTimestamp(selectedSession.started_at)}</span>
+                    <span>{t("sessions.metadata.lastActive")}: {formatTimestamp(selectedSession.last_active)}</span>
                   </div>
+                ) : null}
+              </div>
 
-                  <div className="grid gap-3 text-sm sm:grid-cols-2">
-                    <div className="border border-border bg-background/60 p-4">
-                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.source")}</div>
-                      <div className="mt-1 font-medium text-foreground">{review.selectedSession.source ?? t("sessions.localSource")}</div>
-                    </div>
-                    <div className="border border-border bg-background/60 p-4">
-                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.model")}</div>
-                      <div className="mt-1 font-medium text-foreground">{review.selectedSession.model ?? t("sessions.unknownModel")}</div>
-                    </div>
-                    <div className="border border-border bg-background/60 p-4">
-                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.started")}</div>
-                      <div className="mt-1 font-medium text-foreground">{formatTimestamp(review.selectedSession.started_at)}</div>
-                    </div>
-                    <div className="border border-border bg-background/60 p-4">
-                      <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.metadata.lastActive")}</div>
-                      <div className="mt-1 font-medium text-foreground">{formatTimestamp(review.selectedSession.last_active)}</div>
-                    </div>
+              {conversationError ? (
+                <div className="border border-warning/40 bg-warning/10 p-4 text-sm text-warning">
+                  <div className="font-medium text-foreground">{t("sessions.chatErrorTitle")}</div>
+                  <div className="mt-1 leading-6">{t("sessions.chatErrorBody", { message: conversationError })}</div>
+                </div>
+              ) : null}
+
+              <div className="border border-border bg-background/40 p-4">
+                {selectedMessagesLoading ? (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                   </div>
-                </>
-              ) : (
-                <div className="text-sm leading-6 text-muted-foreground">{t("sessions.emptyStateBody")}</div>
-              )}
+                ) : selectedMessages && selectedMessages.length > 0 ? (
+                  <MessageList messages={selectedMessages} />
+                ) : (
+                  <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 text-center text-muted-foreground">
+                    <MessageSquare className="h-8 w-8 opacity-40" />
+                    <div className="text-sm font-medium text-foreground">{t("sessions.chatEmptyTitle")}</div>
+                    <div className="max-w-md text-sm leading-6">{t("sessions.chatEmptyBody")}</div>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3 border border-border bg-background/60 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.composerLabel")}</div>
+                    <div className="mt-1 text-sm text-muted-foreground">{t("sessions.composerHint")}</div>
+                  </div>
+                  {sendPending ? <Badge variant="outline">{t("sessions.sending")}</Badge> : null}
+                </div>
+                <textarea
+                  value={composerValue}
+                  onChange={(event) => setComposerValue(event.target.value)}
+                  onKeyDown={handleComposerKeyDown}
+                  placeholder={t("sessions.composerPlaceholder")}
+                  className="flex min-h-[110px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm leading-relaxed shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-xs text-muted-foreground">
+                    {loadError ? t("sessions.backendUnavailableShort") : t("sessions.chatLoopHint")}
+                  </div>
+                  <Button
+                    type="button"
+                    className="gap-2"
+                    onClick={() => void handleSendMessage()}
+                    disabled={sendPending || composerValue.trim().length === 0}
+                  >
+                    <SendHorizontal className="h-4 w-4" />
+                    {sendPending ? t("sessions.sending") : t("sessions.send")}
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
 

@@ -20,11 +20,194 @@ async function getSessionToken(): Promise<string> {
   return _sessionToken;
 }
 
+function normalizeMessageContent(content: unknown): string | null {
+  if (typeof content === "string") {
+    return content;
+  }
+
+  if (Array.isArray(content)) {
+    const textParts = content
+      .flatMap((part) => {
+        if (typeof part === "string") {
+          return [part];
+        }
+
+        if (part && typeof part === "object" && "text" in part && typeof part.text === "string") {
+          return [part.text];
+        }
+
+        return [];
+      })
+      .join("\n")
+      .trim();
+
+    return textParts || null;
+  }
+
+  return null;
+}
+
+function normalizeSessionMessages(messages: unknown): SessionMessage[] {
+  if (!Array.isArray(messages)) {
+    return [];
+  }
+
+  return messages.flatMap((message) => {
+    if (!message || typeof message !== "object") {
+      return [];
+    }
+
+    const role = typeof message.role === "string" ? message.role : "system";
+    const normalizedRole = role === "user" || role === "assistant" || role === "system" || role === "tool" ? role : "system";
+    const timestamp = typeof message.timestamp === "number" ? message.timestamp : undefined;
+    const toolCalls = Array.isArray(message.tool_calls) ? (message.tool_calls as SessionMessage["tool_calls"]) : undefined;
+
+    return [{
+      role: normalizedRole,
+      content: normalizeMessageContent("content" in message ? message.content : null),
+      timestamp,
+      tool_calls: toolCalls,
+      tool_name: typeof message.tool_name === "string" ? message.tool_name : undefined,
+      tool_call_id: typeof message.tool_call_id === "string" ? message.tool_call_id : undefined,
+    }];
+  });
+}
+
+function buildPreview(messages: SessionMessage[]) {
+  const previewSource = [...messages]
+    .reverse()
+    .find((message) => message.role !== "system" && typeof message.content === "string" && message.content.trim().length > 0);
+  return previewSource?.content ?? null;
+}
+
+function countToolCalls(messages: SessionMessage[], toolCalls: ChatSessionPayload["tool_calls"]) {
+  const messageToolCalls = messages.reduce((count, message) => count + (message.tool_calls?.length ?? 0), 0);
+  return Math.max(toolCalls?.length ?? 0, messageToolCalls);
+}
+
+function extractSessionPayload<T extends { session?: ChatSessionPayload }>(response: T | ChatSessionPayload): ChatSessionPayload {
+  if (response && typeof response === "object" && "session" in response && response.session) {
+    return response.session;
+  }
+
+  return response as ChatSessionPayload;
+}
+
+function extractSessionMessages(
+  session: ChatSessionPayload,
+  ...messageCandidates: unknown[]
+): SessionMessage[] {
+  for (const candidate of [session.messages, ...messageCandidates]) {
+    const messages = normalizeSessionMessages(candidate);
+    if (messages.length > 0) {
+      return messages;
+    }
+  }
+
+  return [];
+}
+
+export interface ChatSessionPayload {
+  session_id: string;
+  title?: string | null;
+  workspace?: string | null;
+  model?: string | null;
+  message_count?: number;
+  created_at?: number;
+  updated_at?: number;
+  source?: string | null;
+  input_tokens?: number;
+  output_tokens?: number;
+  tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }>;
+  messages?: unknown;
+}
+
+export function normalizeSessionInfo(payload: ChatSessionPayload): SessionInfo {
+  const messages = normalizeSessionMessages(payload.messages);
+  const startedAt = payload.created_at ?? payload.updated_at ?? Math.floor(Date.now() / 1000);
+  const lastActive = payload.updated_at ?? startedAt;
+
+  return {
+    id: payload.session_id,
+    source: payload.source ?? "webui",
+    workspace: payload.workspace ?? null,
+    model: payload.model ?? null,
+    title: payload.title ?? null,
+    started_at: startedAt,
+    ended_at: null,
+    last_active: lastActive,
+    is_active: false,
+    message_count: payload.message_count ?? messages.length,
+    tool_call_count: countToolCalls(messages, payload.tool_calls),
+    input_tokens: payload.input_tokens ?? 0,
+    output_tokens: payload.output_tokens ?? 0,
+    preview: buildPreview(messages),
+  };
+}
+
 export const api = {
   getStatus: () => fetchJSON<StatusResponse>("/api/status"),
   getSessions: () => fetchJSON<SessionInfo[]>("/api/sessions"),
   getSessionMessages: (id: string) =>
     fetchJSON<SessionMessagesResponse>(`/api/sessions/${encodeURIComponent(id)}/messages`),
+  createSession: async (options: { model?: string; workspace?: string } = {}) => {
+    const response = await fetchJSON<{ session?: ChatSessionPayload } | ChatSessionPayload>("/api/session/new", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(options),
+    });
+    const session = extractSessionPayload(response);
+    const messages = extractSessionMessages(session, response && typeof response === "object" && "messages" in response ? response.messages : null);
+
+    return {
+      session: normalizeSessionInfo({ ...session, messages }),
+      messages,
+    };
+  },
+  sendChatMessage: async (payload: { sessionId: string; message: string; model?: string; workspace?: string }) => {
+    const response = await fetchJSON<{
+      answer?: string;
+      status?: string;
+      session?: ChatSessionPayload;
+      messages?: unknown;
+      result?: Record<string, unknown>;
+      session_id?: string;
+      title?: string | null;
+      workspace?: string | null;
+      model?: string | null;
+      message_count?: number;
+      created_at?: number;
+      updated_at?: number;
+      source?: string | null;
+      input_tokens?: number;
+      output_tokens?: number;
+      tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }>;
+    }>("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        session_id: payload.sessionId,
+        message: payload.message,
+        model: payload.model,
+        workspace: payload.workspace,
+      }),
+    });
+    const session = extractSessionPayload(response);
+    const messages = extractSessionMessages(
+      session,
+      response.messages,
+      response.result && typeof response.result === "object" ? response.result.messages : null,
+    );
+    const lastAssistantMessage = [...messages].reverse().find((message) => message.role === "assistant" && typeof message.content === "string");
+
+    return {
+      answer: response.answer ?? lastAssistantMessage?.content ?? "",
+      status: response.status ?? "done",
+      session: normalizeSessionInfo({ ...session, messages }),
+      messages,
+      result: response.result ?? null,
+    };
+  },
   deleteSession: (id: string) =>
     fetchJSON<{ ok: boolean }>(`/api/sessions/${encodeURIComponent(id)}`, {
       method: "DELETE",
@@ -139,6 +322,7 @@ export interface StatusResponse {
 export interface SessionInfo {
   id: string;
   source: string | null;
+  workspace?: string | null;
   model: string | null;
   title: string | null;
   started_at: number;
