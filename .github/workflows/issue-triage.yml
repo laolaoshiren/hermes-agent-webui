@@ -1,0 +1,53 @@
+name: issue-triage
+
+on:
+  issues:
+    types: [opened, edited, reopened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = (issue.title || '').toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+            const labels = new Set();
+
+            labels.add('needs-triage');
+
+            if (title.includes('bug') || body.includes('bug') || body.includes('expected') || body.includes('actual')) labels.add('type:bug');
+            if (title.includes('feature') || body.includes('feature request') || body.includes('proposal')) labels.add('type:feature');
+            if (title.includes('docs') || body.includes('readme') || body.includes('documentation')) labels.add('area:docs');
+            if (body.includes('docker') || body.includes('ghcr') || body.includes('deploy')) labels.add('area:ops');
+            if (body.includes('chat') || body.includes('session') || body.includes('ui')) labels.add('area:product');
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [...labels],
+            });
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: [
+                'Thanks for opening this issue.',
+                '',
+                'An automated intake pass has labeled it for triage so we can respond faster.',
+                '',
+                'Fast-path info that helps us fix things quickly:',
+                '- what you tried to do',
+                '- what you expected',
+                '- what happened instead',
+                '- screenshots or logs if the problem is visual or deployment-related',
+              ].join('\n')
+            });
