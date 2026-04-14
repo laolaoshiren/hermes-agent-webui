@@ -454,6 +454,66 @@
       "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
     }
   },
+  "cron": {
+    "eyebrow": "Automation lanes",
+    "title": "Cron jobs",
+    "description": "Schedule autonomous follow-up, reporting, and workflow tasks without leaving the Hermes product shell.",
+    "badge": "automation preview",
+    "newJobTitle": "New cron job",
+    "scheduledJobsCount_one": "{{count}} scheduled job",
+    "scheduledJobsCount_other": "{{count}} scheduled jobs",
+    "emptyState": "No cron jobs configured yet. Create one above.",
+    "fields": {
+      "nameLabel": "Name (optional)",
+      "namePlaceholder": "e.g. Daily summary",
+      "promptLabel": "Prompt",
+      "promptPlaceholder": "What should the agent do on each run?",
+      "scheduleLabel": "Schedule (cron expression)",
+      "schedulePlaceholder": "0 9 * * *",
+      "deliverLabel": "Deliver to"
+    },
+    "deliverTargets": {
+      "local": "Local",
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "slack": "Slack",
+      "email": "Email"
+    },
+    "actions": {
+      "create": "Create",
+      "creating": "Creating...",
+      "pause": "Pause",
+      "pauseJob": "Pause job",
+      "resume": "Resume",
+      "resumeJob": "Resume job",
+      "triggerNow": "Trigger now",
+      "triggerJobNow": "Trigger job now",
+      "delete": "Delete",
+      "deleteJob": "Delete job"
+    },
+    "timestamps": {
+      "last": "Last",
+      "next": "Next"
+    },
+    "statuses": {
+      "enabled": "Enabled",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "toasts": {
+      "loadFailed": "Failed to load cron jobs",
+      "promptScheduleRequired": "Prompt and schedule are required",
+      "created": "Cron job created",
+      "createFailed": "Failed to create job: {{error}}",
+      "paused": "Paused \"{{job}}\"",
+      "resumed": "Resumed \"{{job}}\"",
+      "triggered": "Triggered \"{{job}}\"",
+      "deleted": "Deleted \"{{job}}\"",
+      "actionFailed": "Action failed: {{error}}",
+      "triggerFailed": "Trigger failed: {{error}}",
+      "deleteFailed": "Delete failed: {{error}}"
+    }
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "Web platform for Hermes Agent",
