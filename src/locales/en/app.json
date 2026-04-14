@@ -514,6 +514,62 @@
       "deleteFailed": "Delete failed: {{error}}"
     }
   },
+  "skills": {
+    "eyebrow": "Capability registry",
+    "title": "Skills",
+    "description": "Inspect reusable skills, category coverage, and toolset availability. {{enabled}} of {{total}} skills are currently enabled.",
+    "badge": "skill inventory",
+    "loadingLabel": "Loading skills",
+    "searchPlaceholder": "Search skills and toolsets...",
+    "enabledSummary": "{{enabled}}/{{total}} enabled",
+    "categorySkillCount_one": "{{count}} skill",
+    "categorySkillCount_other": "{{count}} skills",
+    "moreCount": ", +{{count}} more",
+    "noDescription": "No description available.",
+    "filters": {
+      "all": "All ({{count}})"
+    },
+    "emptyState": {
+      "noneLoaded": "No skills found. Skills are loaded from ~/.hermes/skills/.",
+      "noMatches": "No skills match your search or filter."
+    },
+    "toggle": {
+      "enabled": "enabled",
+      "disabled": "disabled"
+    },
+    "toolsetsTitle": "Toolsets ({{count}})",
+    "toolsetsEmptyState": "No toolsets match the search.",
+    "toolset": {
+      "active": "active",
+      "inactive": "inactive",
+      "setupNeeded": "Setup needed",
+      "toolsetLabel": "{{name}} toolset",
+      "disabledCli": "Disabled for CLI"
+    },
+    "toasts": {
+      "loadFailed": "Failed to load skills/toolsets",
+      "toggleSuccess": "{{name}} {{state}}",
+      "toggleFailed": "Failed to toggle {{name}}"
+    },
+    "categories": {
+      "general": "General",
+      "mlops": "MLOps",
+      "mlopsCloud": "MLOps / Cloud",
+      "mlopsEvaluation": "MLOps / Evaluation",
+      "mlopsInference": "MLOps / Inference",
+      "mlopsModels": "MLOps / Models",
+      "mlopsTraining": "MLOps / Training",
+      "mlopsVectorDatabases": "MLOps / Vector DBs",
+      "mcp": "MCP",
+      "redTeaming": "Red Teaming",
+      "ocr": "OCR",
+      "p5js": "p5.js",
+      "ai": "AI",
+      "ux": "UX",
+      "ui": "UI",
+      "noteTaking": "Note Taking"
+    }
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "Web platform for Hermes Agent",

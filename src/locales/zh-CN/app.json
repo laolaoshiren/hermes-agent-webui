@@ -514,6 +514,62 @@
       "deleteFailed": "删除失败：{{error}}"
     }
   },
+  "skills": {
+    "eyebrow": "能力注册表",
+    "title": "技能",
+    "description": "查看可复用技能、分类覆盖范围与工具集可用性。当前已启用 {{enabled}} / {{total}} 个技能。",
+    "badge": "技能清单",
+    "loadingLabel": "正在加载技能",
+    "searchPlaceholder": "搜索技能与工具集...",
+    "enabledSummary": "已启用 {{enabled}}/{{total}}",
+    "categorySkillCount_one": "{{count}} 个技能",
+    "categorySkillCount_other": "{{count}} 个技能",
+    "moreCount": "，以及另外 {{count}} 个",
+    "noDescription": "暂无描述。",
+    "filters": {
+      "all": "全部（{{count}}）"
+    },
+    "emptyState": {
+      "noneLoaded": "未找到技能。技能会从 ~/.hermes/skills/ 加载。",
+      "noMatches": "没有技能匹配当前搜索或筛选条件。"
+    },
+    "toggle": {
+      "enabled": "已启用",
+      "disabled": "已禁用"
+    },
+    "toolsetsTitle": "工具集（{{count}}）",
+    "toolsetsEmptyState": "没有工具集匹配当前搜索。",
+    "toolset": {
+      "active": "活跃",
+      "inactive": "未激活",
+      "setupNeeded": "需要配置",
+      "toolsetLabel": "{{name}} 工具集",
+      "disabledCli": "CLI 中不可用"
+    },
+    "toasts": {
+      "loadFailed": "加载技能/工具集失败",
+      "toggleSuccess": "{{name}}{{state}}",
+      "toggleFailed": "切换 {{name}} 失败"
+    },
+    "categories": {
+      "general": "通用",
+      "mlops": "MLOps",
+      "mlopsCloud": "MLOps / 云",
+      "mlopsEvaluation": "MLOps / 评测",
+      "mlopsInference": "MLOps / 推理",
+      "mlopsModels": "MLOps / 模型",
+      "mlopsTraining": "MLOps / 训练",
+      "mlopsVectorDatabases": "MLOps / 向量数据库",
+      "mcp": "MCP",
+      "redTeaming": "红队",
+      "ocr": "OCR",
+      "p5js": "p5.js",
+      "ai": "AI",
+      "ux": "UX",
+      "ui": "UI",
+      "noteTaking": "笔记"
+    }
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "面向 Hermes Agent 的 Web 平台",
