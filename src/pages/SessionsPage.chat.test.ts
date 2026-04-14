@@ -13,6 +13,7 @@ import { runtimeContractSnapshot } from "@/features/runtime/mockData";
 import { api, type SessionInfo, type SessionMessage } from "@/lib/api";
 
 const selectedRuntimeSession = runtimeContractSnapshot.sessions[0]!;
+const SESSIONS_ONBOARDING_DISMISSED_KEY = "hermes-control-center.sessions-onboarding-dismissed";
 const sessions: SessionInfo[] = [
   {
     id: selectedRuntimeSession.id,
@@ -151,7 +152,39 @@ describe("SessionsPage chat MVP surface", () => {
       isPending: false,
     };
 
+    window.localStorage.clear();
     vi.restoreAllMocks();
+  });
+
+  it("shows a first-run primer on the base sessions route and lets the operator dismiss it", async () => {
+    const { container, cleanup } = await renderSessionsRoute("/sessions");
+
+    expect(container.textContent).toContain("First-run guide");
+    expect(container.textContent).toContain("Start with a chat.");
+
+    const dismissButton = findButtonByText(container, "Hide intro");
+    expect(dismissButton).not.toBeNull();
+
+    await act(async () => {
+      dismissButton!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      await Promise.resolve();
+    });
+
+    expect(window.localStorage.getItem(SESSIONS_ONBOARDING_DISMISSED_KEY)).toBe("1");
+    expect(container.textContent).not.toContain("First-run guide");
+
+    await cleanup();
+  });
+
+  it("keeps the first-run primer hidden once dismissal has been persisted", async () => {
+    window.localStorage.setItem(SESSIONS_ONBOARDING_DISMISSED_KEY, "1");
+
+    const { container, cleanup } = await renderSessionsRoute("/sessions");
+
+    expect(container.textContent).not.toContain("First-run guide");
+    expect(container.textContent).not.toContain("Start with a chat.");
+
+    await cleanup();
   });
 
   it("renders the composer-oriented conversation surface on the selected session route", async () => {

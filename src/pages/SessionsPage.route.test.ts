@@ -150,6 +150,14 @@ describe("SessionsPage route review surface", () => {
     expect(markup).toContain("Return to workspace review");
   });
 
+  it("surfaces a first-run primer on the base sessions route", () => {
+    const { markup } = renderSessionsRoute("/sessions");
+
+    expect(markup).toContain("First-run guide");
+    expect(markup).toContain("Start with a chat. The rest of the runtime model will make sense after that.");
+    expect(markup).toContain("Hide intro");
+  });
+
   it("keeps the sessions shell visible while runtime hydration is still pending", () => {
     runtimeQueryState = {
       data: {

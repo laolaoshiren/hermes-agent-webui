@@ -2,6 +2,22 @@
 
 This log is intentionally public-facing and continuously append-only so both the repository owner and future contributors can track what happened, why it happened, and what is currently in motion.
 
+## 2026-04-14 09:38 +08:00
+
+- Continued issue #40 on branch `feat/issue-40-first-run-onboarding` with a first-run Sessions onboarding slice aimed at making the product feel chat-first instead of ops-first.
+- Added a dismissible primer card above the `/sessions` queue that:
+  - explains the difference between sessions, runs, and approvals in one sentence each
+  - gives first-time operators a clear primary CTA via `New chat`
+  - persists dismissal in local storage so returning users are not re-blocked by onboarding chrome
+- Added focused coverage for:
+  - base-route render of the first-run primer
+  - dismissal persistence across reloads
+- Validation status:
+  - `npm run test -- --run`
+  - `npm run lint`
+  - `npm run typecheck`
+  - `npm run build`
+
 ## 2026-04-14 08:39 +08:00
 
 - Continued development from contributor fork branch `feat/cron-i18n-cleanup` against `develop`.
