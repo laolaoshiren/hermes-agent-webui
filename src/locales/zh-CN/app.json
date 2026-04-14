@@ -454,186 +454,60 @@
       "automationLanesDetail": "通过 cron、汇报、发布等方式持续推进项目的自动员工。"
     }
   },
-  "cron": {
-    "eyebrow": "自动化通道",
-    "title": "定时任务",
-    "description": "在 Hermes 产品壳层内直接编排自主跟进、汇报和工作流任务。",
-    "badge": "自动化预览",
-    "newJobTitle": "新建定时任务",
-    "scheduledJobsCount_one": "{{count}} 个定时任务",
-    "scheduledJobsCount_other": "{{count}} 个定时任务",
-    "emptyState": "暂时还没有配置定时任务。请先在上方创建。",
-    "fields": {
-      "nameLabel": "名称（可选）",
-      "namePlaceholder": "例如：每日摘要",
-      "promptLabel": "提示词",
-      "promptPlaceholder": "希望 Hermes 在每次运行时执行什么？",
-      "scheduleLabel": "调度计划（cron 表达式）",
-      "schedulePlaceholder": "0 9 * * *",
-      "deliverLabel": "投递到"
-    },
-    "deliverTargets": {
-      "local": "本地",
-      "telegram": "Telegram",
-      "discord": "Discord",
-      "slack": "Slack",
-      "email": "邮箱"
-    },
-    "actions": {
-      "create": "创建",
-      "creating": "创建中...",
-      "pause": "暂停",
-      "pauseJob": "暂停任务",
-      "resume": "恢复",
-      "resumeJob": "恢复任务",
-      "triggerNow": "立即触发",
-      "triggerJobNow": "立即触发任务",
-      "delete": "删除",
-      "deleteJob": "删除任务"
-    },
-    "timestamps": {
-      "last": "上次运行",
-      "next": "下次运行"
-    },
-    "statuses": {
-      "enabled": "已启用",
-      "paused": "已暂停",
-      "error": "错误"
-    },
-    "toasts": {
-      "loadFailed": "加载定时任务失败",
-      "promptScheduleRequired": "提示词和调度计划为必填项",
-      "created": "定时任务已创建",
-      "createFailed": "创建任务失败：{{error}}",
-      "paused": "已暂停“{{job}}”",
-      "resumed": "已恢复“{{job}}”",
-      "triggered": "已触发“{{job}}”",
-      "deleted": "已删除“{{job}}”",
-      "actionFailed": "操作失败：{{error}}",
-      "triggerFailed": "触发失败：{{error}}",
-      "deleteFailed": "删除失败：{{error}}"
-    }
-  },
-  "skills": {
-    "eyebrow": "能力注册表",
-    "title": "技能",
-    "description": "查看可复用技能、分类覆盖范围与工具集可用性。当前已启用 {{enabled}} / {{total}} 个技能。",
-    "badge": "技能清单",
-    "loadingLabel": "正在加载技能",
-    "searchPlaceholder": "搜索技能与工具集...",
-    "enabledSummary": "已启用 {{enabled}}/{{total}}",
-    "categorySkillCount_one": "{{count}} 个技能",
-    "categorySkillCount_other": "{{count}} 个技能",
-    "moreCount": "，以及另外 {{count}} 个",
-    "noDescription": "暂无描述。",
-    "filters": {
-      "all": "全部（{{count}}）"
-    },
-    "emptyState": {
-      "noneLoaded": "未找到技能。技能会从 ~/.hermes/skills/ 加载。",
-      "noMatches": "没有技能匹配当前搜索或筛选条件。"
-    },
-    "toggle": {
-      "enabled": "已启用",
-      "disabled": "已禁用"
-    },
-    "toolsetsTitle": "工具集（{{count}}）",
-    "toolsetsEmptyState": "没有工具集匹配当前搜索。",
-    "toolset": {
-      "active": "活跃",
-      "inactive": "未激活",
-      "setupNeeded": "需要配置",
-      "toolsetLabel": "{{name}} 工具集",
-      "disabledCli": "CLI 中不可用"
-    },
-    "toasts": {
-      "loadFailed": "加载技能/工具集失败",
-      "toggleSuccess": "{{name}}{{state}}",
-      "toggleFailed": "切换 {{name}} 失败"
-    },
-    "categories": {
-      "general": "通用",
-      "mlops": "MLOps",
-      "mlopsCloud": "MLOps / 云",
-      "mlopsEvaluation": "MLOps / 评测",
-      "mlopsInference": "MLOps / 推理",
-      "mlopsModels": "MLOps / 模型",
-      "mlopsTraining": "MLOps / 训练",
-      "mlopsVectorDatabases": "MLOps / 向量数据库",
-      "mcp": "MCP",
-      "redTeaming": "红队",
-      "ocr": "OCR",
-      "p5js": "p5.js",
-      "ai": "AI",
-      "ux": "UX",
-      "ui": "UI",
-      "noteTaking": "笔记"
-    }
-  },
-  "config": {
-    "eyebrow": "配置界面",
-    "title": "配置",
-    "description": "以结构化表单或原始 YAML 的方式查看、搜索、导入、导出和编辑 Hermes 配置。",
-    "loadingLabel": "正在加载配置",
-    "searchPlaceholder": "搜索...",
-    "searchResultsTitle": "搜索结果",
-    "rawTitle": "原始 YAML 配置",
-    "fieldCount_one": "{{count}} 个字段",
-    "fieldCount_other": "{{count}} 个字段",
-    "noSearchResults": "没有字段匹配\"{{query}}\"",
-    "modes": {
-      "form": "表单",
-      "yaml": "YAML"
-    },
-    "actions": {
-      "save": "保存",
-      "saving": "保存中...",
-      "form": "表单",
-      "yaml": "YAML",
-      "exportTitle": "导出配置为 JSON",
-      "exportAria": "导出配置",
-      "importTitle": "从 JSON 导入配置",
-      "importAria": "导入配置",
-      "resetTitle": "重置为默认值",
-      "resetAria": "重置为默认值"
-    },
+  "status": {
+    "eyebrow": "运行时脉搏",
+    "title": "状态",
+    "description": "用一个中英双语概览页面集中查看 Hermes 运行时健康度、连接平台和实时会话活动。",
+    "badge": "实时运行时脉搏",
     "loadErrors": {
-      "current": "加载当前配置失败。",
-      "schema": "加载配置结构失败。",
-      "defaults": "加载默认配置失败。",
-      "initHint": "配置界面未能正常初始化。"
+      "status": "加载 Hermes 状态失败。",
+      "sessions": "加载会话摘要失败。",
+      "retryHint": "请检查 Hermes 后端是否可达，然后刷新此页面。"
     },
-    "toasts": {
-      "loadRawFailed": "加载原始配置失败",
-      "saved": "配置已保存",
-      "saveFailed": "保存失败：{{error}}",
-      "yamlSaved": "YAML 配置已保存",
-      "refreshStructuredFailed": "YAML 已保存，但刷新结构化配置视图失败",
-      "yamlSaveFailed": "保存 YAML 失败：{{error}}",
-      "imported": "配置已导入——请检查后保存",
-      "invalidJson": "无效的 JSON 文件"
+    "summary": {
+      "agentLabel": "代理",
+      "gatewayLabel": "网关",
+      "activeSessionsLabel": "活跃会话",
+      "liveBadge": "在线",
+      "offBadge": "关闭",
+      "noneValue": "无",
+      "activeSessionsValue": "{{count}} 个运行中"
     },
-    "categories": {
-      "general": "通用",
-      "agent": "代理",
-      "terminal": "终端",
-      "display": "显示",
-      "delegation": "委派",
-      "memory": "记忆",
-      "compression": "压缩",
-      "security": "安全",
-      "browser": "浏览器",
-      "voice": "语音",
-      "tts": "文本转语音",
-      "stt": "语音转文本",
-      "logging": "日志",
-      "discord": "Discord",
-      "auxiliary": "辅助"
-    }
+    "gatewayValue": {
+      "pid": "PID {{pid}}",
+      "startFailed": "启动失败",
+      "notRunning": "未运行"
+    },
+    "gatewayStates": {
+      "running": "运行中",
+      "starting": "启动中",
+      "startup_failed": "失败",
+      "stopped": "已停止",
+      "off": "关闭"
+    },
+    "platformStates": {
+      "connected": "已连接",
+      "disconnected": "已断开",
+      "fatal": "错误"
+    },
+    "alerts": {
+      "gatewayFailed": "网关启动失败",
+      "platformIssue": "{{platform}}{{state}}"
+    },
+    "activeSessionsTitle": "活跃会话",
+    "recentSessionsTitle": "最近会话",
+    "connectedPlatformsTitle": "已连接平台",
+    "sessionMeta": "{{count}} 条消息 · {{ago}}",
+    "loadingLabel": "正在加载状态",
+    "untitledSession": "未命名",
+    "unknownModel": "未知",
+    "unknownRelativeTime": "未知",
+    "localSource": "本地",
+    "lastUpdate": "最近更新"
   },
   "appShell": {
     "productName": "Hermes Control Center",
-    "productTagline": "面向 Hermes Agent 的 Web 平台",
+    "productTagline": "Hermes Agent 的 Web 平台",
     "foundationBadge": "基础冲刺阶段",
     "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"
   },

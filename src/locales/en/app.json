@@ -454,182 +454,56 @@
       "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
     }
   },
-  "cron": {
-    "eyebrow": "Automation lanes",
-    "title": "Cron jobs",
-    "description": "Schedule autonomous follow-up, reporting, and workflow tasks without leaving the Hermes product shell.",
-    "badge": "automation preview",
-    "newJobTitle": "New cron job",
-    "scheduledJobsCount_one": "{{count}} scheduled job",
-    "scheduledJobsCount_other": "{{count}} scheduled jobs",
-    "emptyState": "No cron jobs configured yet. Create one above.",
-    "fields": {
-      "nameLabel": "Name (optional)",
-      "namePlaceholder": "e.g. Daily summary",
-      "promptLabel": "Prompt",
-      "promptPlaceholder": "What should the agent do on each run?",
-      "scheduleLabel": "Schedule (cron expression)",
-      "schedulePlaceholder": "0 9 * * *",
-      "deliverLabel": "Deliver to"
-    },
-    "deliverTargets": {
-      "local": "Local",
-      "telegram": "Telegram",
-      "discord": "Discord",
-      "slack": "Slack",
-      "email": "Email"
-    },
-    "actions": {
-      "create": "Create",
-      "creating": "Creating...",
-      "pause": "Pause",
-      "pauseJob": "Pause job",
-      "resume": "Resume",
-      "resumeJob": "Resume job",
-      "triggerNow": "Trigger now",
-      "triggerJobNow": "Trigger job now",
-      "delete": "Delete",
-      "deleteJob": "Delete job"
-    },
-    "timestamps": {
-      "last": "Last",
-      "next": "Next"
-    },
-    "statuses": {
-      "enabled": "Enabled",
-      "paused": "Paused",
-      "error": "Error"
-    },
-    "toasts": {
-      "loadFailed": "Failed to load cron jobs",
-      "promptScheduleRequired": "Prompt and schedule are required",
-      "created": "Cron job created",
-      "createFailed": "Failed to create job: {{error}}",
-      "paused": "Paused \"{{job}}\"",
-      "resumed": "Resumed \"{{job}}\"",
-      "triggered": "Triggered \"{{job}}\"",
-      "deleted": "Deleted \"{{job}}\"",
-      "actionFailed": "Action failed: {{error}}",
-      "triggerFailed": "Trigger failed: {{error}}",
-      "deleteFailed": "Delete failed: {{error}}"
-    }
-  },
-  "skills": {
-    "eyebrow": "Capability registry",
-    "title": "Skills",
-    "description": "Inspect reusable skills, category coverage, and toolset availability. {{enabled}} of {{total}} skills are currently enabled.",
-    "badge": "skill inventory",
-    "loadingLabel": "Loading skills",
-    "searchPlaceholder": "Search skills and toolsets...",
-    "enabledSummary": "{{enabled}}/{{total}} enabled",
-    "categorySkillCount_one": "{{count}} skill",
-    "categorySkillCount_other": "{{count}} skills",
-    "moreCount": ", +{{count}} more",
-    "noDescription": "No description available.",
-    "filters": {
-      "all": "All ({{count}})"
-    },
-    "emptyState": {
-      "noneLoaded": "No skills found. Skills are loaded from ~/.hermes/skills/.",
-      "noMatches": "No skills match your search or filter."
-    },
-    "toggle": {
-      "enabled": "enabled",
-      "disabled": "disabled"
-    },
-    "toolsetsTitle": "Toolsets ({{count}})",
-    "toolsetsEmptyState": "No toolsets match the search.",
-    "toolset": {
-      "active": "active",
-      "inactive": "inactive",
-      "setupNeeded": "Setup needed",
-      "toolsetLabel": "{{name}} toolset",
-      "disabledCli": "Disabled for CLI"
-    },
-    "toasts": {
-      "loadFailed": "Failed to load skills/toolsets",
-      "toggleSuccess": "{{name}} {{state}}",
-      "toggleFailed": "Failed to toggle {{name}}"
-    },
-    "categories": {
-      "general": "General",
-      "mlops": "MLOps",
-      "mlopsCloud": "MLOps / Cloud",
-      "mlopsEvaluation": "MLOps / Evaluation",
-      "mlopsInference": "MLOps / Inference",
-      "mlopsModels": "MLOps / Models",
-      "mlopsTraining": "MLOps / Training",
-      "mlopsVectorDatabases": "MLOps / Vector DBs",
-      "mcp": "MCP",
-      "redTeaming": "Red Teaming",
-      "ocr": "OCR",
-      "p5js": "p5.js",
-      "ai": "AI",
-      "ux": "UX",
-      "ui": "UI",
-      "noteTaking": "Note Taking"
-    }
-  },
-  "config": {
-    "eyebrow": "Configuration surface",
-    "title": "Config",
-    "description": "Inspect, search, import, export, and edit Hermes configuration in structured form or raw YAML.",
-    "loadingLabel": "Loading config",
-    "searchPlaceholder": "Search...",
-    "searchResultsTitle": "Search results",
-    "rawTitle": "Raw YAML config",
-    "fieldCount_one": "{{count}} field",
-    "fieldCount_other": "{{count}} fields",
-    "noSearchResults": "No fields match \"{{query}}\"",
-    "modes": {
-      "form": "Form",
-      "yaml": "YAML"
-    },
-    "actions": {
-      "save": "Save",
-      "saving": "Saving...",
-      "form": "Form",
-      "yaml": "YAML",
-      "exportTitle": "Export config as JSON",
-      "exportAria": "Export config",
-      "importTitle": "Import config from JSON",
-      "importAria": "Import config",
-      "resetTitle": "Reset to defaults",
-      "resetAria": "Reset to defaults"
-    },
+  "status": {
+    "eyebrow": "Runtime heartbeat",
+    "title": "Status",
+    "description": "Monitor Hermes runtime health, connected platforms, and live session activity from a single bilingual overview.",
+    "badge": "live runtime pulse",
     "loadErrors": {
-      "current": "Failed to load current config.",
-      "schema": "Failed to load config schema.",
-      "defaults": "Failed to load config defaults.",
-      "initHint": "The config surface could not initialize cleanly."
+      "status": "Failed to load Hermes status.",
+      "sessions": "Failed to load session summary.",
+      "retryHint": "Check whether the Hermes backend is reachable, then refresh this page."
     },
-    "toasts": {
-      "loadRawFailed": "Failed to load raw config",
-      "saved": "Configuration saved",
-      "saveFailed": "Failed to save: {{error}}",
-      "yamlSaved": "YAML config saved",
-      "refreshStructuredFailed": "Saved YAML, but failed to refresh the structured config view",
-      "yamlSaveFailed": "Failed to save YAML: {{error}}",
-      "imported": "Config imported — review and save",
-      "invalidJson": "Invalid JSON file"
+    "summary": {
+      "agentLabel": "Agent",
+      "gatewayLabel": "Gateway",
+      "activeSessionsLabel": "Active sessions",
+      "liveBadge": "Live",
+      "offBadge": "Off",
+      "noneValue": "None",
+      "activeSessionsValue": "{{count}} running"
     },
-    "categories": {
-      "general": "General",
-      "agent": "Agent",
-      "terminal": "Terminal",
-      "display": "Display",
-      "delegation": "Delegation",
-      "memory": "Memory",
-      "compression": "Compression",
-      "security": "Security",
-      "browser": "Browser",
-      "voice": "Voice",
-      "tts": "Text-to-Speech",
-      "stt": "Speech-to-Text",
-      "logging": "Logging",
-      "discord": "Discord",
-      "auxiliary": "Auxiliary"
-    }
+    "gatewayValue": {
+      "pid": "PID {{pid}}",
+      "startFailed": "Start failed",
+      "notRunning": "Not running"
+    },
+    "gatewayStates": {
+      "running": "Running",
+      "starting": "Starting",
+      "startup_failed": "Failed",
+      "stopped": "Stopped",
+      "off": "Off"
+    },
+    "platformStates": {
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "fatal": "Error"
+    },
+    "alerts": {
+      "gatewayFailed": "Gateway failed to start",
+      "platformIssue": "{{platform}} {{state}}"
+    },
+    "activeSessionsTitle": "Active sessions",
+    "recentSessionsTitle": "Recent sessions",
+    "connectedPlatformsTitle": "Connected platforms",
+    "sessionMeta": "{{count}} msgs · {{ago}}",
+    "loadingLabel": "Loading status",
+    "untitledSession": "Untitled",
+    "unknownModel": "unknown",
+    "unknownRelativeTime": "unknown",
+    "localSource": "local",
+    "lastUpdate": "Last update"
   },
   "appShell": {
     "productName": "Hermes Control Center",
