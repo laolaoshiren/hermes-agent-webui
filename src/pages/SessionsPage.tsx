@@ -10,9 +10,11 @@ import {
   Hash,
   MessageCircle,
   MessageSquare,
+  PlaySquare,
   Plus,
   Search,
   SendHorizontal,
+  ShieldCheck,
   Terminal,
   Trash2,
   X,
@@ -59,6 +61,8 @@ const EMPTY_RUNTIME_SNAPSHOT: RuntimeContractSnapshot = {
   events: [],
 };
 
+const SESSIONS_ONBOARDING_DISMISSED_KEY = "hermes-control-center.sessions-onboarding-dismissed";
+
 function formatTimestamp(value: number | null | undefined) {
   if (typeof value !== "number") {
     return "—";
@@ -87,6 +91,30 @@ function buildSessionsPath(workspaceSlug: string | null) {
 
 function buildSessionPath(sessionId: string, workspaceSlug: string | null) {
   return workspaceSlug ? `/sessions/${sessionId}?workspace=${workspaceSlug}` : `/sessions/${sessionId}`;
+}
+
+function readSessionsOnboardingDismissed() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  try {
+    return window.localStorage.getItem(SESSIONS_ONBOARDING_DISMISSED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function persistSessionsOnboardingDismissed() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(SESSIONS_ONBOARDING_DISMISSED_KEY, "1");
+  } catch {
+    // Ignore storage failures so the onboarding card still works in restricted browsers.
+  }
 }
 
 function buildRunPath(runId: string, workspaceSlug: string | null) {
@@ -170,6 +198,26 @@ function SnippetHighlight({ snippet }: { snippet: string }) {
   }
 
   return <p className="mt-0.5 max-w-lg truncate text-xs text-muted-foreground/80">{parts}</p>;
+}
+
+function OnboardingConcept({
+  icon: Icon,
+  title,
+  body,
+}: {
+  icon: typeof MessageSquare;
+  title: string;
+  body: string;
+}) {
+  return (
+    <div className="border border-border/70 bg-background/70 p-4">
+      <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+        <Icon className="h-4 w-4 text-primary" />
+        {title}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-muted-foreground">{body}</p>
+    </div>
+  );
 }
 
 function ToolCallBlock({ toolCall }: { toolCall: { id: string; function: { name: string; arguments: string } } }) {
@@ -408,6 +456,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const [composerValue, setComposerValue] = useState("");
   const [sendPending, setSendPending] = useState(false);
   const [optimisticWorkspaceSessionIdsBySlug, setOptimisticWorkspaceSessionIdsBySlug] = useState<Record<string, string[]>>({});
+  const [showOnboarding, setShowOnboarding] = useState(() => !readSessionsOnboardingDismissed());
   const pendingHydrationSessionIdRef = useRef<string | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
@@ -461,6 +510,7 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
   const activeWorkspaceSlug = workspaceFilter.selectedWorkspace?.slug ?? null;
   const runtimeStillLoading = runtimeQuery.isPending;
   const effectiveWorkspaceSlug = activeWorkspaceSlug ?? (runtimeStillLoading ? workspaceSlug : null);
+  const shouldShowOnboarding = showOnboarding && !sessionId && !workspaceSlug && search.trim().length === 0;
   const hasRuntimeSnapshotData = runtimeQuery.data !== undefined;
   const visibleSessionIds = new Set(
     (hasRuntimeSnapshotData ? workspaceFilter.filteredSessions : filtered).map((session) => session.id),
@@ -606,6 +656,11 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
     }
   };
 
+  const handleDismissOnboarding = () => {
+    setShowOnboarding(false);
+    persistSessionsOnboardingDismissed();
+  };
+
   const handleSendMessage = async () => {
     const message = composerValue.trim();
     if (!message || sendPending) {
@@ -709,6 +764,63 @@ export default function SessionsPage({ initialSessions }: SessionsPageProps = {}
           </div>
         }
       />
+
+      {shouldShowOnboarding ? (
+        <Card className="overflow-hidden border-primary/20 bg-[linear-gradient(135deg,rgba(255,255,255,0.08)_0%,rgba(255,255,255,0)_52%),linear-gradient(180deg,rgba(255,255,255,0.02)_0%,rgba(255,255,255,0)_100%)]">
+          <CardContent className="grid gap-6 p-6 xl:grid-cols-[1.15fr_0.85fr]">
+            <div className="space-y-4">
+              <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[0.72rem] uppercase tracking-[0.18em] text-primary">
+                {t("sessions.onboardingEyebrow")}
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold tracking-tight text-foreground">{t("sessions.onboardingTitle")}</h2>
+                <p className="max-w-2xl text-sm leading-6 text-muted-foreground">{t("sessions.onboardingBody")}</p>
+              </div>
+              <div className="grid gap-3 md:grid-cols-3">
+                <OnboardingConcept
+                  icon={MessageSquare}
+                  title={t("sessions.onboardingConcepts.sessionTitle")}
+                  body={t("sessions.onboardingConcepts.sessionBody")}
+                />
+                <OnboardingConcept
+                  icon={PlaySquare}
+                  title={t("sessions.onboardingConcepts.runTitle")}
+                  body={t("sessions.onboardingConcepts.runBody")}
+                />
+                <OnboardingConcept
+                  icon={ShieldCheck}
+                  title={t("sessions.onboardingConcepts.approvalTitle")}
+                  body={t("sessions.onboardingConcepts.approvalBody")}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col justify-between gap-4 border border-border/70 bg-background/70 p-5">
+              <div className="space-y-2">
+                <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground">{t("sessions.onboardingPrimaryLabel")}</div>
+                <div className="text-lg font-medium text-foreground">{t("sessions.onboardingPrimaryTitle")}</div>
+                <p className="text-sm leading-6 text-muted-foreground">{t("sessions.onboardingPrimaryBody")}</p>
+              </div>
+
+              <div className="space-y-3">
+                <Button type="button" className="w-full gap-2 sm:w-auto" onClick={() => void handleNewChat()}>
+                  <Plus className="h-4 w-4" />
+                  {t("sessions.newChat")}
+                </Button>
+                <div className="text-xs leading-5 text-muted-foreground">{t("sessions.onboardingHint")}</div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="h-auto justify-start px-0 text-xs uppercase tracking-[0.16em]"
+                  onClick={handleDismissOnboarding}
+                >
+                  {t("sessions.onboardingDismiss")}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="grid gap-4 xl:grid-cols-[1.15fr_0.95fr]">
         <Card>
