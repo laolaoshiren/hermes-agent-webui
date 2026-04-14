@@ -1,5 +1,5 @@
 {
-  "round": 1,
+  "round": 2,
   "last_action": "#48 19个单元测试修复",
   "last_result": "修复9个i18n测试失败：补全skills/cron/config翻译key、修复插值语法({count}→{{count}})、添加缺失的category camelCase key、修复cron.statuses/cron.deliverTargets路径、修复时间戳格式、添加config.categories.agent/terminal。PR #50已合入develop，全部88个测试通过。",
   "current_phase": 0,
@@ -18,5 +18,5 @@
     "#38 status本地化冲突解决",
     "#44 config本地化冲突解决"
   ],
-  "lock_until": null
+  "lock_until": "2026-04-14T08:39:00Z"
 }

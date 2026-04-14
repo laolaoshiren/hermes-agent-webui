@@ -15,7 +15,6 @@ This log is intentionally public-facing and continuously append-only so both the
 - Localized the Skills page so the capability inventory now follows the bilingual shell standard instead of relying on hard-coded English UI copy:
   - added localized page header, search placeholder, category filter labels, skill counts, enablement summaries, empty states, toolset labels, setup hints, and toast messages in English + Simplified Chinese
   - added focused Skills page coverage for English, Simplified Chinese, and empty-state rendering
-
 ## 2026-04-14 08:49 +08:00
 
 - Continued development from contributor fork branch `feat/status-i18n-surface` against `develop`.
@@ -26,9 +25,9 @@ This log is intentionally public-facing and continuously append-only so both the
   - `npm run lint` ✅
   - `npm run typecheck` ✅
   - `npm run build` ✅
+  - `npm run test -- src/pages/StatusPage.test.ts --run` ✅
   - `npm run test -- src/pages/SkillsPage.test.ts --run` ✅
   - `npm run test -- src/pages/ConfigPage.test.ts --run` ✅
-  - `npm run test -- src/pages/StatusPage.test.ts --run` ✅
 
 ## 2026-04-14 08:39 +08:00
 
@@ -43,7 +42,6 @@ This log is intentionally public-facing and continuously append-only so both the
   - `npm run typecheck` ✅
   - `npm run build` ✅
   - `npm run test -- src/pages/CronPage.test.ts --run` ✅
-
 ## 2026-04-13 15:04 +08:00
 
 - Project incubator repository created: `laolaoshiren/hermes-control-center`
