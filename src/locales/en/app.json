@@ -570,6 +570,67 @@
       "noteTaking": "Note Taking"
     }
   },
+  "config": {
+    "eyebrow": "Configuration surface",
+    "title": "Config",
+    "description": "Inspect, search, import, export, and edit Hermes configuration in structured form or raw YAML.",
+    "loadingLabel": "Loading config",
+    "searchPlaceholder": "Search...",
+    "searchResultsTitle": "Search results",
+    "rawTitle": "Raw YAML config",
+    "fieldCount_one": "{{count}} field",
+    "fieldCount_other": "{{count}} fields",
+    "noSearchResults": "No fields match \"{{query}}\"",
+    "modes": {
+      "form": "Form",
+      "yaml": "YAML"
+    },
+    "actions": {
+      "save": "Save",
+      "saving": "Saving...",
+      "form": "Form",
+      "yaml": "YAML",
+      "exportTitle": "Export config as JSON",
+      "exportAria": "Export config",
+      "importTitle": "Import config from JSON",
+      "importAria": "Import config",
+      "resetTitle": "Reset to defaults",
+      "resetAria": "Reset to defaults"
+    },
+    "loadErrors": {
+      "current": "Failed to load current config.",
+      "schema": "Failed to load config schema.",
+      "defaults": "Failed to load config defaults.",
+      "initHint": "The config surface could not initialize cleanly."
+    },
+    "toasts": {
+      "loadRawFailed": "Failed to load raw config",
+      "saved": "Configuration saved",
+      "saveFailed": "Failed to save: {{error}}",
+      "yamlSaved": "YAML config saved",
+      "refreshStructuredFailed": "Saved YAML, but failed to refresh the structured config view",
+      "yamlSaveFailed": "Failed to save YAML: {{error}}",
+      "imported": "Config imported — review and save",
+      "invalidJson": "Invalid JSON file"
+    },
+    "categories": {
+      "general": "General",
+      "agent": "Agent",
+      "terminal": "Terminal",
+      "display": "Display",
+      "delegation": "Delegation",
+      "memory": "Memory",
+      "compression": "Compression",
+      "security": "Security",
+      "browser": "Browser",
+      "voice": "Voice",
+      "tts": "Text-to-Speech",
+      "stt": "Speech-to-Text",
+      "logging": "Logging",
+      "discord": "Discord",
+      "auxiliary": "Auxiliary"
+    }
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "Web platform for Hermes Agent",
