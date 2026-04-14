@@ -6,8 +6,10 @@ import path from "path";
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const apiOrigin = env.VITE_HERMES_API_ORIGIN || "http://127.0.0.1:9119";
+  const basePath = env.VITE_BASE_PATH || "/";
 
   return {
+    base: basePath,
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
