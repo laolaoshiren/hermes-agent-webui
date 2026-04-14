@@ -2,6 +2,20 @@
 
 This log is intentionally public-facing and continuously append-only so both the repository owner and future contributors can track what happened, why it happened, and what is currently in motion.
 
+## 2026-04-14 08:39 +08:00
+
+- Continued development from contributor fork branch `feat/cron-i18n-cleanup` against `develop`.
+- Improved the Cron page so it now follows the bilingual shell standard instead of shipping hard-coded English copy:
+  - localized page header, form fields, action labels, status badges, delivery targets, empty state, timestamps, and toast messages in English + Simplified Chinese
+  - switched timestamp formatting to honor the active UI locale
+  - added focused Cron page coverage to lock the English, Simplified Chinese, and empty-state render paths
+- Closed the lingering `react-hooks/exhaustive-deps` warning on `src/pages/CronPage.tsx` by stabilizing the cron reload callback with `useCallback`.
+- Validation status:
+  - `npm run lint` ✅
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+  - `npm run test -- src/pages/CronPage.test.ts --run` ✅
+
 ## 2026-04-13 15:04 +08:00
 
 - Project incubator repository created: `laolaoshiren/hermes-control-center`

@@ -454,9 +454,69 @@
       "automationLanesDetail": "通过 cron、汇报、发布等方式持续推进项目的自动员工。"
     }
   },
+  "cron": {
+    "eyebrow": "自动化通道",
+    "title": "定时任务",
+    "description": "在 Hermes 产品壳层内直接编排自主跟进、汇报和工作流任务。",
+    "badge": "自动化预览",
+    "newJobTitle": "新建定时任务",
+    "scheduledJobsCount_one": "{{count}} 个定时任务",
+    "scheduledJobsCount_other": "{{count}} 个定时任务",
+    "emptyState": "暂时还没有配置定时任务。请先在上方创建。",
+    "fields": {
+      "nameLabel": "名称（可选）",
+      "namePlaceholder": "例如：每日摘要",
+      "promptLabel": "提示词",
+      "promptPlaceholder": "希望 Hermes 在每次运行时执行什么？",
+      "scheduleLabel": "调度计划（cron 表达式）",
+      "schedulePlaceholder": "0 9 * * *",
+      "deliverLabel": "投递到"
+    },
+    "deliverTargets": {
+      "local": "本地",
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "slack": "Slack",
+      "email": "邮箱"
+    },
+    "actions": {
+      "create": "创建",
+      "creating": "创建中...",
+      "pause": "暂停",
+      "pauseJob": "暂停任务",
+      "resume": "恢复",
+      "resumeJob": "恢复任务",
+      "triggerNow": "立即触发",
+      "triggerJobNow": "立即触发任务",
+      "delete": "删除",
+      "deleteJob": "删除任务"
+    },
+    "timestamps": {
+      "last": "上次运行",
+      "next": "下次运行"
+    },
+    "statuses": {
+      "enabled": "已启用",
+      "paused": "已暂停",
+      "error": "错误"
+    },
+    "toasts": {
+      "loadFailed": "加载定时任务失败",
+      "promptScheduleRequired": "提示词和调度计划为必填项",
+      "created": "定时任务已创建",
+      "createFailed": "创建任务失败：{{error}}",
+      "paused": "已暂停“{{job}}”",
+      "resumed": "已恢复“{{job}}”",
+      "triggered": "已触发“{{job}}”",
+      "deleted": "已删除“{{job}}”",
+      "actionFailed": "操作失败：{{error}}",
+      "triggerFailed": "触发失败：{{error}}",
+      "deleteFailed": "删除失败：{{error}}"
+    }
+  },
   "appShell": {
     "productName": "Hermes Control Center",
-    "productTagline": "Hermes Agent 的 Web 平台",
+    "productTagline": "面向 Hermes Agent 的 Web 平台",
     "foundationBadge": "基础冲刺阶段",
     "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"
   },
