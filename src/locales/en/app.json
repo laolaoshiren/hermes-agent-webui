@@ -512,11 +512,204 @@
     "footerTagline": "Independent OSS incubation for Hermes Agent"
   },
   "runtimeHydration": {
-    "sourceLive": "Live runtime",
-    "sourceFixture": "Fixture fallback",
-    "loading": "Hydrating live sessions…",
+    "loading": "Hydrating live runtime",
     "loadingTitle": "Hydrating live runtime",
     "loadingBody": "Loading sessions and replay data from the Hermes backend before rendering route-specific runtime details.",
-    "fallbackWarning": "Fixture fallback active: {{message}}"
+    "sourceFixture": "Fixture fallback",
+    "fallbackWarning": "fixture fallback engaged"
+  },
+  "config": {
+    "eyebrow": "Configuration",
+    "title": "Config",
+    "description": "Configuration surface — Inspect, search, import, export, and edit Hermes configuration.",
+    "badge": "config editor",
+    "searchPlaceholder": "Search...",
+    "fieldCount": "{{count}} field | {{count}} fields",
+    "modes": {
+      "form": "Form",
+      "yaml": "YAML"
+    },
+    "actions": {
+      "save": "Save",
+      "exportTitle": "Export config as JSON",
+      "exportAria": "Export",
+      "importTitle": "Import config from JSON",
+      "importAria": "Import",
+      "resetTitle": "Reset to defaults",
+      "resetAria": "Reset",
+      "yaml": "YAML"
+    },
+    "loadErrors": {
+      "current": "Failed to load current config.",
+      "initHint": "The config surface could not initialize cleanly.",
+      "defaults": "Failed to load config defaults."
+    },
+    "toast": {
+      "saved": "Configuration saved.",
+      "saveFailed": "Failed to save configuration.",
+      "yamlSaved": "YAML saved.",
+      "yamlSaveFailed": "Failed to save YAML."
+    },
+    "loadingLabel": "Loading config...",
+    "noSearchResults": "No fields match the search.",
+    "rawTitle": "Raw YAML",
+    "searchResultsTitle": "Search results",
+    "categories": {
+      "stt": "Speech",
+      "tts": "Text-to-Speech",
+      "agent": "Agent",
+      "terminal": "Terminal"
+    },
+    "toasts": {
+      "saved": "Configuration saved.",
+      "saveFailed": "Failed to save configuration.",
+      "yamlSaved": "YAML saved.",
+      "yamlSaveFailed": "Failed to save YAML.",
+      "imported": "Configuration imported.",
+      "invalidJson": "Invalid JSON file.",
+      "loadRawFailed": "Failed to load raw config.",
+      "refreshStructuredFailed": "Failed to refresh structured view."
+    }
+  },
+  "cron": {
+    "eyebrow": "Scheduled Tasks",
+    "title": "Cron jobs",
+    "description": "Schedule autonomous follow-up, reporting, and workflow tasks — create, pause, resume, trigger, and delete cron jobs.",
+    "badge": "cron manager",
+    "searchPlaceholder": "Search jobs…",
+    "status": {
+      "enabled": "Enabled",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "actions": {
+      "create": "Create",
+      "creating": "Creating...",
+      "pause": "Pause",
+      "pauseJob": "Pause job",
+      "resume": "Resume",
+      "resumeJob": "Resume job",
+      "triggerNow": "Run now",
+      "triggerJobNow": "Trigger job now",
+      "delete": "Delete",
+      "deleteJob": "Delete job"
+    },
+    "fields": {
+      "nameLabel": "Name",
+      "namePlaceholder": "Job name",
+      "promptLabel": "Prompt",
+      "promptPlaceholder": "What should this job do?",
+      "scheduleLabel": "Schedule",
+      "schedulePlaceholder": "0 9 * * *",
+      "deliverLabel": "Deliver to"
+    },
+    "empty": {
+      "title": "No cron jobs",
+      "description": "Create a scheduled task to automate Hermes workflows."
+    },
+    "toast": {
+      "created": "Cron job created.",
+      "paused": "Cron job paused.",
+      "resumed": "Cron job resumed.",
+      "triggered": "Cron job triggered.",
+      "deleted": "Cron job deleted."
+    },
+    "newJobTitle": "New cron job",
+    "scheduledJobsCount": "{{count}} scheduled job | {{count}} scheduled jobs",
+    "emptyState": "No cron jobs configured yet. Create one above.",
+    "timestamps": {
+      "last": "Last",
+      "next": "Next"
+    },
+    "toasts": {
+      "created": "Cron job created.",
+      "createFailed": "Failed to create cron job.",
+      "paused": "Cron job paused.",
+      "resumed": "Cron job resumed.",
+      "triggered": "Cron job triggered.",
+      "triggerFailed": "Failed to trigger cron job.",
+      "deleted": "Cron job deleted.",
+      "deleteFailed": "Failed to delete cron job.",
+      "loadFailed": "Failed to load cron jobs.",
+      "promptScheduleRequired": "Prompt and schedule are required.",
+      "actionFailed": "Action failed."
+    },
+    "statuses": {
+      "enabled": "Enabled",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "deliverTargets": {
+      "local": "Local",
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "slack": "Slack",
+      "email": "Email"
+    }
+  },
+  "skills": {
+    "eyebrow": "Skills",
+    "title": "Skills",
+    "description": "Capability registry — Inspect reusable skills, category coverage, and toolset availability.",
+    "badge": "skills inventory",
+    "searchPlaceholder": "Search skills and toolsets...",
+    "emptyState": {
+      "noneLoaded": "No skills found. Skills are loaded from ~/.hermes/skills/.",
+      "noMatches": "No skills match the search."
+    },
+    "toolsetsTitle": "Toolsets ({{count}})",
+    "toolsetsEmptyState": "No toolsets match the search.",
+    "categories": {
+      "general": "General",
+      "note-taking": "Note Taking",
+      "data-science": "Data Science",
+      "devops": "DevOps",
+      "gaming": "Gaming",
+      "github": "GitHub",
+      "media": "Media",
+      "mlops": "MLOps",
+      "mlopsModels": "MLOps / Models",
+      "productivity": "Productivity",
+      "research": "Research",
+      "smart-home": "Smart Home",
+      "noteTaking": "Note Taking",
+      "mlopsCloud": "MLOps / Cloud",
+      "mlopsEvaluation": "MLOps / Evaluation",
+      "mlopsInference": "MLOps / Inference",
+      "mlopsTraining": "MLOps / Training",
+      "mlopsVectorDatabases": "MLOps / Vector DBs"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "toast": {
+      "toggled": "Skill toggled.",
+      "toggleFailed": "Failed to toggle skill."
+    },
+    "loadingLabel": "Loading skills...",
+    "noDescription": "No description provided.",
+    "moreCount": "+{{count}} more",
+    "enabledSummary": "All enabled",
+    "categorySkillCount": "{{count}} skill",
+    "filters": {
+      "all": "All ({{count}})"
+    },
+    "toolset": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "setupNeeded": "Setup needed",
+      "disabledCli": "Disabled for CLI",
+      "toolsetLabel": "Toolset"
+    },
+    "toggle": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "toasts": {
+      "toggleSuccess": "Skill toggled.",
+      "toggleFailed": "Failed to toggle skill.",
+      "loadFailed": "Failed to load skills."
+    }
   }
 }
