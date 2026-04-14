@@ -12,7 +12,8 @@
     "skills": "技能",
     "config": "配置",
     "keys": "密钥",
-    "ops": "运营看板"
+    "ops": "运营看板",
+    "more": "����"
   },
   "overview": {
     "eyebrow": "项目方向",
@@ -457,7 +458,7 @@
   "appShell": {
     "productName": "Hermes Agent WebUI",
     "productTagline": "面向 Hermes Agent 的聊天优先 Web 应用",
-    "foundationBadge": "在线孵化构建",
+    "foundationBadge": "alpha",
     "footerTagline": "单人优先、自托管、面向真实日常使用"
   },
   "runtimeHydration": {

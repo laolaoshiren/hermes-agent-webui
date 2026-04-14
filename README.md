@@ -1,55 +1,22 @@
 # Hermes Agent WebUI
 
-[![CI](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/ci.yml/badge.svg)](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/ci.yml)
-[![Pages](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/pages.yml/badge.svg)](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/pages.yml)
-[![Release](https://img.shields.io/github/v/release/laolaoshiren/hermes-agent-webui)](https://github.com/laolaoshiren/hermes-agent-webui/releases)
+Chat-first, secure, self-hosted frontend for Hermes Agent.
+Owner-first by default. Public-deployable when you want.
 
-Hermes Agent WebUI is a chat-first web app for Hermes Agent.
+[![CI](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/ci.yml/badge.svg)](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/ci.yml) [![Pages](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/pages.yml/badge.svg)](https://github.com/laolaoshiren/hermes-agent-webui/actions/workflows/pages.yml) [![Release](https://img.shields.io/github/v/release/laolaoshiren/hermes-agent-webui)](https://github.com/laolaoshiren/hermes-agent-webui/releases)
 
-It is being built to beat the current default choices for Hermes on the dimensions normal people actually feel first:
-- a clearer chat experience
-- safer public deployment
-- better day-to-day owner workflow
-- easier switching between sessions, workspace, and agent activity
+Hermes Agent WebUI puts conversations first. It focuses on the flow you actually use: sessions, chat, and a workspace that feels obvious instead of heavy.
 
-This project is not trying to replace Hermes core.
-It is trying to become the best serious web frontend for Hermes.
+Why it matters now:
+- Chat-first UX instead of control-panel-first UI.
+- Owner-first security: sensible defaults, fewer knobs, safer public deploys.
+- Standalone and modern: a clean frontend that invites contributors and fast iteration.
+- Plays well with Hermes core: extends it, not replaces it.
 
-## Why this exists
-
-Today, Hermes users mostly choose between:
-- the official built-in web/admin surfaces
-- Open WebUI connected through the Hermes API server
-- community WebUI projects like `nesquena/hermes-webui`
-
-Those options already prove there is real demand for a strong Hermes web frontend.
-
-Our goal is to ship a frontend that is:
-- chat-first instead of control-panel-first
-- owner-first instead of enterprise-heavy
-- public-deployable with real auth and sane defaults
-- modern enough to attract contributors, not just end users
-
-Current packaging status:
-- first public alpha release is live: `v0.1.0-alpha.1`
-- CI is active
-- Docker + GHCR workflow is wired up
-- GitHub Pages deployment workflow is wired up and being brought online
-
-## Try the demo
-
-Public demo status:
-- GitHub Pages deployment workflow is live and being activated
-- Current public alpha release: `v0.1.0-alpha.1`
-- Until the public demo URL is attached, use the screenshots, release page, and active workflow badges as the live progress surface
-
-![Hermes Agent WebUI demo homepage](assets/demo-homepage.png)
-
-What to expect right now:
-- the UI is moving quickly
-- rough edges are expected during active incubation
-- public-ready auth and deployment are the next visible product layer
-
+Why not just use X?
+- Built-in admin surfaces are powerful but not chat-first for daily use.
+- Open WebUI is great for LLMs; this targets Hermes-specific workflows (sessions, approvals, run reviews) with native integration.
+- Community WebUIs exist; this one prioritizes safe public deployment and a contributor-friendly stack from day one.
 ## What you should expect right now
 
 Already real:

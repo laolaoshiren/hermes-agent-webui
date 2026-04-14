@@ -8,6 +8,8 @@ import {
   Package,
   PlaySquare,
   Settings,
+  MoreHorizontal,
+  User,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -23,7 +25,6 @@ import CronPage from "@/pages/CronPage";
 import SkillsPage from "@/pages/SkillsPage";
 import ConfigPage from "@/pages/ConfigPage";
 import EnvPage from "@/pages/EnvPage";
-import { Badge } from "@/components/ui/badge";
 
 function LanguageSwitcher() {
   const { i18n } = useTranslation();
@@ -66,7 +67,7 @@ function LanguageSwitcher() {
         onClick={() => void setLanguage("zh-CN")}
         className={current === "zh-CN" ? "text-foreground" : "hover:text-foreground"}
       >
-        ä¸­æ–‡
+        ÖÐÎÄ
       </button>
     </div>
   );
@@ -74,6 +75,8 @@ function LanguageSwitcher() {
 
 export default function App() {
   const { t } = useTranslation();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const closeMore = () => setMoreOpen(false);
 
   const nav = useMemo(
     () => [
@@ -130,10 +133,45 @@ export default function App() {
           </nav>
 
           <div className="ml-auto flex items-center gap-3 px-4">
-            <Badge variant="outline" className="hidden sm:inline-flex text-[10px] tracking-[0.18em] uppercase">
-              {t("appShell.foundationBadge")}
-            </Badge>
+            <span className="hidden sm:inline-flex text-[10px] tracking-[0.18em] uppercase text-muted-foreground">alpha</span>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setMoreOpen((v) => !v)}
+                className="inline-flex items-center gap-1.5 border border-border rounded-md px-2 py-1 text-[0.72rem] tracking-[0.14em] uppercase text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <MoreHorizontal className="h-3.5 w-3.5" />
+                {t("nav.more")}
+              </button>
+              {moreOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-popover p-1 shadow-lg z-50">
+                  {[
+                    { to: "/overview", label: t("nav.overview") },
+                    { to: "/status", label: t("nav.status") },
+                    { to: "/analytics", label: t("nav.analytics") },
+                    { to: "/logs", label: t("nav.logs") },
+                    { to: "/keys", label: t("nav.keys") },
+                  ].map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
+                      onClick={closeMore}
+                      className="block px-3 py-2 rounded-sm text-sm text-muted-foreground hover:text-foreground hover:bg-accent/40 transition-colors"
+                    >
+                      {item.label}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
             <LanguageSwitcher />
+            <button
+              type="button"
+              aria-label="Account"
+              className="inline-flex items-center justify-center h-8 w-8 rounded-full border border-border text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <User className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </header>

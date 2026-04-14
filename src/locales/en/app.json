@@ -12,7 +12,8 @@
     "skills": "Skills",
     "config": "Config",
     "keys": "Keys",
-    "ops": "Ops"
+    "ops": "Ops",
+    "more": "More"
   },
   "overview": {
     "eyebrow": "Program direction",
@@ -457,7 +458,7 @@
   "appShell": {
     "productName": "Hermes Agent WebUI",
     "productTagline": "Chat-first web app for Hermes Agent",
-    "foundationBadge": "Live incubation build",
+    "foundationBadge": "alpha",
     "footerTagline": "Owner-first, self-hosted, and built for real daily use"
   },
   "runtimeHydration": {

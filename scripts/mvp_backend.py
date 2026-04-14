@@ -18,10 +18,23 @@ def env_first(*names: str, default: str) -> str:
     return default
 
 
-HOST = env_first("HERMES_AGENT_WEBUI_BACKEND_HOST", "HERMES_CONTROL_CENTER_BACKEND_HOST", default="127.0.0.1")
-PORT = int(env_first("HERMES_AGENT_WEBUI_BACKEND_PORT", "HERMES_CONTROL_CENTER_BACKEND_PORT", default="9119"))
+HOST = env_first(
+    "HERMES_WEBUI_BACKEND_HOST",
+    "HERMES_AGENT_WEBUI_BACKEND_HOST",
+    "HERMES_CONTROL_CENTER_BACKEND_HOST",
+    default="127.0.0.1",
+)
+PORT = int(
+    env_first(
+        "HERMES_WEBUI_BACKEND_PORT",
+        "HERMES_AGENT_WEBUI_BACKEND_PORT",
+        "HERMES_CONTROL_CENTER_BACKEND_PORT",
+        default="9119",
+    )
+)
 STORE_DIR = Path(
     env_first(
+        "HERMES_WEBUI_BACKEND_STATE",
         "HERMES_AGENT_WEBUI_BACKEND_STATE",
         "HERMES_CONTROL_CENTER_BACKEND_STATE",
         default="~/.hermes/hermes-agent-webui-mvp",
@@ -30,6 +43,7 @@ STORE_DIR = Path(
 SESSIONS_DIR = STORE_DIR / "sessions"
 COMMAND_TIMEOUT_SECONDS = int(
     env_first(
+        "HERMES_WEBUI_BACKEND_COMMAND_TIMEOUT",
         "HERMES_AGENT_WEBUI_BACKEND_COMMAND_TIMEOUT",
         "HERMES_CONTROL_CENTER_BACKEND_COMMAND_TIMEOUT",
         default="180",
@@ -38,6 +52,7 @@ COMMAND_TIMEOUT_SECONDS = int(
 ALLOWED_ORIGINS = {
     origin.strip()
     for origin in env_first(
+        "HERMES_WEBUI_BACKEND_ALLOWED_ORIGINS",
         "HERMES_AGENT_WEBUI_BACKEND_ALLOWED_ORIGINS",
         "HERMES_CONTROL_CENTER_BACKEND_ALLOWED_ORIGINS",
         default="",
@@ -85,7 +100,7 @@ def list_sessions():
     for path in SESSIONS_DIR.glob("*.json"):
         try:
             sessions.append(json.loads(path.read_text(encoding="utf-8")))
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             continue
     sessions.sort(key=lambda item: item.get("updated_at", 0), reverse=True)
     return sessions
@@ -100,7 +115,7 @@ def build_session_payload(session: dict) -> dict:
         "message_count": len(session.get("messages", [])),
         "created_at": session.get("created_at", now_ts()),
         "updated_at": session.get("updated_at", now_ts()),
-        "source": "hermes-agent-webui-mvp",
+    "source": "webui-mvp",
         "input_tokens": session.get("input_tokens", 0),
         "output_tokens": session.get("output_tokens", 0),
         "tool_calls": session.get("tool_calls", []),
@@ -122,7 +137,7 @@ def build_session_summary(session: dict) -> dict:
     updated_at = int(session.get("updated_at", created_at))
     return {
         "id": session["session_id"],
-        "source": "hermes-agent-webui-mvp",
+        "source": "webui-mvp",
         "workspace": session.get("workspace"),
         "model": session.get("model"),
         "title": session.get("title"),
@@ -231,7 +246,7 @@ def run_hermes_chat(session: dict, message: str, model: str | None, workspace: s
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "HermesControlCenterMVP/0.1"
+    server_version = "HermesAgentWebUI/0.1"
 
     def log_message(self, fmt, *args):
         pass
@@ -298,7 +313,7 @@ class Handler(BaseHTTPRequestHandler):
                         "hermes_home": str(Path("~/.hermes").expanduser()),
                         "latest_config_version": 1,
                         "release_date": time.strftime("%Y-%m-%d"),
-                        "version": "hermes-agent-webui-mvp-adapter",
+                        "version": "webui-mvp-adapter",
                     },
                 )
                 return
