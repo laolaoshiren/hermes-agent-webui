@@ -454,6 +454,57 @@
       "automationLanesDetail": "Cron/reporting/release-style workers maintaining continuity without waiting for manual input."
     }
   },
+  "status": {
+    "eyebrow": "Runtime heartbeat",
+    "title": "Status",
+    "description": "Monitor Hermes runtime health, connected platforms, and live session activity from a single bilingual overview.",
+    "badge": "live runtime pulse",
+    "loadErrors": {
+      "status": "Failed to load Hermes status.",
+      "sessions": "Failed to load session summary.",
+      "retryHint": "Check whether the Hermes backend is reachable, then refresh this page."
+    },
+    "summary": {
+      "agentLabel": "Agent",
+      "gatewayLabel": "Gateway",
+      "activeSessionsLabel": "Active sessions",
+      "liveBadge": "Live",
+      "offBadge": "Off",
+      "noneValue": "None",
+      "activeSessionsValue": "{{count}} running"
+    },
+    "gatewayValue": {
+      "pid": "PID {{pid}}",
+      "startFailed": "Start failed",
+      "notRunning": "Not running"
+    },
+    "gatewayStates": {
+      "running": "Running",
+      "starting": "Starting",
+      "startup_failed": "Failed",
+      "stopped": "Stopped",
+      "off": "Off"
+    },
+    "platformStates": {
+      "connected": "Connected",
+      "disconnected": "Disconnected",
+      "fatal": "Error"
+    },
+    "alerts": {
+      "gatewayFailed": "Gateway failed to start",
+      "platformIssue": "{{platform}} {{state}}"
+    },
+    "activeSessionsTitle": "Active sessions",
+    "recentSessionsTitle": "Recent sessions",
+    "connectedPlatformsTitle": "Connected platforms",
+    "sessionMeta": "{{count}} msgs · {{ago}}",
+    "loadingLabel": "Loading status",
+    "untitledSession": "Untitled",
+    "unknownModel": "unknown",
+    "unknownRelativeTime": "unknown",
+    "localSource": "local",
+    "lastUpdate": "Last update"
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "Web platform for Hermes Agent",

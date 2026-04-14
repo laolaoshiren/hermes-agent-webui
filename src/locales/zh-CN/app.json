@@ -454,6 +454,57 @@
       "automationLanesDetail": "通过 cron、汇报、发布等方式持续推进项目的自动员工。"
     }
   },
+  "status": {
+    "eyebrow": "运行时脉搏",
+    "title": "状态",
+    "description": "用一个中英双语概览页面集中查看 Hermes 运行时健康度、连接平台和实时会话活动。",
+    "badge": "实时运行时脉搏",
+    "loadErrors": {
+      "status": "加载 Hermes 状态失败。",
+      "sessions": "加载会话摘要失败。",
+      "retryHint": "请检查 Hermes 后端是否可达，然后刷新此页面。"
+    },
+    "summary": {
+      "agentLabel": "代理",
+      "gatewayLabel": "网关",
+      "activeSessionsLabel": "活跃会话",
+      "liveBadge": "在线",
+      "offBadge": "关闭",
+      "noneValue": "无",
+      "activeSessionsValue": "{{count}} 个运行中"
+    },
+    "gatewayValue": {
+      "pid": "PID {{pid}}",
+      "startFailed": "启动失败",
+      "notRunning": "未运行"
+    },
+    "gatewayStates": {
+      "running": "运行中",
+      "starting": "启动中",
+      "startup_failed": "失败",
+      "stopped": "已停止",
+      "off": "关闭"
+    },
+    "platformStates": {
+      "connected": "已连接",
+      "disconnected": "已断开",
+      "fatal": "错误"
+    },
+    "alerts": {
+      "gatewayFailed": "网关启动失败",
+      "platformIssue": "{{platform}}{{state}}"
+    },
+    "activeSessionsTitle": "活跃会话",
+    "recentSessionsTitle": "最近会话",
+    "connectedPlatformsTitle": "已连接平台",
+    "sessionMeta": "{{count}} 条消息 · {{ago}}",
+    "loadingLabel": "正在加载状态",
+    "untitledSession": "未命名",
+    "unknownModel": "未知",
+    "unknownRelativeTime": "未知",
+    "localSource": "本地",
+    "lastUpdate": "最近更新"
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "Hermes Agent 的 Web 平台",

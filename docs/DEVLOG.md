@@ -2,6 +2,18 @@
 
 This log is intentionally public-facing and continuously append-only so both the repository owner and future contributors can track what happened, why it happened, and what is currently in motion.
 
+## 2026-04-14 08:49 +08:00
+
+- Continued development from contributor fork branch `feat/status-i18n-surface` against `develop`.
+- Localized the Status page so the runtime overview now follows the bilingual shell standard instead of mixing translated chrome with hard-coded English content:
+  - added localized page header, summary cards, gateway/platform state labels, alert copy, load errors, session metadata, and connected-platform timestamps in English + Simplified Chinese
+  - introduced focused Status page coverage for English, Simplified Chinese, and localized load-error rendering
+- Validation status:
+  - `npm run lint` ✅
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+  - `npm run test -- src/pages/StatusPage.test.ts --run` ✅
+
 ## 2026-04-13 15:04 +08:00
 
 - Project incubator repository created: `laolaoshiren/hermes-control-center`
