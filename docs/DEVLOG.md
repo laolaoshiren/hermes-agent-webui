@@ -2,6 +2,18 @@
 
 This log is intentionally public-facing and continuously append-only so both the repository owner and future contributors can track what happened, why it happened, and what is currently in motion.
 
+## 2026-04-14 09:22 +08:00
+
+- Continued development from contributor fork branch `feat/config-i18n-surface` against `develop`.
+- Localized the Config page so the configuration editor now follows the bilingual shell standard instead of relying on hard-coded English chrome:
+  - added localized page header, search and result labels, field counts, category names, save/import/export/reset controls, YAML/form mode labels, load errors, and toast messages in English + Simplified Chinese
+  - added focused Config page coverage for English, Simplified Chinese, and localized load-error rendering
+- Validation status:
+  - `npm run lint` ✅
+  - `npm run typecheck` ✅
+  - `npm run build` ✅
+  - `npm run test -- src/pages/ConfigPage.test.ts --run` ✅
+
 ## 2026-04-14 08:39 +08:00
 
 - Continued development from contributor fork branch `feat/cron-i18n-cleanup` against `develop`.

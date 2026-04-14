@@ -514,6 +514,67 @@
       "deleteFailed": "删除失败：{{error}}"
     }
   },
+  "config": {
+    "eyebrow": "配置界面",
+    "title": "配置",
+    "description": "以结构化表单或原始 YAML 的方式查看、搜索、导入、导出和编辑 Hermes 配置。",
+    "loadingLabel": "正在加载配置",
+    "searchPlaceholder": "搜索...",
+    "searchResultsTitle": "搜索结果",
+    "rawTitle": "原始 YAML 配置",
+    "fieldCount_one": "{{count}} 个字段",
+    "fieldCount_other": "{{count}} 个字段",
+    "noSearchResults": "没有字段匹配“{{query}}”",
+    "modes": {
+      "form": "表单",
+      "yaml": "YAML"
+    },
+    "actions": {
+      "save": "保存",
+      "saving": "保存中...",
+      "form": "表单",
+      "yaml": "YAML",
+      "exportTitle": "导出配置为 JSON",
+      "exportAria": "导出配置",
+      "importTitle": "从 JSON 导入配置",
+      "importAria": "导入配置",
+      "resetTitle": "重置为默认值",
+      "resetAria": "重置为默认值"
+    },
+    "loadErrors": {
+      "current": "加载当前配置失败。",
+      "schema": "加载配置结构失败。",
+      "defaults": "加载默认配置失败。",
+      "initHint": "配置界面未能正常初始化。"
+    },
+    "toasts": {
+      "loadRawFailed": "加载原始配置失败",
+      "saved": "配置已保存",
+      "saveFailed": "保存失败：{{error}}",
+      "yamlSaved": "YAML 配置已保存",
+      "refreshStructuredFailed": "YAML 已保存，但刷新结构化配置视图失败",
+      "yamlSaveFailed": "保存 YAML 失败：{{error}}",
+      "imported": "配置已导入——请检查后保存",
+      "invalidJson": "无效的 JSON 文件"
+    },
+    "categories": {
+      "general": "通用",
+      "agent": "代理",
+      "terminal": "终端",
+      "display": "显示",
+      "delegation": "委派",
+      "memory": "记忆",
+      "compression": "压缩",
+      "security": "安全",
+      "browser": "浏览器",
+      "voice": "语音",
+      "tts": "文本转语音",
+      "stt": "语音转文本",
+      "logging": "日志",
+      "discord": "Discord",
+      "auxiliary": "辅助"
+    }
+  },
   "appShell": {
     "productName": "Hermes Control Center",
     "productTagline": "面向 Hermes Agent 的 Web 平台",
