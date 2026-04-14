@@ -103,6 +103,7 @@ describe("SkillsPage", () => {
     expect(html).toContain("Toolsets (2)");
     expect(html).toContain("Setup needed");
     expect(html).toContain("Disabled for CLI");
+    expect(html).toContain("skills inventory");
   });
 
   it("renders Simplified Chinese localized skills inventory copy", async () => {

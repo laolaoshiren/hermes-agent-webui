@@ -512,11 +512,204 @@
     "footerTagline": "面向 Hermes Agent 的独立开源孵化项目"
   },
   "runtimeHydration": {
-    "sourceLive": "实时运行时",
-    "sourceFixture": "示例回退",
-    "loading": "正在注入实时会话…",
-    "loadingTitle": "正在注入实时运行时",
-    "loadingBody": "正在从 Hermes 后端加载会话与回放数据，然后再渲染对应路由的运行时详情。",
-    "fallbackWarning": "当前使用示例回退：{{message}}"
+    "loading": "正在加载运行时",
+    "loadingTitle": "正在加载运行时",
+    "loadingBody": "正在从 Hermes 后端加载会话和回放数据，然后再显示路由详情。",
+    "sourceFixture": "模拟数据回退",
+    "fallbackWarning": "已启用模拟数据回退"
+  },
+  "config": {
+    "eyebrow": "配置管理",
+    "title": "配置",
+    "description": "配置界面 — 以结构化表单或原始 YAML 的方式查看、搜索、导入、导出和编辑 Hermes 配置。",
+    "badge": "配置编辑器",
+    "searchPlaceholder": "搜索...",
+    "fieldCount": "{{count}} 个字段",
+    "modes": {
+      "form": "表单",
+      "yaml": "YAML"
+    },
+    "actions": {
+      "save": "保存",
+      "exportTitle": "导出配置为 JSON",
+      "exportAria": "导出",
+      "importTitle": "从 JSON 导入配置",
+      "importAria": "导入",
+      "resetTitle": "重置为默认值",
+      "resetAria": "重置",
+      "yaml": "YAML"
+    },
+    "loadErrors": {
+      "current": "加载当前配置失败。",
+      "initHint": "配置界面无法正常初始化。",
+      "defaults": "加载配置默认值失败。"
+    },
+    "toast": {
+      "saved": "配置已保存。",
+      "saveFailed": "保存配置失败。",
+      "yamlSaved": "YAML 已保存。",
+      "yamlSaveFailed": "保存 YAML 失败。"
+    },
+    "loadingLabel": "加载配置中...",
+    "noSearchResults": "没有匹配搜索的字段。",
+    "rawTitle": "原始 YAML",
+    "searchResultsTitle": "搜索结果",
+    "categories": {
+      "stt": "语音",
+      "tts": "文字转语音",
+      "agent": "代理",
+      "terminal": "终端"
+    },
+    "toasts": {
+      "saved": "配置已保存。",
+      "saveFailed": "保存配置失败。",
+      "yamlSaved": "YAML 已保存。",
+      "yamlSaveFailed": "保存 YAML 失败。",
+      "imported": "配置已导入。",
+      "invalidJson": "无效的 JSON 文件。",
+      "loadRawFailed": "加载原始配置失败。",
+      "refreshStructuredFailed": "刷新结构化视图失败。"
+    }
+  },
+  "cron": {
+    "eyebrow": "定时任务",
+    "title": "定时任务",
+    "description": "在 Hermes 产品壳层内直接编排自主跟进、汇报和工作流任务。",
+    "badge": "定时任务管理",
+    "searchPlaceholder": "搜索任务…",
+    "status": {
+      "enabled": "已启用",
+      "paused": "已暂停",
+      "error": "错误"
+    },
+    "actions": {
+      "create": "创建",
+      "creating": "创建中...",
+      "pause": "暂停",
+      "pauseJob": "暂停任务",
+      "resume": "恢复",
+      "resumeJob": "恢复任务",
+      "triggerNow": "立即运行",
+      "triggerJobNow": "立即触发任务",
+      "delete": "删除",
+      "deleteJob": "删除任务"
+    },
+    "fields": {
+      "nameLabel": "名称",
+      "namePlaceholder": "任务名称",
+      "promptLabel": "提示词",
+      "promptPlaceholder": "这个任务要做什么？",
+      "scheduleLabel": "调度",
+      "schedulePlaceholder": "0 9 * * *",
+      "deliverLabel": "发送到"
+    },
+    "empty": {
+      "title": "暂无定时任务",
+      "description": "创建定时任务以自动化 Hermes 工作流。"
+    },
+    "toast": {
+      "created": "定时任务已创建。",
+      "paused": "定时任务已暂停。",
+      "resumed": "定时任务已恢复。",
+      "triggered": "定时任务已触发。",
+      "deleted": "定时任务已删除。"
+    },
+    "newJobTitle": "新建定时任务",
+    "scheduledJobsCount": "{{count}} 个定时任务",
+    "emptyState": "暂无定时任务。在上方创建一个。",
+    "timestamps": {
+      "last": "上次运行",
+      "next": "下次运行"
+    },
+    "toasts": {
+      "created": "定时任务已创建。",
+      "createFailed": "创建定时任务失败。",
+      "paused": "定时任务已暂停。",
+      "resumed": "定时任务已恢复。",
+      "triggered": "定时任务已触发。",
+      "triggerFailed": "触发定时任务失败。",
+      "deleted": "定时任务已删除。",
+      "deleteFailed": "删除定时任务失败。",
+      "loadFailed": "加载定时任务失败。",
+      "promptScheduleRequired": "提示词和调度为必填项。",
+      "actionFailed": "操作失败。"
+    },
+    "statuses": {
+      "enabled": "已启用",
+      "paused": "已暂停",
+      "error": "错误"
+    },
+    "deliverTargets": {
+      "local": "本地",
+      "telegram": "Telegram",
+      "discord": "Discord",
+      "slack": "Slack",
+      "email": "邮件"
+    }
+  },
+  "skills": {
+    "eyebrow": "技能",
+    "title": "技能",
+    "description": "能力注册表 — 查看可复用技能、分类覆盖范围与工具集可用性。",
+    "badge": "技能清单",
+    "searchPlaceholder": "搜索技能与工具集...",
+    "emptyState": {
+      "noneLoaded": "未找到技能。技能从 ~/.hermes/skills/ 加载。",
+      "noMatches": "没有匹配搜索的技能。"
+    },
+    "toolsetsTitle": "工具集（{{count}}）",
+    "toolsetsEmptyState": "没有匹配搜索的工具集。",
+    "categories": {
+      "general": "通用",
+      "note-taking": "笔记",
+      "data-science": "数据科学",
+      "devops": "DevOps",
+      "gaming": "游戏",
+      "github": "GitHub",
+      "media": "媒体",
+      "mlops": "MLOps",
+      "mlopsModels": "MLOps / 模型",
+      "productivity": "生产力",
+      "research": "研究",
+      "smart-home": "智能家居",
+      "noteTaking": "笔记",
+      "mlopsCloud": "MLOps / Cloud",
+      "mlopsEvaluation": "MLOps / Evaluation",
+      "mlopsInference": "MLOps / Inference",
+      "mlopsTraining": "MLOps / Training",
+      "mlopsVectorDatabases": "MLOps / Vector DBs"
+    },
+    "status": {
+      "enabled": "已启用",
+      "disabled": "已禁用"
+    },
+    "toast": {
+      "toggled": "技能已切换。",
+      "toggleFailed": "切换技能失败。"
+    },
+    "loadingLabel": "加载技能中...",
+    "noDescription": "暂无描述。",
+    "moreCount": "还有 {{count}} 个",
+    "enabledSummary": "全部启用",
+    "categorySkillCount": "{{count}} 个技能",
+    "filters": {
+      "all": "全部（{{count}}）"
+    },
+    "toolset": {
+      "active": "已激活",
+      "inactive": "未激活",
+      "setupNeeded": "需要配置",
+      "disabledCli": "CLI 中不可用",
+      "toolsetLabel": "工具集"
+    },
+    "toggle": {
+      "enabled": "已启用",
+      "disabled": "已禁用"
+    },
+    "toasts": {
+      "toggleSuccess": "技能已切换。",
+      "toggleFailed": "切换技能失败。",
+      "loadFailed": "加载技能失败。"
+    }
   }
 }
